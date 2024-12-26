@@ -27,29 +27,30 @@ file(GLOB_RECURSE PRIVATE_SOURCES
     "${PRIVATE_DIR}/*.cpp"  
 )  
 
-# Auto filtres  Headers
+# Auto Filtres Header
 foreach(HEADER ${PUBLIC_HEADERS})  
     file(RELATIVE_PATH REL_HEADER "${PUBLIC_DIR}" ${HEADER})  
     get_filename_component(HEADER_PATH "${REL_HEADER}" PATH)  
     string(REPLACE "/" "\\" GROUP_PATH "${HEADER_PATH}")  
-    source_group("Header\\${GROUP_PATH}" FILES ${HEADER})  
+    source_group("Public\\${GROUP_PATH}" FILES ${HEADER})  
 endforeach()  
 
-# Auto filtres Sources
+# Auto Filtres Source  
 foreach(SOURCE ${PRIVATE_SOURCES})  
     file(RELATIVE_PATH REL_SOURCE "${PRIVATE_DIR}" ${SOURCE})  
     get_filename_component(SOURCE_PATH "${REL_SOURCE}" PATH)  
     string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH}")  
-    source_group("Source\\${GROUP_PATH}" FILES ${SOURCE})  
+    source_group("Private\\${GROUP_PATH}" FILES ${SOURCE})  
 endforeach()  
 
 # Include directories  
 include_directories(${PUBLIC_DIR})  
-include_directories(${PRIVATE_DIR})  
+
 # Exec  
 add_executable(${PROJECT_NAME} WIN32   
     ${PRIVATE_SOURCES}   
-    ${PUBLIC_HEADERS}  ) 
+    ${PUBLIC_HEADERS}  
+)   
 add_executable(tests Test/Test.cpp)   
 
 # find  
