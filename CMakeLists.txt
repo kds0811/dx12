@@ -5,7 +5,6 @@ set(PROJECT_NAME dx12)
 project(${PROJECT_NAME} VERSION 1.0.0)  
 message ("----------------Project File Generation for ${PROJECT_NAME}----------------- ")  
 
-
 # common options  
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)  
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})  
@@ -15,27 +14,52 @@ set(CMAKE_TOOLCHAIN_FILE "C:/Users/fatba/vcpkg/scripts/buildsystems/vcpkg.cmake"
 set(CMAKE_CXX_STANDARD 20)  
 set(CMAKE_CXX_STANDARD_REQUIRED True)  
 
+# Paths  
+set(PUBLIC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Public)  
+set(PRIVATE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Private)  
+
 # Recources  
-file(GLOB_RECURSE SOURCES "Source/*.cpp")  
-file(GLOB_RECURSE INCLUDES "Source/*.h")  
+file(GLOB_RECURSE PUBLIC_HEADERS   
+    "${PUBLIC_DIR}/*.h"  
+)  
 
-# Include  
-include_directories(Source)  
-include_directories(${CMAKE_SOURCE_DIR}/Source) 
+file(GLOB_RECURSE PRIVATE_SOURCES   
+    "${PRIVATE_DIR}/*.cpp"  
+)  
 
+# Auto filtres  Headers
+foreach(HEADER ${PUBLIC_HEADERS})  
+    file(RELATIVE_PATH REL_HEADER "${PUBLIC_DIR}" ${HEADER})  
+    get_filename_component(HEADER_PATH "${REL_HEADER}" PATH)  
+    string(REPLACE "/" "\\" GROUP_PATH "${HEADER_PATH}")  
+    source_group("Header\\${GROUP_PATH}" FILES ${HEADER})  
+endforeach()  
 
-# Exec
-add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${INCLUDES})  
+# Auto filtres Sources
+foreach(SOURCE ${PRIVATE_SOURCES})  
+    file(RELATIVE_PATH REL_SOURCE "${PRIVATE_DIR}" ${SOURCE})  
+    get_filename_component(SOURCE_PATH "${REL_SOURCE}" PATH)  
+    string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH}")  
+    source_group("Source\\${GROUP_PATH}" FILES ${SOURCE})  
+endforeach()  
+
+# Include directories  
+include_directories(${PUBLIC_DIR})  
+include_directories(${PRIVATE_DIR})  
+# Exec  
+add_executable(${PROJECT_NAME} WIN32   
+    ${PRIVATE_SOURCES}   
+    ${PUBLIC_HEADERS}  ) 
 add_executable(tests Test/Test.cpp)   
 
 # find  
 list(APPEND CMAKE_PREFIX_PATH "C:/Users/fatba/vcpkg/installed/x64-windows")  
 find_package(GTest CONFIG REQUIRED)   
-find_package(benchmark CONFIG REQUIRED)
+find_package(benchmark CONFIG REQUIRED)  
 
 # link libs  
 target_link_libraries(tests PRIVATE GTest::gtest GTest::gtest_main)  
-target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/Source) 
-target_link_libraries(tests PRIVATE benchmark::benchmark benchmark::benchmark_main) 
- 
-message ("-------Project Files Generated--------")  
+target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/Source)   
+target_link_libraries(tests PRIVATE benchmark::benchmark benchmark::benchmark_main)   
+   
+message ("-------Project Files Generated--------") 

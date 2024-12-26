@@ -1,5 +1,5 @@
-#include "Mouse.h"
-#include "WindowDK.h"
+#include "Window/Mouse.h"
+#include "Window/WindowDK.h"
 
 
 Mouse::Mouse()
