@@ -4,8 +4,6 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 
-
-
 class Window
 {
 
@@ -15,10 +13,11 @@ private:
     public:
         static const CHAR* GetName();
         static HINSTANCE GetInstance();
+
     private:
         WindowClass();
         ~WindowClass();
-        WindowClass(const WindowClass&)            = delete;
+        WindowClass(const WindowClass&) = delete;
         WindowClass& operator=(const WindowClass&) = delete;
 
         static const std::string wndClassName;
@@ -29,7 +28,7 @@ private:
 public:
     Window(int width, int height);
     ~Window();
-    Window(const Window&)            = delete;
+    Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
     const CHAR* GetTitle();
     void SetTitle(const std::string str);
@@ -46,8 +45,8 @@ public:
     Mouse mouse;
 
 private:
-    int width             = 0;
-    int height            = 0;
+    int width = 0;
+    int height = 0;
     std::string titleName = "HZ PROJECT";
     HWND hWnd;
 };
