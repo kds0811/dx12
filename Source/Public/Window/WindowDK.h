@@ -45,8 +45,8 @@ public:
     Mouse mouse;
 
 private:
-    int width = 0;
-    int height = 0;
+    int Width = 0;
+    int Height = 0;
     std::string titleName = "HZ PROJECT";
     HWND hWnd;
 };

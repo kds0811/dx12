@@ -3,7 +3,6 @@
 #ifndef FULL_WINTARD
 #define WIN32_LEAN_AND_MEAN
 #define NOGDICAPMASKS
-#define NOSYSMETRICS
 #define NOMENUS
 #define NOICONS
 #define NOSYSCOMMANDS
@@ -37,6 +36,7 @@
 #define NOMINMAX
 #define STRICT
 #define NOIME
+#define NOMINMAX
 #endif
 
 #include <Windows.h>
@@ -44,3 +44,23 @@
 #include <string>
 #include <sstream>
 #include <comdef.h>
+#include <cassert>
+#include <shellapi.h>  // For CommandLineToArgvW
+
+// The min/max macros conflict with like-named member functions.
+// Only use std::min and std::max defined in <algorithm>.
+#if defined(min)
+#undef min
+#endif
+
+#if defined(max)
+#undef max
+#endif
+
+// In order to define a function called CreateWindow, the Windows macro needs to
+// be undefined.
+#if defined(CreateWindow)
+#undef CreateWindow
+#endif
+
+

@@ -62,8 +62,8 @@ find_package(directx-headers CONFIG REQUIRED)
 find_package(directxtk12 CONFIG REQUIRED)
 
 # link libs  
+target_include_directories(${TestProjectName} PRIVATE ${CMAKE_SOURCE_DIR}/Source) 
 target_link_libraries(${TestProjectName} PRIVATE GTest::gtest GTest::gtest_main)  
-target_include_directories(${TestProjectName} PRIVATE ${CMAKE_SOURCE_DIR}/Source)   
 target_link_libraries(${TestProjectName} PRIVATE benchmark::benchmark benchmark::benchmark_main)  
 target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectX-Headers) 
 target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXTK12)

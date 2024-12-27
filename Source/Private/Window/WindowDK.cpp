@@ -15,19 +15,20 @@ HINSTANCE Window::WindowClass::GetInstance()
 
 Window::WindowClass::WindowClass() : hInstance(GetModuleHandle(nullptr))
 {
-    WNDCLASSEX wcex = {0};
+    WNDCLASSEX wcex = {};
+
     wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_OWNDC;
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpfnWndProc = HandleMsgSetup;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
     wcex.hInstance = GetInstance();
-    wcex.hIcon = nullptr;
-    wcex.hCursor = nullptr;
+    wcex.hIcon = ::LoadIcon(hInstance, NULL);
+    wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground = nullptr;
     wcex.lpszMenuName = nullptr;
     wcex.lpszClassName = GetName();
-    wcex.hIconSm = nullptr;
+    wcex.hIconSm = ::LoadIcon(hInstance, NULL);
 
     RegisterClassEx(&wcex);
 }
@@ -37,25 +38,24 @@ Window::WindowClass::~WindowClass()
     UnregisterClass(GetName(), hInstance);
 }
 
-Window::Window(int width, int height) : width(width), height(height)
+Window::Window(int width, int height) : Width(width), Height(height)
 {
-    RECT rectWin;
-    rectWin.left = 100;
-    rectWin.right = rectWin.left + width;
-    rectWin.top = 100;
-    rectWin.bottom = rectWin.top + height;
+    int ScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
+    int ScreenHeight = ::GetSystemMetrics(SM_CYSCREEN);
 
-    if (AdjustWindowRect(&rectWin, WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU, false) == 0)
-    {
-        // THROW_COM_ERROR_LAST("Adjust Window Rect ERROR");
-    }
+    RECT WindowRect = {0, 0, static_cast<LONG>(Width), static_cast<LONG>(Height)};
+    ::AdjustWindowRect(&WindowRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-    hWnd = CreateWindowExA(0, WindowClass::GetName(), GetTitle(), WS_CAPTION | WS_MAXIMIZEBOX | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT,
-        rectWin.right - rectWin.left, rectWin.bottom - rectWin.top, nullptr, nullptr, WindowClass::GetInstance(), this);
-    if (hWnd == nullptr)
-    {
-        // THROW_COM_ERROR_LAST("Creare Window ERROR");
-    }
+    int WindowWidth = WindowRect.right - WindowRect.left;
+    int WindowHeight = WindowRect.bottom - WindowRect.top;
+
+    int WindowX = std::max<int>(0, (ScreenWidth - WindowWidth) / 2);
+    int WindowY = std::max<int>(0, (ScreenHeight - WindowHeight) / 2);
+
+    hWnd = CreateWindowExA(0, WindowClass::GetName(), GetTitle(), WS_OVERLAPPEDWINDOW, WindowX, WindowY, WindowWidth, WindowHeight, nullptr,
+        nullptr, WindowClass::GetInstance(), this);
+
+    assert(hWnd && "Failed to create window");
 
     UpdateWindow(hWnd);
     ShowWindow(hWnd, SW_SHOW);
