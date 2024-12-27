@@ -143,7 +143,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
         case WM_MOUSEMOVE:
             POINTS pt = MAKEPOINTS(lParam);
-            if (pt.x >= 0 && pt.x <= width && pt.y >= 0 && pt.y <= height)
+            if (pt.x >= 0 && pt.x <= Width && pt.y >= 0 && pt.y <= Height)
             {
                 mouse.OnMouseMove(pt.x, pt.y);
 
