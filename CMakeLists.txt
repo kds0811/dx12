@@ -2,6 +2,7 @@
 # general info  
 cmake_minimum_required(VERSION 3.20)  
 set(PROJECT_NAME dx12)  
+set(TestProjectName Tests)
 project(${PROJECT_NAME} VERSION 1.0.0)  
 message ("----------------Project File Generation for ${PROJECT_NAME}----------------- ")  
 
@@ -51,16 +52,20 @@ add_executable(${PROJECT_NAME} WIN32
     ${PRIVATE_SOURCES}   
     ${PUBLIC_HEADERS}  
 )   
-add_executable(tests Test/Test.cpp)   
+add_executable(${TestProjectName} Test/Test.cpp)   
 
 # find  
 list(APPEND CMAKE_PREFIX_PATH "C:/Users/fatba/vcpkg/installed/x64-windows")  
 find_package(GTest CONFIG REQUIRED)   
 find_package(benchmark CONFIG REQUIRED)  
+find_package(directx-headers CONFIG REQUIRED)
+find_package(directxtk12 CONFIG REQUIRED)
 
 # link libs  
-target_link_libraries(tests PRIVATE GTest::gtest GTest::gtest_main)  
-target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/Source)   
-target_link_libraries(tests PRIVATE benchmark::benchmark benchmark::benchmark_main)   
+target_link_libraries(${TestProjectName} PRIVATE GTest::gtest GTest::gtest_main)  
+target_include_directories(${TestProjectName} PRIVATE ${CMAKE_SOURCE_DIR}/Source)   
+target_link_libraries(${TestProjectName} PRIVATE benchmark::benchmark benchmark::benchmark_main)  
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectX-Headers) 
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXTK12)
    
 message ("-------Project Files Generated--------") 
