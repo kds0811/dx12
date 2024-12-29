@@ -75,7 +75,7 @@ void Window::SetTitle(const std::string str)
 {
     if (SetWindowText(hWnd, str.c_str()) == 0)
     {
-        // THROW_COM_ERROR_LAST("SET TITLE ERROR");
+        assert(hWnd && "SET TITLE ERROR"); 
     }
 }
 
