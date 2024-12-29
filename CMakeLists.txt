@@ -1,90 +1,73 @@
-# general info  
+# Minimum version and project information  
 cmake_minimum_required(VERSION 3.20)  
-set(PROJECT_NAME dx12)  
-set(TestProjectName Tests)  
-project(${PROJECT_NAME} VERSION 1.0.0)  
-message ("----------------Project File Generation for ${PROJECT_NAME}----------------- ")  
+project(dx12 VERSION 1.0.0 LANGUAGES CXX)  
 
-# common options  
+# Global settings  
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)  
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})  
 set(CMAKE_TOOLCHAIN_FILE "C:/Users/fatba/vcpkg/scripts/buildsystems/vcpkg.cmake")  
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT dx12)  
 
-# cpp options  
-set(CMAKE_CXX_STANDARD 20)  
-set(CMAKE_CXX_STANDARD_REQUIRED True)  
+# Function for automatic include directories  
+function(auto_include_directories target_name base_dir)  
+    file(GLOB_RECURSE HEADER_DIRS   
+        LIST_DIRECTORIES true   
+        "${base_dir}/*.h"  
+        "${base_dir}/*.hpp"  
+    )  
 
-# Paths  
+    set(INCLUDE_DIRS "")  
+    foreach(DIR ${HEADER_DIRS})  
+        get_filename_component(PARENT_DIR ${DIR} DIRECTORY)  
+        list(APPEND INCLUDE_DIRS ${PARENT_DIR})  
+    endforeach()  
+
+    list(REMOVE_DUPLICATES INCLUDE_DIRS)  
+    target_include_directories(${target_name} PRIVATE ${INCLUDE_DIRS})  
+endfunction()  
+
+# Function for automatic source grouping  
+function(auto_source_group)  
+    foreach(FILE ${ARGN})  
+        file(RELATIVE_PATH REL_FILE "${CMAKE_CURRENT_SOURCE_DIR}" ${FILE})  
+        get_filename_component(DIR_PATH ${REL_FILE} DIRECTORY)  
+        string(REPLACE "/" "\\" GROUP_PATH "${DIR_PATH}")  
+        
+        if(${FILE} MATCHES ".*\\.h")  
+            source_group("Header Files\\${GROUP_PATH}" FILES ${FILE})  
+        elseif(${FILE} MATCHES ".*\\.cpp")  
+            source_group("Source Files\\${GROUP_PATH}" FILES ${FILE})  
+        endif()  
+    endforeach()  
+endfunction()  
+
+# Paths and resources  
 set(PUBLIC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Public)  
 set(PRIVATE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Private)  
 
-# Recources  
-file(GLOB_RECURSE PUBLIC_HEADERS   
-    "${PUBLIC_DIR}/*.h"  
-)  
+file(GLOB_RECURSE PUBLIC_HEADERS "${PUBLIC_DIR}/*.h")  
+file(GLOB_RECURSE PRIVATE_SOURCES "${PRIVATE_DIR}/*.cpp")  
 
-file(GLOB_RECURSE PRIVATE_SOURCES   
-    "${PRIVATE_DIR}/*.cpp"  
-)  
-
-# Auto Filtres Header  
-foreach(HEADER ${PUBLIC_HEADERS})  
-    file(RELATIVE_PATH REL_HEADER "${PUBLIC_DIR}" ${HEADER})  
-    get_filename_component(HEADER_PATH "${REL_HEADER}" PATH)  
-    string(REPLACE "/" "\\" GROUP_PATH "${HEADER_PATH}")  
-    source_group("Public\\${GROUP_PATH}" FILES ${HEADER})  
-endforeach()  
-
-# Auto Filtres Source  
-foreach(SOURCE ${PRIVATE_SOURCES})  
-    file(RELATIVE_PATH REL_SOURCE "${PRIVATE_DIR}" ${SOURCE})  
-    get_filename_component(SOURCE_PATH "${REL_SOURCE}" PATH)  
-    string(REPLACE "/" "\\" GROUP_PATH "${SOURCE_PATH}")  
-    source_group("Private\\${GROUP_PATH}" FILES ${SOURCE})  
-endforeach()  
-
-# Include directories  
-include_directories(  
-    ${PUBLIC_DIR}  
-    ${CMAKE_SOURCE_DIR}/Source  
-)  
+# C++ settings  
+set(CMAKE_CXX_STANDARD 20)  
+set(CMAKE_CXX_STANDARD_REQUIRED ON)  
 
 # Find packages  
 list(APPEND CMAKE_PREFIX_PATH "C:/Users/fatba/vcpkg/installed/x64-windows")  
-
-# Windows SDK and DirectX  
-if(MSVC)  
-    # check path to Windows SDK  
-    get_filename_component(WINDOWS_SDK_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]" ABSOLUTE)  
-    
-    message(STATUS "Windows SDK Path: ${WINDOWS_SDK_PATH}")  
-    
-    # include Directx headers 
-    include_directories(  
-        "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/um"  
-        "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/shared"  
-        "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/winrt"  
-    )  
-endif()  
-
-# Packages  
-find_package(GTest CONFIG REQUIRED)   
+find_package(GTest CONFIG REQUIRED)  
 find_package(benchmark CONFIG REQUIRED)  
 find_package(directx-headers CONFIG REQUIRED)  
-find_package(directxtk12 CONFIG REQUIRED)   
+find_package(directxtk12 CONFIG REQUIRED)  
 
-# Exec  Main
-add_executable(${PROJECT_NAME} WIN32   
-    ${PRIVATE_SOURCES}   
-    ${PUBLIC_HEADERS}  
-)  
+# Main executable  
+add_executable(dx12 WIN32 ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})  
+auto_include_directories(dx12 ${CMAKE_SOURCE_DIR}/Source)  
+auto_source_group(${PUBLIC_HEADERS} ${PRIVATE_SOURCES})  
 
-# Exec  Test
-add_executable(${TestProjectName}   
-    Test/Test.cpp  
-)   
+# Test executable  
+add_executable(Tests Test/Test.cpp)  
+auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 
-# Common DirectX libraries  
+# DirectX libraries  
 set(DIRECTX_LIBS  
     Microsoft::DirectX-Headers  
     Microsoft::DirectXTK12  
@@ -93,13 +76,9 @@ set(DIRECTX_LIBS
     dxguid.lib  
 )  
 
-# link libs main project   
-target_link_libraries(${PROJECT_NAME} PRIVATE   
-    ${DIRECTX_LIBS}  
-)   
-
-# link libs test project   
-target_link_libraries(${TestProjectName} PRIVATE   
+# Library linking  
+target_link_libraries(dx12 PRIVATE ${DIRECTX_LIBS})  
+target_link_libraries(Tests PRIVATE   
     GTest::gtest   
     GTest::gtest_main  
     benchmark::benchmark   
@@ -107,37 +86,48 @@ target_link_libraries(${TestProjectName} PRIVATE
     ${DIRECTX_LIBS}  
 )  
 
-if(WIN32)  
-    # Static linking of runtime library  
-    set_property(TARGET ${PROJECT_NAME} PROPERTY   
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")  
-    set_property(TARGET ${TestProjectName} PROPERTY   
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")  
+# Windows and MSVC settings  
+if(WIN32 AND MSVC)  
+    # Auto-detect Windows SDK path  
+    get_filename_component(WINDOWS_SDK_PATH   
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]"   
+        ABSOLUTE  
+    )  
     
-    # Additional compiler warning and compliance settings  
-    if(MSVC)  
-        target_compile_options(${PROJECT_NAME} PRIVATE   
-              
-            /W4   
-            /WX-  
-            /wd4100  
-            /wd4458  
-            /permissive-  
-        )  
-        
-        # Same settings for test project  
-        target_compile_options(${TestProjectName} PRIVATE   
-            /W4   
-            /WX-   
-            /wd4100   
-            /wd4458  
-            /permissive-  
-        )  
-    endif()  
+    message(STATUS "Windows SDK Path: ${WINDOWS_SDK_PATH}")  
+    
+    # Include DirectX paths  
+    target_include_directories(dx12 PRIVATE  
+        "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/um"  
+        "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/shared"  
+        "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/winrt"  
+    )  
+
+    # Static runtime linking and compiler settings  
+    set_target_properties(dx12 Tests PROPERTIES   
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"  
+    )  
+
+    # Separate compile options for each target  
+    target_compile_options(dx12 PRIVATE   
+        /W4       # Maximum warning level  
+        /WX-      # Warnings not as errors  
+        /wd4100   # Ignore unused parameters  
+        /wd4458   # Ignore class member hiding  
+        /permissive- # Strict standard compliance  
+    )  
+
+    target_compile_options(Tests PRIVATE   
+        /W4       # Maximum warning level  
+        /WX-      # Warnings not as errors  
+        /wd4100   # Ignore unused parameters  
+        /wd4458   # Ignore class member hiding  
+        /permissive- # Strict standard compliance  
+    )  
 endif()  
 
-# Copy Resources  
+# Copy resources  
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources   
      DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})  
 
-message ("-------Project Files Generated--------")  
+message(STATUS "Project Configuration Complete") 

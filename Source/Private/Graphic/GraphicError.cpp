@@ -1,4 +1,4 @@
-#include "Graphic/GraphicError.h"
+#include "GraphicError.h"
 #include <comdef.h>
 #include <stdexcept>
 #include <format>
@@ -16,7 +16,7 @@ namespace kds::app
         if (FAILED(g.Hr))
         {
             _com_error Error(g.Hr);
-            throw std::runtime_error{std::format("Graphics error: {}\n {}({})", Error.ErrorMessage(), g.Loc.file_name(), g.Loc.line())};
+            throw std::runtime_error{std::format("Graphics error: {}\n \n {}({})", Error.ErrorMessage(), g.Loc.file_name(), g.Loc.line())};
         }
     }
 }  // namespace kds::app
