@@ -89,13 +89,13 @@ target_link_libraries(Tests PRIVATE
 # Windows and MSVC settings  
 if(WIN32 AND MSVC)  
     # Auto-detect Windows SDK path  
-    get_filename_component(WINDOWS_SDK_PATH   
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]"   
+    get_filename_component(WINDOWS_SDK_PATH  
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]"  
         ABSOLUTE  
     )  
-    
+
     message(STATUS "Windows SDK Path: ${WINDOWS_SDK_PATH}")  
-    
+
     # Include DirectX paths  
     target_include_directories(dx12 PRIVATE  
         "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/um"  
@@ -103,39 +103,79 @@ if(WIN32 AND MSVC)
         "${WINDOWS_SDK_PATH}/Include/${CMAKE_WINDOWS_KITS_VERSION}/winrt"  
     )  
 
-    # Static runtime linking and compiler settings  
-    set_target_properties(dx12 Tests PROPERTIES   
+    # Common optimization flags safe for both Debug and Release  
+    set(COMMON_OPTIMIZATION_FLAGS  
+        /arch:AVX2    # Enable AVX2 SIMD instructions  
+        /fp:fast      # Fast floating point model  
+        /Oi           # Enable intrinsic functions  
+        /GT           # Fiber-safe optimization  
+        /Gy           # Enable function-level linking  
+        /MP           # Multi-processor compilation  
+        /Gw           # Optimize global data  
+    )  
+
+    # Release-specific optimization flags  
+    set(RELEASE_OPTIMIZATION_FLAGS  
+        /GL          # Whole program optimization  
+        /O2          # Maximum optimization  
+        /Ot          # Favor speed over size  
+        /Ob2         # Aggressive inlining  
+        /Qpar        # Auto-parallelization  
+        /Qfast_transcendentals  # Fast transcendental functions  
+    )  
+
+    # Debug-specific optimization flags  
+    set(DEBUG_OPTIMIZATION_FLAGS  
+        /Od          # Disable optimization  
+        /RTC1        # Runtime error checks  
+        /Ob0         # Disable inlining  
+    )  
+
+    # Warning and code generation flags  
+    set(WARNING_FLAGS  
+        /W4           # Warning level 4  
+        /WX-          # Treat warnings as warnings, not errors  
+        /wd4100       # Ignore unused parameters  
+        /wd4458       # Ignore class member hiding  
+        /permissive-  # Strict standard compliance  
+    )  
+
+    # Apply configuration-specific flags to dx12  
+    target_compile_options(dx12 PRIVATE   
+        ${WARNING_FLAGS}  
+        ${COMMON_OPTIMIZATION_FLAGS}  
+        $<$<CONFIG:Release>:${RELEASE_OPTIMIZATION_FLAGS}>  
+        $<$<CONFIG:Debug>:${DEBUG_OPTIMIZATION_FLAGS}>  
+    )  
+
+    # Apply configuration-specific flags to Tests  
+    target_compile_options(Tests PRIVATE   
+        ${WARNING_FLAGS}  
+        ${COMMON_OPTIMIZATION_FLAGS}  
+        $<$<CONFIG:Release>:${RELEASE_OPTIMIZATION_FLAGS}>  
+        $<$<CONFIG:Debug>:${DEBUG_OPTIMIZATION_FLAGS}>  
+    )  
+
+    # Static runtime linking  
+    set_target_properties(dx12 Tests PROPERTIES  
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"  
     )  
 
-    # Separate compile options for each target  
-    target_compile_options(dx12 PRIVATE   
-        /W4       # Maximum warning level  
-        /WX-      # Warnings not as errors  
-        /wd4100   # Ignore unused parameters  
-        /wd4458   # Ignore class member hiding  
-        /permissive- # Strict standard compliance  
-        /fp:fast
-        /Ot 
-        /Oi
-        /arch:AVX2
-    )  
+    # Release-only linker optimizations  
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")  
+    set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} /LTCG")  
 
-    target_compile_options(Tests PRIVATE   
-        /W4       # Maximum warning level  
-        /WX-      # Warnings not as errors  
-        /wd4100   # Ignore unused parameters  
-        /wd4458   # Ignore class member hiding  
-        /permissive- # Strict standard compliance
-        /fp:fast  
-        /Ot 
-        /Oi
-        /arch:AVX2
-    )  
+    # Additional Release optimizations  
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")  
+        target_compile_definitions(dx12 PRIVATE  
+            NDEBUG  
+            _ITERATOR_DEBUG_LEVEL=0  
+        )  
+    endif()  
 endif()  
 
-# Copy resources  
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources   
+# Copy resources to output directory  
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources  
      DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})  
 
-message(STATUS "Project Configuration Complete") 
+message(STATUS "Project Configuration Complete")  
