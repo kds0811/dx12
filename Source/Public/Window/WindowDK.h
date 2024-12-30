@@ -1,5 +1,5 @@
 #pragma once
-#include "WinDK.h"
+#include "WindowInfo.h"
 #include <optional>
 #include "Keyboard.h"
 #include "Mouse.h"
