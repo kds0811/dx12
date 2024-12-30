@@ -93,7 +93,7 @@ std::optional<int> Window::PrecessMessages()
         DispatchMessage(&msg);
     }
 
-    return {};
+    return std::nullopt;
 }
 
 HWND Window::GetHwnd()
