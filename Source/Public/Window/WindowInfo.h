@@ -45,5 +45,3 @@
 #include <sstream>
 #include <comdef.h>
 #include <cassert>
-
-
