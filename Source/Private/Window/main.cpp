@@ -14,15 +14,17 @@ using namespace kds::app;
 
 
 
-
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
     Window wnd(800, 600);
 
+
+    DirectX::XMVECTOR vec = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+
     try
     {
         ComPtr<ID3D12Device2> Device;
-        D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_10_0, IID_PPV_ARGS(&Device)) >> Chk;
+        D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&Device)) >> Chk;
 
         while (true)
         {

@@ -115,6 +115,10 @@ if(WIN32 AND MSVC)
         /wd4100   # Ignore unused parameters  
         /wd4458   # Ignore class member hiding  
         /permissive- # Strict standard compliance  
+        /fp:fast
+        /Ot 
+        /Oi
+        /arch:AVX2
     )  
 
     target_compile_options(Tests PRIVATE   
@@ -122,7 +126,11 @@ if(WIN32 AND MSVC)
         /WX-      # Warnings not as errors  
         /wd4100   # Ignore unused parameters  
         /wd4458   # Ignore class member hiding  
-        /permissive- # Strict standard compliance  
+        /permissive- # Strict standard compliance
+        /fp:fast  
+        /Ot 
+        /Oi
+        /arch:AVX2
     )  
 endif()  
 
