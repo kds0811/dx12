@@ -1,10 +1,31 @@
 # Minimum version and project information  
-cmake_minimum_required(VERSION 3.20)  
+cmake_minimum_required(VERSION 3.20)   
+
+# Platform checks  
+if(NOT WIN32)  
+    message(FATAL_ERROR "This project supports Windows only")  
+endif()   
+
+# Configure vcpkg toolchain 
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)  
+    if(DEFINED ENV{VCPKG_ROOT})  
+        set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"  
+            CACHE STRING "Vcpkg toolchain file")  
+    else()  
+        message(FATAL_ERROR "VCPKG_ROOT environment variable is not set")  
+    endif()  
+endif()  
+
+# Project definition
 project(dx12 VERSION 1.0.0 LANGUAGES CXX)  
+
+# Add vcpkg installation path to CMAKE_PREFIX_PATH  
+if(DEFINED ENV{VCPKG_ROOT})  
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{VCPKG_ROOT}/installed/x64-windows")  
+endif()
 
 # Global settings  
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)  
-set(CMAKE_TOOLCHAIN_FILE "C:/Users/fatba/vcpkg/scripts/buildsystems/vcpkg.cmake")  
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT dx12)  
 
 # Function for automatic include directories  
@@ -52,7 +73,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)  
 
 # Find packages  
-list(APPEND CMAKE_PREFIX_PATH "C:/Users/fatba/vcpkg/installed/x64-windows")  
+#list(APPEND CMAKE_PREFIX_PATH "C:/Users/fatba/vcpkg/installed/x64-windows")  
 find_package(GTest CONFIG REQUIRED)  
 find_package(benchmark CONFIG REQUIRED)  
 find_package(directx-headers CONFIG REQUIRED)  
