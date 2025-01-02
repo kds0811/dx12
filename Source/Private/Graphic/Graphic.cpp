@@ -1,6 +1,6 @@
 #include "Graphic.h"
 
-Graphic::Graphic()
+Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : m_ClientWidth(Width), m_ClientHeight(Height), m_hMainWnd(hwnd)
 {
     InitPipeline();
 }
@@ -12,7 +12,9 @@ void Graphic::InitPipeline()
     CreateDevice();
     CreateFence();
     SetDescriptorSizes();
-
+    CheckMSAASupport();
+    CreateCommandObjects();
+    CreateSwapChain();
 }
 
 void Graphic::EnableDebugLayer()
@@ -56,4 +58,68 @@ void Graphic::SetDescriptorSizes()
     m_RtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     m_DsvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
     m_CbvSrvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+void Graphic::CheckMSAASupport()
+{
+    D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
+    msQualityLevels.Format = m_BackBufferFormat;
+    msQualityLevels.SampleCount = 4;
+    msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+    msQualityLevels.NumQualityLevels = 0;
+    m_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels)) >> Check;
+    m_4xMsaaQuality = msQualityLevels.NumQualityLevels;
+    if (m_4xMsaaQuality > 0)
+    {
+        m_4xMsaaState = true;
+    }
+    
+    assert(m_4xMsaaQuality > 0 && "Unexpected MSAA quality level");
+}
+
+void Graphic::CreateCommandObjects()
+{
+    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+    queueDesc.NodeMask = 0;
+
+    m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CommandQueue)) >> Check;
+
+    m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(m_CommandAlloc.GetAddressOf())) >> Check;
+
+    m_Device->CreateCommandList(
+        0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_CommandAlloc.Get(), nullptr, IID_PPV_ARGS(m_CommandList.GetAddressOf())) >>
+        Check;
+
+    m_CommandList->Close();
+}
+
+void Graphic::CreateSwapChain() 
+{
+    m_SwapChain.Reset();
+
+    DXGI_SWAP_CHAIN_DESC1 sd = {};
+    sd.Width = m_ClientWidth;
+    sd.Height = m_ClientHeight;
+    sd.Format = m_BackBufferFormat;
+    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.BufferCount = m_SwapChainBufferCount;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    sd.SampleDesc.Count = 1;  
+    sd.SampleDesc.Quality = 0;
+    sd.Scaling = DXGI_SCALING_STRETCH;
+    sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
+    fsSwapChainDesc.Windowed = TRUE;
+    fsSwapChainDesc.RefreshRate.Numerator = 60;
+    fsSwapChainDesc.RefreshRate.Denominator = 1;
+
+    ComPtr<IDXGISwapChain1> swapChain;
+    m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), m_hMainWnd, &sd, &fsSwapChainDesc, nullptr, swapChain.GetAddressOf()) >> Check;
+
+    swapChain.As(&m_SwapChain);
 }

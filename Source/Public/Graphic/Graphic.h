@@ -13,19 +13,28 @@ using namespace kds::app;
 class Graphic
 {
 public:
-    Graphic();
+    Graphic(UINT Width, UINT Height, HWND hwnd);
 
 private:
-    ComPtr<ID3D12Debug> m_DebugController;
-    ComPtr<IDXGIFactory6> m_Factory;
-    ComPtr<ID3D12Device> m_Device;
-    ComPtr<ID3D12Fence> m_Fence;
+    ComPtr<ID3D12Debug3> m_DebugController;
+    ComPtr<IDXGIFactory7> m_Factory;
+    ComPtr<ID3D12Device8> m_Device;
+    ComPtr<ID3D12Fence1> m_Fence;
+    ComPtr<ID3D12CommandQueue> m_CommandQueue;
+    ComPtr<ID3D12CommandAllocator> m_CommandAlloc;
+    ComPtr<ID3D12GraphicsCommandList6> m_CommandList;
+    ComPtr<IDXGISwapChain4> m_SwapChain;
 
-
+    DXGI_FORMAT m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    static constexpr int m_SwapChainBufferCount = 2;
     UINT m_RtvDescriptorSize = 0;
     UINT m_DsvDescriptorSize = 0;
     UINT m_CbvSrvDescriptorSize = 0;
-
+    UINT m_ClientWidth = 0;
+    UINT m_ClientHeight = 0;
+    UINT m_4xMsaaQuality = 0;
+    bool m_4xMsaaState = false;
+    HWND m_hMainWnd = nullptr;
 
 private:
     void InitPipeline();
@@ -34,4 +43,7 @@ private:
     void CreateDevice();
     void CreateFence();
     void SetDescriptorSizes();
+    void CheckMSAASupport();
+    void CreateCommandObjects();
+    void CreateSwapChain();
 };

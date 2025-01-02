@@ -1,6 +1,6 @@
 #include "App.h"
 
-App::App() : Wnd(Width, Height) {}
+App::App() : Wnd(Width, Height), Gfx(Width, Height, Wnd.GetHwnd()) {}
 
 std::optional<int> App::Go()
 {

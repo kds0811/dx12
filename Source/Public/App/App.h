@@ -14,6 +14,6 @@ private:
     Window Wnd;
     Graphic Gfx;
 
-    static constexpr int Width = 1600;
-    static constexpr int Height = 1000;
+    static constexpr UINT Width = 1600;
+    static constexpr UINT Height = 1000;
 };
