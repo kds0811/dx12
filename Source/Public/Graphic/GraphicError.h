@@ -6,7 +6,8 @@ namespace kds::app
     struct CheckerToken
     {
     };
-    static constexpr CheckerToken Chk;
+
+    static constexpr CheckerToken Check;
 
     struct HrGrabber
     {
