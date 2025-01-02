@@ -15,6 +15,7 @@ void Graphic::InitPipeline()
     CheckMSAASupport();
     CreateCommandObjects();
     CreateSwapChain();
+    CreateRtvAndDsvDescriptorHeaps();
 }
 
 void Graphic::EnableDebugLayer()
@@ -111,15 +112,28 @@ void Graphic::CreateSwapChain()
     sd.SampleDesc.Quality = 0;
     sd.Scaling = DXGI_SCALING_STRETCH;
     sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
-    fsSwapChainDesc.Windowed = TRUE;
-    fsSwapChainDesc.RefreshRate.Numerator = 60;
-    fsSwapChainDesc.RefreshRate.Denominator = 1;
 
     ComPtr<IDXGISwapChain1> swapChain;
-    m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), m_hMainWnd, &sd, &fsSwapChainDesc, nullptr, swapChain.GetAddressOf()) >> Check;
+    m_Factory->CreateSwapChainForHwnd(m_CommandQueue.Get(), m_hMainWnd, &sd, nullptr, nullptr, swapChain.GetAddressOf()) >> Check;
 
     swapChain.As(&m_SwapChain);
+}
+
+void Graphic::CreateRtvAndDsvDescriptorHeaps()
+{
+    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+    rtvHeapDesc.NumDescriptors = m_SwapChainBufferCount;
+    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    rtvHeapDesc.NodeMask = 0;
+    m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(m_RtvHeap.GetAddressOf())) >> Check;
+
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+    dsvHeapDesc.NumDescriptors = 1;
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    dsvHeapDesc.NodeMask = 0;
+    m_Device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(m_DsvHeap.GetAddressOf())) >>Check;
 }
