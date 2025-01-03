@@ -16,29 +16,29 @@ public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
 
 private:
-    ComPtr<ID3D12Debug3> m_DebugController;
-    ComPtr<IDXGIFactory7> m_Factory;
-    ComPtr<ID3D12Device8> m_Device;
-    ComPtr<ID3D12Fence1> m_Fence;
-    ComPtr<ID3D12CommandQueue> m_CommandQueue;
-    ComPtr<ID3D12CommandAllocator> m_CommandAlloc;
-    ComPtr<ID3D12GraphicsCommandList6> m_CommandList;
-    ComPtr<IDXGISwapChain4> m_SwapChain;
-    ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
-    ComPtr<ID3D12DescriptorHeap> m_DsvHeap;
+    ComPtr<ID3D12Debug3> DebugController;
+    ComPtr<IDXGIFactory7> Factory;
+    ComPtr<ID3D12Device8> Device;
+    ComPtr<ID3D12Fence1> Fence;
+    ComPtr<ID3D12CommandQueue> CommandQueue;
+    ComPtr<ID3D12CommandAllocator> CommandAlloc;
+    ComPtr<ID3D12GraphicsCommandList6> CommandList;
+    ComPtr<IDXGISwapChain4> SwapChain;
+    ComPtr<ID3D12DescriptorHeap> RtvHeap;
+    ComPtr<ID3D12DescriptorHeap> DsvHeap;
 
 
-    DXGI_FORMAT m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    static constexpr int m_SwapChainBufferCount = 2;
-    int m_CurrBackBuffer = 0;
-    UINT m_RtvDescriptorSize = 0;
-    UINT m_DsvDescriptorSize = 0;
-    UINT m_CbvSrvDescriptorSize = 0;
-    UINT m_ClientWidth = 0;
-    UINT m_ClientHeight = 0;
-    UINT m_4xMsaaQuality = 0;
-    bool m_4xMsaaState = false;
-    HWND m_hMainWnd = nullptr;
+    DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    static constexpr int SwapChainBufferCount = 2;
+    int CurrBackBuffer = 0;
+    UINT RtvDescriptorSize = 0;
+    UINT DsvDescriptorSize = 0;
+    UINT CbvSrvDescriptorSize = 0;
+    UINT ClientWidth = 0;
+    UINT ClientHeight = 0;
+    UINT MsaaQuality4x = 0;
+    bool MsaaState4x = false;
+    HWND WindowHandle = nullptr;
 
 private:
     void InitPipeline();
