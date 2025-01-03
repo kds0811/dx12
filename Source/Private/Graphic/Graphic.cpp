@@ -1,10 +1,6 @@
 #include "Graphic.h"
 
-Graphic::Graphic(UINT Width, UINT Height, HWND hwnd)
-    :
-    ClientWidth(Width),
-    ClientHeight(Height),
-    WindowHandle(hwnd)
+Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), ClientHeight(Height), WindowHandle(hwnd)
 {
     InitPipeline();
 }
@@ -20,6 +16,7 @@ void Graphic::InitPipeline()
     CreateCommandObjects();
     CreateSwapChain();
     CreateRtvAndDsvDescriptorHeaps();
+    CreateRtvforSwapChainBuffers();
 }
 
 void Graphic::EnableDebugLayer()
@@ -78,7 +75,7 @@ void Graphic::CheckMSAASupport()
     {
         MsaaState4x = true;
     }
-    
+
     assert(MsaaQuality4x > 0 && "Unexpected MSAA quality level");
 }
 
@@ -94,14 +91,13 @@ void Graphic::CreateCommandObjects()
 
     Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(CommandAlloc.GetAddressOf())) >> Check;
 
-    Device->CreateCommandList(
-        0, D3D12_COMMAND_LIST_TYPE_DIRECT, CommandAlloc.Get(), nullptr, IID_PPV_ARGS(CommandList.GetAddressOf())) >>
+    Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, CommandAlloc.Get(), nullptr, IID_PPV_ARGS(CommandList.GetAddressOf())) >>
         Check;
 
     CommandList->Close();
 }
 
-void Graphic::CreateSwapChain() 
+void Graphic::CreateSwapChain()
 {
     SwapChain.Reset();
 
@@ -112,17 +108,16 @@ void Graphic::CreateSwapChain()
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd.BufferCount = SwapChainBufferCount;
     sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    sd.SampleDesc.Count = 1;  
+    sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
     sd.Scaling = DXGI_SCALING_STRETCH;
     sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
     sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
+    ComPtr<IDXGISwapChain1> swapChainTemp;
+    Factory->CreateSwapChainForHwnd(CommandQueue.Get(), WindowHandle, &sd, nullptr, nullptr, swapChainTemp.GetAddressOf()) >> Check;
 
-    ComPtr<IDXGISwapChain1> SwapChainTemp;
-    Factory->CreateSwapChainForHwnd(CommandQueue.Get(), WindowHandle, &sd, nullptr, nullptr, SwapChainTemp.GetAddressOf()) >> Check;
-
-    SwapChainTemp.As(&SwapChain);
+    swapChainTemp.As(&SwapChain);
 }
 
 void Graphic::CreateRtvAndDsvDescriptorHeaps()
@@ -139,5 +134,25 @@ void Graphic::CreateRtvAndDsvDescriptorHeaps()
     dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     dsvHeapDesc.NodeMask = 0;
-    Device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(DsvHeap.GetAddressOf())) >>Check;
+    Device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(DsvHeap.GetAddressOf())) >> Check;
+}
+
+void Graphic::CreateRtvforSwapChainBuffers()
+{
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(RtvHeap->GetCPUDescriptorHandleForHeapStart());
+    for (UINT i = 0; i < SwapChainBufferCount; i++)
+    {
+        SwapChain->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer[i])) >> Check;
+        Device->CreateRenderTargetView(SwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+        rtvHeapHandle.Offset(1, RtvDescriptorSize);
+    }
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(RtvHeap->GetCPUDescriptorHandleForHeapStart(), CurrBackBuffer, RtvDescriptorSize);
+}
+D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetDepthStencilView() const noexcept
+{
+    return DsvHeap->GetCPUDescriptorHandleForHeapStart();
 }

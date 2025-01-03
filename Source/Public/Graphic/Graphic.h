@@ -16,6 +16,8 @@ public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
 
 private:
+    static constexpr int SwapChainBufferCount = 2;
+
     ComPtr<ID3D12Debug3> DebugController;
     ComPtr<IDXGIFactory7> Factory;
     ComPtr<ID3D12Device8> Device;
@@ -26,10 +28,10 @@ private:
     ComPtr<IDXGISwapChain4> SwapChain;
     ComPtr<ID3D12DescriptorHeap> RtvHeap;
     ComPtr<ID3D12DescriptorHeap> DsvHeap;
+    ComPtr<ID3D12Resource> SwapChainBuffer[SwapChainBufferCount];
 
 
     DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    static constexpr int SwapChainBufferCount = 2;
     int CurrBackBuffer = 0;
     UINT RtvDescriptorSize = 0;
     UINT DsvDescriptorSize = 0;
@@ -51,4 +53,8 @@ private:
     void CreateCommandObjects();
     void CreateSwapChain();
     void CreateRtvAndDsvDescriptorHeaps();
+    void CreateRtvforSwapChainBuffers();
+
+    inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
+    inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
 };
