@@ -17,6 +17,19 @@ public:
 
 private:
     static constexpr int SwapChainBufferCount = 2;
+    DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    int CurrBackBuffer = 0;
+    UINT RtvDescriptorSize = 0u;
+    UINT DsvDescriptorSize = 0u;
+    UINT CbvSrvDescriptorSize = 0u;
+    UINT ClientWidth = 0u;
+    UINT ClientHeight = 0u;
+    UINT MsaaQuality4x = 0u;
+    bool MsaaState4x = false;
+    HWND WindowHandle = nullptr;
+    D3D_DRIVER_TYPE D3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
+    DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
 
     ComPtr<ID3D12Debug3> DebugController;
     ComPtr<IDXGIFactory7> Factory;
@@ -29,20 +42,12 @@ private:
     ComPtr<ID3D12DescriptorHeap> RtvHeap;
     ComPtr<ID3D12DescriptorHeap> DsvHeap;
     ComPtr<ID3D12Resource> SwapChainBuffer[SwapChainBufferCount];
-
-
-    DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    int CurrBackBuffer = 0;
-    UINT RtvDescriptorSize = 0;
-    UINT DsvDescriptorSize = 0;
-    UINT CbvSrvDescriptorSize = 0;
-    UINT ClientWidth = 0;
-    UINT ClientHeight = 0;
-    UINT MsaaQuality4x = 0;
-    bool MsaaState4x = false;
-    HWND WindowHandle = nullptr;
+    ComPtr<ID3D12Resource> DepthStencilBuffer;
 
 private:
+    inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
+    inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
+
     void InitPipeline();
     void EnableDebugLayer();
     void CreateFactory();
@@ -53,8 +58,8 @@ private:
     void CreateCommandObjects();
     void CreateSwapChain();
     void CreateRtvAndDsvDescriptorHeaps();
-    void CreateRtvforSwapChainBuffers();
+    void CreateRtvforSwapChain();
+    void CreateDsvForSwapChain();
 
-    inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
-    inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
+    
 };

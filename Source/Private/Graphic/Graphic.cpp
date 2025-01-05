@@ -5,6 +5,16 @@ Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), Clien
     InitPipeline();
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(RtvHeap->GetCPUDescriptorHandleForHeapStart(), CurrBackBuffer, RtvDescriptorSize);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetDepthStencilView() const noexcept
+{
+    return DsvHeap->GetCPUDescriptorHandleForHeapStart();
+}
+
 void Graphic::InitPipeline()
 {
     EnableDebugLayer();
@@ -16,7 +26,8 @@ void Graphic::InitPipeline()
     CreateCommandObjects();
     CreateSwapChain();
     CreateRtvAndDsvDescriptorHeaps();
-    CreateRtvforSwapChainBuffers();
+    CreateRtvforSwapChain();
+    CreateDsvForSwapChain();
 }
 
 void Graphic::EnableDebugLayer()
@@ -137,7 +148,7 @@ void Graphic::CreateRtvAndDsvDescriptorHeaps()
     Device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(DsvHeap.GetAddressOf())) >> Check;
 }
 
-void Graphic::CreateRtvforSwapChainBuffers()
+void Graphic::CreateRtvforSwapChain()
 {
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(RtvHeap->GetCPUDescriptorHandleForHeapStart());
     for (UINT i = 0; i < SwapChainBufferCount; i++)
@@ -148,11 +159,37 @@ void Graphic::CreateRtvforSwapChainBuffers()
     }
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
+void Graphic::CreateDsvForSwapChain()
 {
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(RtvHeap->GetCPUDescriptorHandleForHeapStart(), CurrBackBuffer, RtvDescriptorSize);
+    D3D12_RESOURCE_DESC depthStencilDesc;
+    depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    depthStencilDesc.Alignment = 0;
+    depthStencilDesc.Width = ClientWidth;
+    depthStencilDesc.Height = ClientHeight;
+    depthStencilDesc.DepthOrArraySize = 1;
+    depthStencilDesc.MipLevels = 1;
+    depthStencilDesc.Format = DepthStencilFormat;
+    depthStencilDesc.SampleDesc.Count = 1;
+    depthStencilDesc.SampleDesc.Quality = 0;
+    depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    D3D12_CLEAR_VALUE optClear;
+    optClear.Format = DepthStencilFormat;
+    optClear.DepthStencil.Depth = 1.0f;
+    optClear.DepthStencil.Stencil = 0;
+
+    CD3DX12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE_DEFAULT);
+
+    Device->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc,
+        D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(DepthStencilBuffer.GetAddressOf())) >>
+        Check;
+
+    Device->CreateDepthStencilView(DepthStencilBuffer.Get(), nullptr, GetDepthStencilView());
+
+    auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+    CommandList->ResourceBarrier(1, &ResBar);
 }
-D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetDepthStencilView() const noexcept
-{
-    return DsvHeap->GetCPUDescriptorHandleForHeapStart();
-}
+
+
