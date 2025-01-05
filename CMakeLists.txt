@@ -85,7 +85,11 @@ auto_include_directories(dx12 ${CMAKE_SOURCE_DIR}/Source)
 auto_source_group(${PUBLIC_HEADERS} ${PRIVATE_SOURCES})  
 
 # Test executable  
-add_executable(Tests Test/Test.cpp)  
+add_executable(Tests   
+    Test/Test.cpp   
+    Test/GameTimerTests.cpp
+    Source/Private/Utils/GameTimer.cpp
+    )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 
 # DirectX libraries  

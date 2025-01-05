@@ -3,6 +3,7 @@
 #include "Graphic.h"
 
 
+
 class App
 {
 public:
@@ -13,6 +14,7 @@ public:
 private:
     Window Wnd;
     Graphic Gfx;
+
 
     static constexpr UINT Width = 1600;
     static constexpr UINT Height = 1000;
