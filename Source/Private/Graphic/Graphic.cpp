@@ -28,6 +28,8 @@ void Graphic::InitPipeline()
     CreateRtvAndDsvDescriptorHeaps();
     CreateRtvforSwapChain();
     CreateDsvForSwapChain();
+    CreateAndSetViewport();
+    CreateScissorRect();
 }
 
 void Graphic::EnableDebugLayer()
@@ -190,6 +192,25 @@ void Graphic::CreateDsvForSwapChain()
     auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     CommandList->ResourceBarrier(1, &ResBar);
+}
+
+void Graphic::CreateAndSetViewport()
+{
+    D3D12_VIEWPORT vp;
+    vp.TopLeftX = 0.0f;
+    vp.TopLeftY = 0.0f;
+    vp.Width = static_cast<float>(ClientWidth);
+    vp.Height = static_cast<float>(ClientHeight);
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    CommandList->RSSetViewports(1, &vp);
+}
+
+void Graphic::CreateScissorRect() 
+{
+    ScissorRect = {0, 0, static_cast<long>(ClientWidth / 2), static_cast<long>(ClientHeight / 2)};
+    
+    CommandList->RSSetScissorRects(1, &ScissorRect);
 }
 
 

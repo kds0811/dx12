@@ -29,6 +29,7 @@ private:
     HWND WindowHandle = nullptr;
     D3D_DRIVER_TYPE D3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
     DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    D3D12_RECT ScissorRect;
 
 
     ComPtr<ID3D12Debug3> DebugController;
@@ -60,6 +61,8 @@ private:
     void CreateRtvAndDsvDescriptorHeaps();
     void CreateRtvforSwapChain();
     void CreateDsvForSwapChain();
+    void CreateAndSetViewport();
+    void CreateScissorRect();
 
     
 };
