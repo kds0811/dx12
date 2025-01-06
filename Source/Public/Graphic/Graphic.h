@@ -17,10 +17,11 @@ public:
     ~Graphic();
 
     float GetAspectRatio() const;
+    void OnResize(UINT nWidth, UINT nHeight);
 
 
 private:
-    static constexpr int SwapChainBufferCount = 2;
+    static constexpr UINT SwapChainBufferCount = 2;
     DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     int CurrBackBuffer = 0;
     UINT RtvDescriptorSize = 0u;
@@ -34,7 +35,7 @@ private:
     D3D_DRIVER_TYPE D3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
     DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
     D3D12_RECT ScissorRect;
-
+    D3D12_VIEWPORT ScreenViewport; 
 
     ComPtr<ID3D12Debug3> DebugController;
     ComPtr<IDXGIFactory7> Factory;

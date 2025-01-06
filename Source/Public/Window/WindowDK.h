@@ -36,7 +36,7 @@ public:
     std::string GetTitle();
     void SetTitle(const std::string str);
     static std::optional<int> PrecessMessages();
-    HWND GetHwnd();
+    HWND GetHwnd() const;
 
 private:
     static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;

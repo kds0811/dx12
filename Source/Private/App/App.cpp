@@ -3,7 +3,9 @@
 #include <thread>
 #include <format>
 
-App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()) {}
+App::App() :
+    Wnd(Width, Height, this),
+    Gfx(Width, Height, Wnd.GetHwnd()) {}
 
 std::optional<int> App::Go()
 {
@@ -17,12 +19,17 @@ std::optional<int> App::Go()
         {
             return *ecode;
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
+       // std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
     return std::nullopt;
 }
 
-void App::OnResize() {}
+void App::OnResize(UINT nWidth, UINT nHeight)
+{
+    Width = nWidth;
+    Height = nHeight;
+    Gfx.OnResize(nWidth, nHeight);
+}
 
 void App::OnStop()
 {
@@ -57,7 +64,7 @@ void App::CalculateFrameStats()
         double fps = static_cast<double>(frameCnt);
         double mspf = 1000.0 / fps;
 
-        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f}", Wnd.GetTitle(), fps, mspf);
+        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f}", Wnd.GetTitle(), fps, mspf, Timer.GetTotalTime());
 
         SetWindowText(Wnd.GetHwnd(), windowText.c_str());
 

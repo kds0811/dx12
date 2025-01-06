@@ -18,6 +18,93 @@ float Graphic::GetAspectRatio() const
     return static_cast<float>(ClientWidth) / static_cast<float>(ClientHeight);
 }
 
+void Graphic::OnResize(UINT nWidth, UINT nHeight)
+{
+    ClientWidth = nWidth;
+    ClientHeight = nHeight;
+    assert(Device);
+    assert(SwapChain);
+    assert(CommandAlloc);
+
+    FlushCommandQueue();
+    CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
+
+    for (int i = 0; i < SwapChainBufferCount; ++i)
+    {
+        SwapChainBuffer[i].Reset();
+    }
+    DepthStencilBuffer.Reset();
+
+    // Resize the swap chain.
+    SwapChain->ResizeBuffers(SwapChainBufferCount, ClientWidth, ClientHeight, BackBufferFormat,
+        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) >>
+        Check;
+
+    CurrBackBuffer = 0;
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(RtvHeap->GetCPUDescriptorHandleForHeapStart());
+    for (UINT i = 0; i < SwapChainBufferCount; i++)
+    {
+        SwapChain->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer[i])) >> Check;
+        Device->CreateRenderTargetView(SwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+        rtvHeapHandle.Offset(1, RtvDescriptorSize);
+    }
+
+    // Create the depth/stencil buffer and view.
+    D3D12_RESOURCE_DESC depthStencilDesc{};
+    depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    depthStencilDesc.Alignment = 0;
+    depthStencilDesc.Width = ClientWidth;
+    depthStencilDesc.Height = ClientHeight;
+    depthStencilDesc.DepthOrArraySize = 1;
+    depthStencilDesc.MipLevels = 1;
+    depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+    depthStencilDesc.SampleDesc.Count = 1;
+    depthStencilDesc.SampleDesc.Quality = 0;
+    depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    D3D12_CLEAR_VALUE optClear{};
+    optClear.Format = DepthStencilFormat;
+    optClear.DepthStencil.Depth = 1.0f;
+    optClear.DepthStencil.Stencil = 0;
+    auto HeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    Device->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear,
+        IID_PPV_ARGS(DepthStencilBuffer.GetAddressOf())) >>
+        Check;
+
+    // Create descriptor to mip level 0 of entire resource using the format of the resource.
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+    dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Format = DepthStencilFormat;
+    dsvDesc.Texture2D.MipSlice = 0;
+    Device->CreateDepthStencilView(DepthStencilBuffer.Get(), &dsvDesc, GetDepthStencilView());
+
+    // Transition the resource from its initial state to be used as a depth buffer.
+    auto ResBar =
+        CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    CommandList->ResourceBarrier(1, &ResBar);
+
+    // Execute the resize commands.
+    CommandList->Close() >> Check;
+    ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
+    CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    // Wait until resize is complete.
+    FlushCommandQueue();
+
+    // Update the viewport transform to cover the client area.
+    ScreenViewport.TopLeftX = 0;
+    ScreenViewport.TopLeftY = 0;
+    ScreenViewport.Width = static_cast<float>(ClientWidth);
+    ScreenViewport.Height = static_cast<float>(ClientHeight);
+    ScreenViewport.MinDepth = 0.0f;
+    ScreenViewport.MaxDepth = 1.0f;
+
+    ScissorRect = {0, 0, static_cast<LONG>(ClientWidth), static_cast<LONG>(ClientHeight)};
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
 {
     return CD3DX12_CPU_DESCRIPTOR_HANDLE(RtvHeap->GetCPUDescriptorHandleForHeapStart(), CurrBackBuffer, RtvDescriptorSize);
@@ -95,7 +182,7 @@ void Graphic::SetDescriptorSizes()
 
 void Graphic::CheckMSAASupport()
 {
-    D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
+    D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels{};
     msQualityLevels.Format = BackBufferFormat;
     msQualityLevels.SampleCount = 4;
     msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
@@ -153,14 +240,14 @@ void Graphic::CreateSwapChain()
 
 void Graphic::CreateRtvAndDsvDescriptorHeaps()
 {
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
     rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     rtvHeapDesc.NodeMask = 0;
     Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(RtvHeap.GetAddressOf())) >> Check;
 
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc{};
     dsvHeapDesc.NumDescriptors = 1;
     dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
@@ -181,7 +268,7 @@ void Graphic::CreateRtvforSwapChain()
 
 void Graphic::CreateDsvForSwapChain()
 {
-    D3D12_RESOURCE_DESC depthStencilDesc;
+    D3D12_RESOURCE_DESC depthStencilDesc{};
     depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     depthStencilDesc.Alignment = 0;
     depthStencilDesc.Width = ClientWidth;
@@ -194,7 +281,7 @@ void Graphic::CreateDsvForSwapChain()
     depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    D3D12_CLEAR_VALUE optClear;
+    D3D12_CLEAR_VALUE optClear{};
     optClear.Format = DepthStencilFormat;
     optClear.DepthStencil.Depth = 1.0f;
     optClear.DepthStencil.Stencil = 0;
@@ -215,14 +302,13 @@ void Graphic::CreateDsvForSwapChain()
 
 void Graphic::CreateAndSetViewport()
 {
-    D3D12_VIEWPORT vp;
-    vp.TopLeftX = 0.0f;
-    vp.TopLeftY = 0.0f;
-    vp.Width = static_cast<float>(ClientWidth);
-    vp.Height = static_cast<float>(ClientHeight);
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    CommandList->RSSetViewports(1, &vp);
+    ScreenViewport.TopLeftX = 0.0f;
+    ScreenViewport.TopLeftY = 0.0f;
+    ScreenViewport.Width = static_cast<float>(ClientWidth);
+    ScreenViewport.Height = static_cast<float>(ClientHeight);
+    ScreenViewport.MinDepth = 0.0f;
+    ScreenViewport.MaxDepth = 1.0f;
+    CommandList->RSSetViewports(1, &ScreenViewport);
 }
 
 void Graphic::CreateScissorRect()

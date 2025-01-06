@@ -97,7 +97,7 @@ std::optional<int> Window::PrecessMessages()
     return std::nullopt;
 }
 
-HWND Window::GetHwnd()
+HWND Window::GetHwnd() const
 {
     return hWnd;
 }
@@ -197,6 +197,32 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
             {
                 pApp->OnStart();
             }
+            break;
+        }
+        case WM_ENTERSIZEMOVE:
+        {
+            pApp->OnStop();
+            break;
+        }
+        case WM_EXITSIZEMOVE:
+        {
+            RECT clientRect;
+            GetClientRect(hWnd, &clientRect);
+            UINT nWidth = static_cast<UINT>(clientRect.right - clientRect.left);
+            UINT nHeight = static_cast<UINT>(clientRect.bottom - clientRect.top);
+
+            if (nWidth == Width && nHeight == Height)
+            {
+                pApp->OnStart();
+            }
+            else
+            {
+                Width = nWidth;
+                Height = nHeight;
+                pApp->OnResize(Width, Height);
+                pApp->OnStart();
+            }
+
             break;
         }
     }

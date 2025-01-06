@@ -14,19 +14,21 @@ public:
 
     std::optional<int> Go();
 
-    void OnResize();
+    void OnResize(UINT nWidth, UINT nHeight);
     void OnStop();
     void OnStart();
     void Update(const GameTimerW& gt);
     void Draw(const GameTimerW& gt);
 
 private:
+    UINT Width = 1600;
+    UINT Height = 1000;
+
     Window Wnd;
     Graphic Gfx;
     GameTimerW Timer;
 
-    static constexpr UINT Width = 1600;
-    static constexpr UINT Height = 1000;
+    
     bool bAppPaused = false;
 
     void CalculateFrameStats();
