@@ -1,4 +1,5 @@
 #include "Graphic.h"
+#include "DirectXColors.h"
 
 Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), ClientHeight(Height), WindowHandle(hwnd)
 {
@@ -103,6 +104,40 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     ScreenViewport.MaxDepth = 1.0f;
 
     ScissorRect = {0, 0, static_cast<LONG>(ClientWidth), static_cast<LONG>(ClientHeight)};
+}
+
+void Graphic::Draw()
+{
+    CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
+
+    auto ResBar =
+        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    CommandList->ResourceBarrier(1, &ResBar);
+    CommandList->RSSetViewports(1, &ScreenViewport);
+    CommandList->RSSetScissorRects(1, &ScissorRect);
+    CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+    CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+    //	Specify	the	buffers	we	are	going	to	render	to.
+    auto CBV = GetCurrentBackBufferView();
+    auto DSV = GetDepthStencilView();
+    CommandList->OMSetRenderTargets(1, &CBV, true, &DSV);
+
+    //	Indicate	a	state	transition	on	the	resource usage
+    auto ResBar1 =
+        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    CommandList->ResourceBarrier(1, &ResBar1);
+    //	Done	recording	commands.
+    CommandList->Close() >> Check;
+
+    //	Add	the	command	list	to	the	queue	for	execution.
+    ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
+    CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    //	swap	the	back	and	front	buffers
+    SwapChain->Present(0, 0) >> Check;
+    CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
+    FlushCommandQueue();
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept

@@ -18,7 +18,7 @@ public:
     void OnStop();
     void OnStart();
     void Update(const GameTimerW& gt);
-    void Draw(const GameTimerW& gt);
+    void Draw();
 
 private:
     UINT Width = 1600;

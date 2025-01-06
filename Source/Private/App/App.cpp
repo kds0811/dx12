@@ -15,11 +15,11 @@ std::optional<int> App::Go()
     {
         Timer.Tick();
         CalculateFrameStats();
+        Draw();
         if (const auto ecode = Window::PrecessMessages())
         {
             return *ecode;
         }
-       // std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
     return std::nullopt;
 }
@@ -51,7 +51,10 @@ void App::OnStart()
 
 void App::Update(const GameTimerW& gt) {}
 
-void App::Draw(const GameTimerW& gt) {}
+void App::Draw() 
+{
+    Gfx.Draw();
+}
 
 void App::CalculateFrameStats()
 {

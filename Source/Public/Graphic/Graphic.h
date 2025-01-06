@@ -18,6 +18,7 @@ public:
 
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
+    void Draw();
 
 
 private:
