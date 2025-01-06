@@ -1,18 +1,17 @@
-#include "GameTimer.h"
+#include "GameTimerW.h"
 #include "Windows.h"
 
-GameTimer::GameTimer() : SecondsPerCount(0.0), DeltaTime(-1.0), BaseTime(0), PausedTime(0), PrevTime(0), CurrTime(0), Stopped(false)
+GameTimerW::GameTimerW() : SecondsPerCount(0.0), DeltaTime(-1.0), BaseTime(0), PausedTime(0), PrevTime(0), CurrTime(0), Stopped(false)
 {
     __int64 countsPerSec;
     QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
     SecondsPerCount = 1.0 / (double)countsPerSec;
 }
 
-float GameTimer::GetTotalTime() const
+float GameTimerW::GetTotalTime() const
 {
     if (Stopped)
     {
-
         return static_cast<float>(((StopTime - PausedTime) - BaseTime) * SecondsPerCount);
     }
     else
@@ -21,12 +20,12 @@ float GameTimer::GetTotalTime() const
     }
 }
 
-float GameTimer::GetDeltaTime() const
+float GameTimerW::GetDeltaTime() const
 {
     return static_cast<float>(DeltaTime);
 }
 
-void GameTimer::Reset()
+void GameTimerW::Reset()
 {
     __int64 currTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
@@ -38,7 +37,7 @@ void GameTimer::Reset()
     DeltaTime = 0.0;
 }
 
-void GameTimer::Start()
+void GameTimerW::Start()
 {
     __int64 startTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
@@ -51,7 +50,7 @@ void GameTimer::Start()
     }
 }
 
-void GameTimer::Stop()
+void GameTimerW::Stop()
 {
     if (!Stopped)
     {
@@ -63,7 +62,7 @@ void GameTimer::Stop()
     }
 }
 
-void GameTimer::Tick()
+void GameTimerW::Tick()
 {
     if (Stopped)
     {

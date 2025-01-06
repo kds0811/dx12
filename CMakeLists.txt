@@ -88,7 +88,7 @@ auto_source_group(${PUBLIC_HEADERS} ${PRIVATE_SOURCES})
 add_executable(Tests   
     Test/Test.cpp   
     Test/GameTimerTests.cpp
-    Source/Private/Utils/GameTimer.cpp
+    Source/Private/Utils/GameTimerW.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 

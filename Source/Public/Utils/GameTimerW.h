@@ -2,10 +2,10 @@
 
 
 
-class GameTimer
+class GameTimerW
 {
 public:
-    GameTimer();
+    GameTimerW();
     float GetTotalTime() const;   // in seconds
     float GetDeltaTime() const;  // in seconds
     void Reset();             // Call before message loop.

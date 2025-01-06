@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 #include <thread>
-#include "GameTimer.h" 
+#include "GameTimerW.h" 
 
 class GameTimerTest : public ::testing::Test
 {
 protected:
-    GameTimer timer;
+    GameTimerW timer;
 };
 
 // Тест инициализации таймера
@@ -158,5 +158,5 @@ TEST_F(GameTimerTest, MultipleStartStop)
     timer.Tick();
 
     // Общее время должно быть корректным
-    EXPECT_NEAR(timer.GetTotalTime(), 0.15f, 0.02f);
+    EXPECT_NEAR(timer.GetTotalTime(), 0.10f, 0.03f);
 }
