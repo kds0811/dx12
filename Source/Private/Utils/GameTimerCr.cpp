@@ -1,72 +1,79 @@
 #include "GameTimerCr.h"
 
-GameTimerCr::GameTimerCr() :  DeltaTime(-1.0), bStopped(false)
+GameTimerCr::GameTimerCr()
 {
+    HotData.DeltaTime = -1.0;
+    HotData.bStopped = false;
     Reset();
 }
 
 float GameTimerCr::GetTotalTime() const noexcept
 {
-    if (bStopped)
+    if (HotData.bStopped)
     {
-        return static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>((StopTime - PausedTime) - BaseTime).count()) /
-               1000000.0f;
+        return static_cast<float>(
+                   std::chrono::duration_cast<std::chrono::microseconds>((ColdData.StopTime - ColdData.PausedTime) - ColdData.BaseTime)
+                       .count()) *
+               static_cast<float>(MultInSecond);
     }
     else
     {
-        return static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>((CurrTime - PausedTime) - BaseTime).count()) /
-               1000000.0f;
+        return static_cast<float>(
+                   std::chrono::duration_cast<std::chrono::microseconds>((ColdData.CurrTime - ColdData.PausedTime) - ColdData.BaseTime)
+                       .count()) *
+               static_cast<float>(MultInSecond);
     }
 }
 
 void GameTimerCr::Reset() noexcept
 {
     auto currTime = HRC::now();
-    CurrTime = currTime;
-    BaseTime = currTime;
-    PrevTime = currTime;
-    StopTime = currTime;
-    bStopped = false;
-    DeltaTime = 0.0;
-    PausedTime = HRC::duration::zero();
+    ColdData.CurrTime = currTime;
+    ColdData.BaseTime = currTime;
+    ColdData.PrevTime = currTime;
+    ColdData.StopTime = currTime;
+    HotData.bStopped = false;
+    HotData.DeltaTime = 0.0;
+    UpdateCache();
+    ColdData.PausedTime = HRC::duration::zero();
 }
 
 void GameTimerCr::Start() noexcept
 {
     auto startTime = HRC::now();
-    if (bStopped)
+    if (HotData.bStopped)
     {
-        PausedTime += std::chrono::duration_cast<std::chrono::microseconds>(startTime - StopTime);
-        PrevTime = startTime;
-        CurrTime = startTime;
-        bStopped = false;
+        ColdData.PausedTime += std::chrono::duration_cast<std::chrono::microseconds>(startTime - ColdData.StopTime);
+        ColdData.PrevTime = startTime;
+        ColdData.CurrTime = startTime;
+        HotData.bStopped = false;
     }
 }
 
 void GameTimerCr::Stop() noexcept
 {
-    if (!bStopped)
+    if (!HotData.bStopped)
     {
         auto currTime = HRC::now();
-        StopTime = currTime;
-        bStopped = true;
-        DeltaTime = 0.0;
+        ColdData.StopTime = currTime;
+        HotData.bStopped = true;
+        HotData.DeltaTime = 0.0;
     }
 }
 
 void GameTimerCr::Tick() noexcept
 {
-    if (bStopped)
+    if (HotData.bStopped)
     {
-        DeltaTime = 0.0;
+        HotData.DeltaTime = 0.0;
         return;
     }
 
-    CurrTime = HRC::now();
+    ColdData.CurrTime = HRC::now();
 
-    DeltaTime = std::chrono::duration<double>(CurrTime - PrevTime).count();
+    HotData.DeltaTime = std::chrono::duration<double>(ColdData.CurrTime - ColdData.PrevTime).count();
+    HotData.DeltaTime = std::min(HotData.DeltaTime, MaxDeltaTime);
+    UpdateCache();
 
-    PrevTime = CurrTime;
-
-    DeltaTime = std::min(DeltaTime, MaxDeltaTime);
+    ColdData.PrevTime = ColdData.CurrTime;
 }

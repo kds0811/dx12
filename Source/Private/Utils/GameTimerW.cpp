@@ -8,7 +8,7 @@ GameTimerW::GameTimerW() : SecondsPerCount(0.0), DeltaTime(-1.0), BaseTime(0), P
     SecondsPerCount = 1.0 / (double)countsPerSec;
 }
 
-float GameTimerW::GetTotalTime() const
+float GameTimerW::GetTotalTime() const noexcept
 {
     if (Stopped)
     {
@@ -20,12 +20,8 @@ float GameTimerW::GetTotalTime() const
     }
 }
 
-float GameTimerW::GetDeltaTime() const
-{
-    return static_cast<float>(DeltaTime);
-}
 
-void GameTimerW::Reset()
+void GameTimerW::Reset() noexcept
 {
     __int64 currTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
@@ -37,7 +33,7 @@ void GameTimerW::Reset()
     DeltaTime = 0.0;
 }
 
-void GameTimerW::Start()
+void GameTimerW::Start() noexcept
 {
     __int64 startTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
@@ -50,7 +46,7 @@ void GameTimerW::Start()
     }
 }
 
-void GameTimerW::Stop()
+void GameTimerW::Stop() noexcept
 {
     if (!Stopped)
     {
@@ -62,7 +58,7 @@ void GameTimerW::Stop()
     }
 }
 
-void GameTimerW::Tick()
+void GameTimerW::Tick() noexcept
 {
     if (Stopped)
     {

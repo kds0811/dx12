@@ -4,13 +4,13 @@ class GameTimerW
 {
 public:
     GameTimerW();
-    float GetTotalTime() const; 
+    [[nodiscard]] inline constexpr float GetDeltaTime() const noexcept { return static_cast<float>(DeltaTime); }
+    float GetTotalTime() const noexcept;
+    void Reset() noexcept;
+    void Start() noexcept;
+    void Stop() noexcept;
+    void Tick() noexcept;
 
-    float GetDeltaTime() const; 
-    void Reset();             // Call before message loop.
-    void Start();             // Call when unpaused.
-    void Stop();              // Call when paused.
-    void Tick();              // Call every frame.
 private:
     double SecondsPerCount;
     double DeltaTime;

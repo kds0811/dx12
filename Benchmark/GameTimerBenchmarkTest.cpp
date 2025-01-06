@@ -15,7 +15,7 @@ static void BM_GameTimerCr_Tick_Range(benchmark::State& state)
         }
     }
 }
-BENCHMARK(BM_GameTimerCr_Tick_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+BENCHMARK(BM_GameTimerCr_Tick_Range)->RangeMultiplier(2)->Range(1, 64)->Complexity();
 
 static void BM_GameTimerW_Tick_Range(benchmark::State& state)
 {
@@ -28,7 +28,7 @@ static void BM_GameTimerW_Tick_Range(benchmark::State& state)
         }
     }
 }
-BENCHMARK(BM_GameTimerW_Tick_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+BENCHMARK(BM_GameTimerW_Tick_Range)->RangeMultiplier(2)->Range(1, 64)->Complexity();
 
 
 //Get Delta time
@@ -44,7 +44,7 @@ static void BM_GameTimerCr_GetDeltaTime_Range(benchmark::State& state)
         }
     }
 }
-BENCHMARK(BM_GameTimerCr_GetDeltaTime_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+BENCHMARK(BM_GameTimerCr_GetDeltaTime_Range)->RangeMultiplier(2)->Range(1, 64)->Complexity();
 
 static void BM_GameTimerW_GetDeltaTime_Range(benchmark::State& state)
 {
@@ -58,7 +58,7 @@ static void BM_GameTimerW_GetDeltaTime_Range(benchmark::State& state)
         }
     }
 }
-BENCHMARK(BM_GameTimerW_GetDeltaTime_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+BENCHMARK(BM_GameTimerW_GetDeltaTime_Range)->RangeMultiplier(2)->Range(1, 64)->Complexity();
 
 
 
@@ -79,5 +79,5 @@ static void BM_Timer_StartStop(benchmark::State& state)
     }
 }
 
-BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerCr)->Range(8, 8 << 10);
-BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerW)->Range(8, 8 << 10);
+BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerCr)->RangeMultiplier(2)->Range(1, 64);
+BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerW)->RangeMultiplier(2)->Range(1, 64);

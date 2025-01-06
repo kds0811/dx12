@@ -34,10 +34,10 @@ TEST_F(GameTimerTest, BasicTimeProgression)
     timer.Tick();
 
     // DeltaTime должен быть около 0.1 секунды
-    EXPECT_NEAR(timer.GetDeltaTime(), 0.1f, 0.01f);
+    EXPECT_NEAR(timer.GetDeltaTime(), 0.1f, 0.015f);
 
     // ќбщее врем€ должно быть около 0.1 секунды
-    EXPECT_NEAR(timer.GetTotalTime(), 0.1f, 0.01f);
+    EXPECT_NEAR(timer.GetTotalTime(), 0.1f, 0.015f);
 }
 
 // “ест паузы

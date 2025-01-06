@@ -7,7 +7,7 @@ class GameTimerCr
 
 public:
     GameTimerCr();
-    [[nodiscard]] inline constexpr float GetDeltaTime() const noexcept { return static_cast<float>(DeltaTime); }
+    [[nodiscard]] inline constexpr float GetDeltaTime() const noexcept { return HotData.CachedDeltaTime; }
 
     float GetTotalTime() const noexcept;
     void Reset() noexcept;
@@ -16,12 +16,24 @@ public:
     void Tick() noexcept;
 
 private:
-    double DeltaTime;
-    HRC::time_point BaseTime;
-    HRC::duration PausedTime;
-    HRC::time_point StopTime;
-    HRC::time_point PrevTime;
-    HRC::time_point CurrTime;
-    bool bStopped;
+    alignas(64) struct
+    {  
+        float CachedDeltaTime;
+        double DeltaTime;
+        bool bStopped;
+    } HotData; 
+
+     struct
+    {
+        HRC::time_point BaseTime;
+        HRC::duration PausedTime;
+        HRC::time_point StopTime;
+        HRC::time_point PrevTime;
+        HRC::time_point CurrTime;
+    } ColdData;
+
     static constexpr double MaxDeltaTime = 0.25;
+    static constexpr double MultInSecond = 1 / 1000000;
+
+    [[nodiscard]] inline constexpr void UpdateCache() noexcept { HotData.CachedDeltaTime = static_cast<float>(HotData.DeltaTime); }
 };
