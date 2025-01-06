@@ -52,7 +52,8 @@ Window::Window(int width, int height) : Width(width), Height(height)
     int WindowX = std::max<int>(0, (ScreenWidth - WindowWidth) / 2);
     int WindowY = std::max<int>(0, (ScreenHeight - WindowHeight) / 2);
 
-    hWnd = CreateWindowExA(0, WindowClass::GetName(), GetTitle(), WS_OVERLAPPEDWINDOW, WindowX, WindowY, WindowWidth, WindowHeight, nullptr,
+    hWnd = CreateWindowExA(0, WindowClass::GetName(), GetTitle().c_str(), WS_OVERLAPPEDWINDOW, WindowX, WindowY, WindowWidth, WindowHeight,
+        nullptr,
         nullptr, WindowClass::GetInstance(), this);
 
     assert(hWnd && "Failed to create window");
@@ -66,9 +67,9 @@ Window::~Window()
     DestroyWindow(hWnd);
 }
 
-const CHAR* Window::GetTitle()
+std::string Window::GetTitle()
 {
-    return titleName.c_str();
+    return titleName;
 }
 
 void Window::SetTitle(const std::string str)
