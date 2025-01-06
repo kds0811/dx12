@@ -4,8 +4,9 @@ class GameTimerW
 {
 public:
     GameTimerW();
-    float GetTotalTime() const;   // in seconds
-    float GetDeltaTime() const;  // in seconds
+    float GetTotalTime() const; 
+
+    float GetDeltaTime() const; 
     void Reset();             // Call before message loop.
     void Start();             // Call when unpaused.
     void Stop();              // Call when paused.

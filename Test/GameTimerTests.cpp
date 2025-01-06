@@ -2,13 +2,12 @@
 #include <thread>
 #include "GameTimerW.h" 
 #include "GameTimerCr.h"
-#include "GameTimerCr1.h"
-#include "GameTimerCr2.h"
+
 
 class GameTimerTest : public ::testing::Test
 {
 protected:
-    GameTimerCr timer;
+    GameTimerW timer;
 };
 
 // Тест инициализации таймера

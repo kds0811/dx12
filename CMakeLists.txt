@@ -89,8 +89,6 @@ add_executable(Tests
     Test/GameTimerTests.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
-    Source/Private/Utils/GameTimerCr1.cpp
-    Source/Private/Utils/GameTimerCr2.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 
@@ -99,8 +97,6 @@ add_executable(Benchmark
     Benchmark/GameTimerBenchmarkTest.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
-    Source/Private/Utils/GameTimerCr1.cpp
-    Source/Private/Utils/GameTimerCr2.cpp
 )
 auto_include_directories(Benchmark ${CMAKE_SOURCE_DIR}/Source)  
 

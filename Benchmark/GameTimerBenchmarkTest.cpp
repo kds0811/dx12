@@ -2,12 +2,8 @@
 #include <benchmark/benchmark.h>
 #include "GameTimerW.h"
 #include "GameTimerCr.h"
-#include "GameTimerCr1.h"
-#include "GameTimerCr2.h"
-#include <thread>
-#include <vector>
 
-// Базовые бенчмарки с разным количеством итераций
+// tick
 static void BM_GameTimerCr_Tick_Range(benchmark::State& state)
 {
     for (auto _ : state)
@@ -19,35 +15,7 @@ static void BM_GameTimerCr_Tick_Range(benchmark::State& state)
         }
     }
 }
-BENCHMARK(BM_GameTimerCr_Tick_Range)
-    ->Range(8, 8 << 10)  // От 8 до 8192 итераций
-    ->Complexity();      // Оценка сложности
-
-static void BM_GameTimerCr1_Tick_Range(benchmark::State& state)
-{
-    for (auto _ : state)
-    {
-        GameTimerCr1 timer;
-        for (int i = 0; i < state.range(0); ++i)
-        {
-            timer.Tick();
-        }
-    }
-}
-BENCHMARK(BM_GameTimerCr1_Tick_Range)->Range(8, 8 << 10)->Complexity();
-
-static void BM_GameTimerCr2_Tick_Range(benchmark::State& state)
-{
-    for (auto _ : state)
-    {
-        GameTimerCr2 timer;
-        for (int i = 0; i < state.range(0); ++i)
-        {
-            timer.Tick();
-        }
-    }
-}
-BENCHMARK(BM_GameTimerCr2_Tick_Range)->Range(8, 8 << 10)->Complexity();
+BENCHMARK(BM_GameTimerCr_Tick_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
 
 static void BM_GameTimerW_Tick_Range(benchmark::State& state)
 {
@@ -60,7 +28,39 @@ static void BM_GameTimerW_Tick_Range(benchmark::State& state)
         }
     }
 }
-BENCHMARK(BM_GameTimerW_Tick_Range)->Range(8, 8 << 10)->Complexity();
+BENCHMARK(BM_GameTimerW_Tick_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+
+
+//Get Delta time
+static void BM_GameTimerCr_GetDeltaTime_Range(benchmark::State& state)
+{
+    for (auto _ : state)
+    {
+        GameTimerCr timer;
+        float dt = 0;
+        for (int i = 0; i < state.range(0); ++i)
+        {
+            dt += timer.GetDeltaTime();
+        }
+    }
+}
+BENCHMARK(BM_GameTimerCr_GetDeltaTime_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+
+static void BM_GameTimerW_GetDeltaTime_Range(benchmark::State& state)
+{
+    for (auto _ : state)
+    {
+        GameTimerW timer;
+        float dt = 0;
+        for (int i = 0; i < state.range(0); ++i)
+        {
+            dt += timer.GetDeltaTime();
+        }
+    }
+}
+BENCHMARK(BM_GameTimerW_GetDeltaTime_Range)->RangeMultiplier(2)->Range(8, 512)->Complexity();
+
+
 
 // Тест Start/Stop операций
 template <typename TimerType>
@@ -80,6 +80,4 @@ static void BM_Timer_StartStop(benchmark::State& state)
 }
 
 BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerCr)->Range(8, 8 << 10);
-BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerCr1)->Range(8, 8 << 10);
-BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerCr2)->Range(8, 8 << 10);
 BENCHMARK_TEMPLATE(BM_Timer_StartStop, GameTimerW)->Range(8, 8 << 10);
