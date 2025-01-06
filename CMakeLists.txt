@@ -89,6 +89,7 @@ add_executable(Tests
     Test/Test.cpp   
     Test/GameTimerTests.cpp
     Source/Private/Utils/GameTimerW.cpp
+    Source/Private/Utils/GameTimerCr.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 
