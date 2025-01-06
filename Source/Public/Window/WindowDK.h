@@ -4,6 +4,9 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 
+
+class App;
+
 class Window
 {
 
@@ -26,7 +29,7 @@ private:
     };
 
 public:
-    Window(int width, int height);
+    Window(int width, int height, App* ownerApp);
     ~Window();
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
@@ -49,4 +52,7 @@ private:
     UINT Height = 0;
     std::string titleName = "HZ PROJECT";
     HWND hWnd;
+    App* pApp = nullptr;
+    
+
 };

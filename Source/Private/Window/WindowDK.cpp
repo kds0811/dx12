@@ -1,4 +1,5 @@
 #include "Window/WindowDK.h"
+#include "App/App.h"
 
 const std::string Window::WindowClass::wndClassName = "HZ PROJECT";
 Window::WindowClass Window::WindowClass::wndClass;
@@ -38,7 +39,7 @@ Window::WindowClass::~WindowClass()
     UnregisterClass(GetName(), hInstance);
 }
 
-Window::Window(int width, int height) : Width(width), Height(height)
+Window::Window(int width, int height, App* ownerApp) : Width(width), Height(height), pApp(ownerApp)
 {
     int ScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
     int ScreenHeight = ::GetSystemMetrics(SM_CYSCREEN);
@@ -53,8 +54,7 @@ Window::Window(int width, int height) : Width(width), Height(height)
     int WindowY = std::max<int>(0, (ScreenHeight - WindowHeight) / 2);
 
     hWnd = CreateWindowExA(0, WindowClass::GetName(), GetTitle().c_str(), WS_OVERLAPPEDWINDOW, WindowX, WindowY, WindowWidth, WindowHeight,
-        nullptr,
-        nullptr, WindowClass::GetInstance(), this);
+        nullptr, nullptr, WindowClass::GetInstance(), this);
 
     assert(hWnd && "Failed to create window");
 
@@ -76,7 +76,7 @@ void Window::SetTitle(const std::string str)
 {
     if (SetWindowText(hWnd, str.c_str()) == 0)
     {
-        assert(hWnd && "SET TITLE ERROR"); 
+        assert(hWnd && "SET TITLE ERROR");
     }
 }
 
@@ -131,11 +131,13 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
+        {
             if (!(lParam & 0x40000000) || kbd.AutoRepeatIsEnabled())
             {
                 kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
             }
             break;
+        }
 
         case WM_KEYUP:
         case WM_SYSKEYUP: kbd.OnKeyReleased(static_cast<unsigned char>(wParam)); break;
@@ -143,6 +145,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         case WM_CHAR: kbd.OnChar(static_cast<unsigned char>(wParam)); break;
 
         case WM_MOUSEMOVE:
+        {
             POINTS pt = MAKEPOINTS(lParam);
             if (pt.x >= 0 && pt.x <= Width && pt.y >= 0 && pt.y <= Height)
             {
@@ -167,6 +170,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
                 }
             }
             break;
+        }
 
         case WM_LBUTTONDOWN: mouse.OnLeftIsPressed(); break;
 
@@ -176,7 +180,25 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
         case WM_RBUTTONUP: mouse.OnRightIsReleased(); break;
 
-        case WM_MOUSEWHEEL: int delta = GET_WHEEL_DELTA_WPARAM(wParam); mouse.OnWheelDeta(delta);
+        case WM_MOUSEWHEEL:
+        {
+            int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            mouse.OnWheelDeta(delta);
+            break;
+        }
+
+        case WM_ACTIVATE:
+        {
+            if (LOWORD(wParam) == WA_INACTIVE)
+            {
+                pApp->OnStop();
+            }
+            else
+            {
+                pApp->OnStart();
+            }
+            break;
+        }
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);

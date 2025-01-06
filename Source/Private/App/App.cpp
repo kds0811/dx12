@@ -1,7 +1,9 @@
 #include "App.h"
 #include <string>
+#include <thread>
+#include <format>
 
-App::App() : Wnd(Width, Height), Gfx(Width, Height, Wnd.GetHwnd()) {}
+App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()) {}
 
 std::optional<int> App::Go()
 {
@@ -10,35 +12,56 @@ std::optional<int> App::Go()
     while (true)
     {
         Timer.Tick();
-        CalculateFrameStats(); 
+        CalculateFrameStats();
         if (const auto ecode = Window::PrecessMessages())
         {
             return *ecode;
         }
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
     return std::nullopt;
 }
 
-void App::CalculateFrameStats() 
+void App::OnResize() {}
+
+void App::OnStop()
+{
+    if (!bAppPaused)
+    {
+        bAppPaused = true;
+        Timer.Stop();
+    }
+}
+
+void App::OnStart()
+{
+    if (bAppPaused)
+    {
+        bAppPaused = false;
+        Timer.Start();
+    }
+}
+
+void App::Update(const GameTimerW& gt) {}
+
+void App::Draw(const GameTimerW& gt) {}
+
+void App::CalculateFrameStats()
 {
     static int frameCnt = 0;
-    static float timeElapsed = 0.0f;
+    static double timeElapsed = 0.0f;
     frameCnt++;
 
-    if ((Timer.GetTotalTime() - timeElapsed) >= 1.0f)
+    if ((Timer.GetTotalTime() - timeElapsed) >= 1.0)
     {
-        float fps = static_cast<float>(frameCnt); 
-        float mspf = 1000.0f / fps;
+        double fps = static_cast<double>(frameCnt);
+        double mspf = 1000.0 / fps;
 
-        std::string fpsStr = std::to_string(fps);
-        std::string mspfStr = std::to_string(mspf);
-
-        auto windowText = Wnd.GetTitle() + " fps :	" + fpsStr + " mspf :	" + mspfStr;
+        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f}", Wnd.GetTitle(), fps, mspf);
 
         SetWindowText(Wnd.GetHwnd(), windowText.c_str());
 
-       
         frameCnt = 0;
-        timeElapsed += 1.0f;
+        timeElapsed += 1.0;
     }
 }

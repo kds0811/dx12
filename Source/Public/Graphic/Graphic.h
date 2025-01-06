@@ -14,6 +14,10 @@ class Graphic
 {
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
+    ~Graphic();
+
+    float GetAspectRatio() const;
+
 
 private:
     static constexpr int SwapChainBufferCount = 2;
@@ -35,7 +39,10 @@ private:
     ComPtr<ID3D12Debug3> DebugController;
     ComPtr<IDXGIFactory7> Factory;
     ComPtr<ID3D12Device8> Device;
+
     ComPtr<ID3D12Fence1> Fence;
+    UINT64 CurrentFence = 0;
+
     ComPtr<ID3D12CommandQueue> CommandQueue;
     ComPtr<ID3D12CommandAllocator> CommandAlloc;
     ComPtr<ID3D12GraphicsCommandList6> CommandList;
@@ -48,6 +55,7 @@ private:
 private:
     inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
     inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
+    inline ID3D12Resource* CurrentBackBuffer() const noexcept;
 
     void InitPipeline();
     void EnableDebugLayer();
@@ -63,6 +71,6 @@ private:
     void CreateDsvForSwapChain();
     void CreateAndSetViewport();
     void CreateScissorRect();
-
+    void FlushCommandQueue();
     
 };

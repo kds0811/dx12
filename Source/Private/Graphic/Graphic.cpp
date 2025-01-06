@@ -5,6 +5,19 @@ Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), Clien
     InitPipeline();
 }
 
+Graphic::~Graphic()
+{
+    if (Device != nullptr)
+    {
+        FlushCommandQueue();
+    }
+}
+
+float Graphic::GetAspectRatio() const
+{
+    return static_cast<float>(ClientWidth) / static_cast<float>(ClientHeight);
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
 {
     return CD3DX12_CPU_DESCRIPTOR_HANDLE(RtvHeap->GetCPUDescriptorHandleForHeapStart(), CurrBackBuffer, RtvDescriptorSize);
@@ -13,6 +26,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetDepthStencilView() const noexcept
 {
     return DsvHeap->GetCPUDescriptorHandleForHeapStart();
+}
+
+ID3D12Resource* Graphic::CurrentBackBuffer() const noexcept
+{
+    return SwapChainBuffer[CurrBackBuffer].Get();
 }
 
 void Graphic::InitPipeline()
@@ -183,13 +201,14 @@ void Graphic::CreateDsvForSwapChain()
 
     CD3DX12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE_DEFAULT);
 
-    Device->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc,
-        D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(DepthStencilBuffer.GetAddressOf())) >>
+    Device->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear,
+        IID_PPV_ARGS(DepthStencilBuffer.GetAddressOf())) >>
         Check;
 
     Device->CreateDepthStencilView(DepthStencilBuffer.Get(), nullptr, GetDepthStencilView());
 
-    auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    auto ResBar =
+        CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     CommandList->ResourceBarrier(1, &ResBar);
 }
@@ -206,11 +225,25 @@ void Graphic::CreateAndSetViewport()
     CommandList->RSSetViewports(1, &vp);
 }
 
-void Graphic::CreateScissorRect() 
+void Graphic::CreateScissorRect()
 {
     ScissorRect = {0, 0, static_cast<long>(ClientWidth / 2), static_cast<long>(ClientHeight / 2)};
-    
+
     CommandList->RSSetScissorRects(1, &ScissorRect);
 }
 
+void Graphic::FlushCommandQueue()
+{
+    CurrentFence++;
+    CommandQueue->Signal(Fence.Get(), CurrentFence) >> Check;
 
+    if (Fence->GetCompletedValue() < CurrentFence)
+    {
+        HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+
+        Fence->SetEventOnCompletion(CurrentFence, eventHandle);
+
+        WaitForSingleObject(eventHandle, INFINITE);
+        CloseHandle(eventHandle);
+    }
+}
