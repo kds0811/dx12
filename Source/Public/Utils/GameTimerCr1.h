@@ -1,13 +1,20 @@
 #pragma once
 #include <chrono>
 
-class GameTimerCr
+class GameTimerCr1
 {
     using HRC = std::chrono::high_resolution_clock;
 
 public:
-    GameTimerCr();
-    [[nodiscard]] inline constexpr float GetDeltaTime() const noexcept { return static_cast<float>(DeltaTime); }
+    GameTimerCr1();
+    [[nodiscard]] inline constexpr float GetDeltaTime() const noexcept
+    {
+        if (isDeltaCached)
+        {
+            return cachedDeltaTime;
+        }
+        return static_cast<float>(DeltaTime);
+    }  
 
     float GetTotalTime() const noexcept;
     void Reset() noexcept;
@@ -24,4 +31,7 @@ private:
     HRC::time_point CurrTime;
     bool bStopped;
     static constexpr double MaxDeltaTime = 0.25;
+
+    mutable float cachedDeltaTime = 0.0f;
+    bool isDeltaCached = false;
 };

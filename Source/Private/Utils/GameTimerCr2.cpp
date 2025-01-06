@@ -1,11 +1,11 @@
-#include "GameTimerCr.h"
+#include "GameTimerCr2.h"
 
-GameTimerCr::GameTimerCr() :  DeltaTime(-1.0), bStopped(false)
+GameTimerCr2::GameTimerCr2() :  DeltaTime(-1.0), bStopped(false)
 {
     Reset();
 }
 
-float GameTimerCr::GetTotalTime() const noexcept
+float GameTimerCr2::GetTotalTime() const noexcept
 {
     if (bStopped)
     {
@@ -19,7 +19,7 @@ float GameTimerCr::GetTotalTime() const noexcept
     }
 }
 
-void GameTimerCr::Reset() noexcept
+void GameTimerCr2::Reset() noexcept
 {
     auto currTime = HRC::now();
     CurrTime = currTime;
@@ -31,7 +31,7 @@ void GameTimerCr::Reset() noexcept
     PausedTime = HRC::duration::zero();
 }
 
-void GameTimerCr::Start() noexcept
+void GameTimerCr2::Start() noexcept
 {
     auto startTime = HRC::now();
     if (bStopped)
@@ -43,7 +43,7 @@ void GameTimerCr::Start() noexcept
     }
 }
 
-void GameTimerCr::Stop() noexcept
+void GameTimerCr2::Stop() noexcept
 {
     if (!bStopped)
     {
@@ -54,7 +54,7 @@ void GameTimerCr::Stop() noexcept
     }
 }
 
-void GameTimerCr::Tick() noexcept
+void GameTimerCr2::Tick() noexcept
 {
     if (bStopped)
     {
@@ -62,11 +62,17 @@ void GameTimerCr::Tick() noexcept
         return;
     }
 
-    CurrTime = HRC::now();
+    auto currTime = HRC::now();
 
-    DeltaTime = std::chrono::duration<double>(CurrTime - PrevTime).count();
+    // Прямое вычисление без промежуточных объектов
+    auto microSeconds = std::chrono::duration_cast<std::chrono::microseconds>(currTime - PrevTime).count();
 
-    PrevTime = CurrTime;
+    // Быстрое умножение вместо деления
+    DeltaTime = microSeconds * invMicroToSec;
 
-    DeltaTime = std::min(DeltaTime, MaxDeltaTime);
+    // Простое ограничение с константой
+    constexpr double MAX_DELTA = 0.25;
+    DeltaTime = (DeltaTime > MAX_DELTA) ? MAX_DELTA : DeltaTime;
+
+    PrevTime = currTime;
 }

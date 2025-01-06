@@ -73,7 +73,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)  
 
 # Find packages  
-#list(APPEND CMAKE_PREFIX_PATH "C:/Users/fatba/vcpkg/installed/x64-windows")  
 find_package(GTest CONFIG REQUIRED)  
 find_package(benchmark CONFIG REQUIRED)  
 find_package(directx-headers CONFIG REQUIRED)  
@@ -90,8 +89,20 @@ add_executable(Tests
     Test/GameTimerTests.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
+    Source/Private/Utils/GameTimerCr1.cpp
+    Source/Private/Utils/GameTimerCr2.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
+
+# Benchmark executable 
+add_executable(Benchmark 
+    Benchmark/GameTimerBenchmarkTest.cpp
+    Source/Private/Utils/GameTimerW.cpp
+    Source/Private/Utils/GameTimerCr.cpp
+    Source/Private/Utils/GameTimerCr1.cpp
+    Source/Private/Utils/GameTimerCr2.cpp
+)
+auto_include_directories(Benchmark ${CMAKE_SOURCE_DIR}/Source)  
 
 # DirectX libraries  
 set(DIRECTX_LIBS  
@@ -107,10 +118,14 @@ target_link_libraries(dx12 PRIVATE ${DIRECTX_LIBS})
 target_link_libraries(Tests PRIVATE   
     GTest::gtest   
     GTest::gtest_main  
+    ${DIRECTX_LIBS}  
+)  
+target_link_libraries(Benchmark PRIVATE   
     benchmark::benchmark   
     benchmark::benchmark_main  
     ${DIRECTX_LIBS}  
 )  
+
 
 # Windows and MSVC settings  
 if(WIN32 AND MSVC)  
