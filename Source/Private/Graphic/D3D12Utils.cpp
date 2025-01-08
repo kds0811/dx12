@@ -1,7 +1,7 @@
 #include "D3D12Utils.h"
 
 ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
-    const void* initData, UINT64 byteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
+    const void* initData, UINT64 byteSize, ComPtr<ID3D12Resource>& uploadBuffer)
 {
     ComPtr<ID3D12Resource> defaultBuffer;
     const auto ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
@@ -35,7 +35,7 @@ ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(ID3D12Device* device, ID3
 
     cmdList->ResourceBarrier(1, &ResBarStateToCopy);
     UpdateSubresources<1>(cmdList, defaultBuffer.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
-
+    
     const auto ResBarCopyToState =
         CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
     cmdList->ResourceBarrier(1, &ResBarCopyToState);
