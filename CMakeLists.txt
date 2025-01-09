@@ -46,20 +46,22 @@ function(auto_include_directories target_name base_dir)
     target_include_directories(${target_name} PRIVATE ${INCLUDE_DIRS})  
 endfunction()  
 
-# Function for automatic source grouping  
-function(auto_source_group)  
+# Function for automatic source grouping with a base group and base directory  
+function(auto_source_group base_group base_dir)  
     foreach(FILE ${ARGN})  
-        file(RELATIVE_PATH REL_FILE "${CMAKE_CURRENT_SOURCE_DIR}" ${FILE})  
-        get_filename_component(DIR_PATH ${REL_FILE} DIRECTORY)  
+        # Вычисляем относительный путь относительно base_dir  
+        file(RELATIVE_PATH REL_FILE "${base_dir}" "${FILE}")  
+        
+        # Получаем директорию от относительного пути  
+        get_filename_component(DIR_PATH "${REL_FILE}" DIRECTORY)  
+        
+        # Заменяем "/" на "\\" для корректного отображения в Visual Studio  
         string(REPLACE "/" "\\" GROUP_PATH "${DIR_PATH}")  
         
-        if(${FILE} MATCHES ".*\\.h")  
-            source_group("Header Files\\${GROUP_PATH}" FILES ${FILE})  
-        elseif(${FILE} MATCHES ".*\\.cpp")  
-            source_group("Source Files\\${GROUP_PATH}" FILES ${FILE})  
-        endif()  
+        # Создаем группу в Visual Studio  
+        source_group("${base_group}\\${GROUP_PATH}" FILES "${FILE}")  
     endforeach()  
-endfunction()  
+endfunction()   
 
 # Paths and resources  
 set(PUBLIC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Public)  
@@ -78,10 +80,17 @@ find_package(benchmark CONFIG REQUIRED)
 find_package(directx-headers CONFIG REQUIRED)  
 find_package(directxtk12 CONFIG REQUIRED)  
 
-# Main executable  
+# Основной исполняемый файл  
 add_executable(dx12 WIN32 ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})  
-auto_include_directories(dx12 ${CMAKE_SOURCE_DIR}/Source)  
-auto_source_group(${PUBLIC_HEADERS} ${PRIVATE_SOURCES})  
+
+# Автоматическое включение директорий  
+auto_include_directories(dx12 "${CMAKE_SOURCE_DIR}/Source")  
+
+# Группируем публичные заголовочные файлы под "Public"  
+auto_source_group("Public" "${PUBLIC_DIR}" ${PUBLIC_HEADERS})  
+
+# Группируем приватные исходные файлы под "Private"  
+auto_source_group("Private" "${PRIVATE_DIR}" ${PRIVATE_SOURCES})  
 
 # Test executable  
 add_executable(Tests   
