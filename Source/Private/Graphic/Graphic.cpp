@@ -1,5 +1,6 @@
 #include "Graphic.h"
 #include "DirectXColors.h"
+#include "UploadBuffer.h"
 
 Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), ClientHeight(Height), WindowHandle(hwnd)
 {
@@ -108,6 +109,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
 
 void Graphic::Draw()
 {
+    
     CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
 
     auto ResBar =
