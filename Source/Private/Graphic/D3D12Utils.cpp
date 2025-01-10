@@ -1,9 +1,11 @@
 #include "D3D12Utils.h"
+#include <fstream>
 
-ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
-    const void* initData, UINT64 byteSize, ComPtr<ID3D12Resource>& uploadBuffer)
+Microsoft::WRL::ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
+    ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
+    const void* initData, UINT64 byteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
 {
-    ComPtr<ID3D12Resource> defaultBuffer;
+    Microsoft::WRL::ComPtr<ID3D12Resource> defaultBuffer;
     const auto ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
 
     // Create the actual default buffer resource.
@@ -11,14 +13,14 @@ ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(ID3D12Device* device, ID3
 
     device->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON, nullptr,
         IID_PPV_ARGS(defaultBuffer.GetAddressOf())) >>
-        Check;
+        Kds::App::Check;
 
     // In order to copy CPU memory data into our default buffer, we need to create
     // an intermediate upload heap.
     const auto HeapPropUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     device->CreateCommittedResource(&HeapPropUpload, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
         IID_PPV_ARGS(uploadBuffer.GetAddressOf())) >>
-        Check;
+        Kds::App::Check;
 
     // Describe the data we want to copy into the default buffer.
     D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -45,4 +47,22 @@ ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(ID3D12Device* device, ID3
     // The caller can Release the uploadBuffer after it knows the copy has been executed.
 
     return defaultBuffer;
+}
+
+
+Microsoft::WRL::ComPtr<ID3DBlob> D3D12Utils::LoadBinary(const std::wstring& filename)
+{
+    std::ifstream fin(filename, std::ios::binary);
+
+    fin.seekg(0, std::ios_base::end);
+    std::ifstream::pos_type size = (int)fin.tellg();
+    fin.seekg(0, std::ios_base::beg);
+
+   Microsoft::WRL::ComPtr<ID3DBlob> blob;
+    D3DCreateBlob(size, blob.GetAddressOf()) >> Kds::App::Check;
+
+    fin.read((char*)blob->GetBufferPointer(), size);
+    fin.close();
+
+    return blob;
 }

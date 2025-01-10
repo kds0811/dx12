@@ -1,6 +1,10 @@
 #pragma once
 #include "D3D12Utils.h"
+#include <memory>
+#include "UploadBuffer.h"
 
+using namespace Microsoft::WRL;
+using namespace Kds::App;
 
 
 class Graphic
@@ -44,8 +48,34 @@ private:
     ComPtr<IDXGISwapChain4> SwapChain;
     ComPtr<ID3D12DescriptorHeap> RtvHeap;
     ComPtr<ID3D12DescriptorHeap> DsvHeap;
+    ComPtr<ID3D12DescriptorHeap> CbvHeap;
     ComPtr<ID3D12Resource> SwapChainBuffer[SwapChainBufferCount];
     ComPtr<ID3D12Resource> DepthStencilBuffer;
+
+
+
+    ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+
+    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+
+    std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
+
+    ComPtr<ID3DBlob> mvsByteCode = nullptr;
+    ComPtr<ID3DBlob> mpsByteCode = nullptr;
+
+    std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+
+    ComPtr<ID3D12PipelineState> mPSO = nullptr;
+
+    XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
+    XMFLOAT4X4 mView = MathHelper::Identity4x4();
+    XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+
+    float mTheta = 1.5f * XM_PI;
+    float mPhi = XM_PIDIV4;
+    float mRadius = 5.0f;
+
+    POINT mLastMousePos;
 
 private:
     inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
@@ -67,5 +97,7 @@ private:
     void CreateAndSetViewport();
     void CreateScissorRect();
     void FlushCommandQueue();
+
+    void BuildDescriptorHeaps();
     
 };

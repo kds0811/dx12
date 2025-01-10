@@ -1,7 +1,7 @@
 #pragma once
 #include <source_location>
 
-namespace kds::app
+namespace Kds::App
 {
     struct CheckerToken
     {
@@ -18,4 +18,4 @@ namespace kds::app
 
     void operator>>(HrGrabber g, CheckerToken);
 
-}  // namespace kds::app
+}  // namespace Kds::App
