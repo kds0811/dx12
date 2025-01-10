@@ -109,41 +109,106 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     ScreenViewport.MaxDepth = 1.0f;
 
     ScissorRect = {0, 0, static_cast<LONG>(ClientWidth), static_cast<LONG>(ClientHeight)};
+
+
+    // The window resized, so update the aspect ratio and recompute the projection matrix.
+    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
+    XMStoreFloat4x4(&mProj, P);
 }
 
 void Graphic::Draw()
 {
     
-    CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
+    //CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
 
-    auto ResBar =
-        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    CommandList->ResourceBarrier(1, &ResBar);
+    //auto ResBar =
+    //    CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    //CommandList->ResourceBarrier(1, &ResBar);
+    //CommandList->RSSetViewports(1, &ScreenViewport);
+    //CommandList->RSSetScissorRects(1, &ScissorRect);
+    //CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+    //CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+    ////	Specify	the	buffers	we	are	going	to	render	to.
+    //auto CBV = GetCurrentBackBufferView();
+    //auto DSV = GetDepthStencilView();
+    //CommandList->OMSetRenderTargets(1, &CBV, true, &DSV);
+
+    ////	Indicate	a	state	transition	on	the	resource usage
+    //auto ResBar1 =
+    //    CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    //CommandList->ResourceBarrier(1, &ResBar1);
+    ////	Done	recording	commands.
+    //CommandList->Close() >> Check;
+
+    ////	Add	the	command	list	to	the	queue	for	execution.
+    //ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
+    //CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    ////	swap	the	back	and	front	buffers
+    //SwapChain->Present(0, 0) >> Check;
+    //CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
+    //FlushCommandQueue();
+
+
+
+
+     // Reuse the memory associated with command recording.
+    // We can only reset when the associated command lists have finished execution on the GPU.
+    CommandAlloc->Reset() >> Check;
+
+    // A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+    // Reusing the command list reuses memory.
+    CommandList->Reset(CommandAlloc.Get(), mPSO.Get()) >> Check;
+
     CommandList->RSSetViewports(1, &ScreenViewport);
     CommandList->RSSetScissorRects(1, &ScissorRect);
-    CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+
+    // Indicate a state transition on the resource usage.
+    CommandList->ResourceBarrier(
+        1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+    // Clear the back buffer and depth buffer.
+    CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
     CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-    //	Specify	the	buffers	we	are	going	to	render	to.
-    auto CBV = GetCurrentBackBufferView();
-    auto DSV = GetDepthStencilView();
-    CommandList->OMSetRenderTargets(1, &CBV, true, &DSV);
+    // Specify the buffers we are going to render to.
+    CommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView());
 
-    //	Indicate	a	state	transition	on	the	resource usage
-    auto ResBar1 =
-        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    CommandList->ResourceBarrier(1, &ResBar1);
-    //	Done	recording	commands.
+    ID3D12DescriptorHeap* descriptorHeaps[] = {CbvHeap.Get()};
+    CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+    CommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+    CommandList->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());
+    CommandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());
+    CommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    CommandList->SetGraphicsRootDescriptorTable(0, CbvHeap->GetGPUDescriptorHandleForHeapStart());
+
+    CommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
+
+    // Indicate a state transition on the resource usage.
+    CommandList->ResourceBarrier(
+        1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+    // Done recording commands.
     CommandList->Close() >> Check;
 
-    //	Add	the	command	list	to	the	queue	for	execution.
+    // Add the command list to the queue for execution.
     ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
     CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-    //	swap	the	back	and	front	buffers
+    // swap the back and front buffers
     SwapChain->Present(0, 0) >> Check;
     CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
+
+    // Wait until frame commands are complete.  This waiting is inefficient and is
+    // done for simplicity.  Later we will show how to organize our rendering code
+    // so we do not have to wait per frame.
     FlushCommandQueue();
+
+
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
