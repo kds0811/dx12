@@ -1,6 +1,10 @@
 #include "Graphic.h"
 #include "DirectXColors.h"
 #include "UploadBuffer.h"
+#include <array>
+
+using namespace DirectX;
+using namespace Kds::App;
 
 Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), ClientHeight(Height), WindowHandle(hwnd)
 {
@@ -40,7 +44,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     // Resize the swap chain.
     SwapChain->ResizeBuffers(SwapChainBufferCount, ClientWidth, ClientHeight, BackBufferFormat,
         DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) >>
-        Check;
+       Check;
 
     CurrBackBuffer = 0;
 
@@ -172,6 +176,26 @@ void Graphic::InitPipeline()
     CreateDsvForSwapChain();
     CreateAndSetViewport();
     CreateScissorRect();
+
+
+    // Reset the command list to prep for initialization commands.
+    CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
+
+    BuildDescriptorHeaps();
+    BuildConstantBuffers();
+    BuildRootSignature();
+    BuildShadersAndInputLayout();
+    BuildBoxGeometry();
+    BuildPSO();
+
+    // Execute the initialization commands.
+    CommandList->Close() >> Check;
+    ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
+    CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    // Wait until initialization is complete.
+    FlushCommandQueue();
+
 }
 
 void Graphic::EnableDebugLayer()
@@ -373,10 +397,145 @@ void Graphic::FlushCommandQueue()
 
 void Graphic::BuildDescriptorHeaps() 
 {
-    D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+    D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc{};
     cbvHeapDesc.NumDescriptors = 1;
     cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     cbvHeapDesc.NodeMask = 0;
     Device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&CbvHeap)) >> Check;
+}
+
+void Graphic::BuildConstantBuffers()
+{
+    mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(Device.Get(), 1, true);
+
+    UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+    D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
+    // Offset to the ith object constant buffer in the buffer.
+    int boxCBufIndex = 0;
+    cbAddress += boxCBufIndex * objCBByteSize;
+
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+    cbvDesc.BufferLocation = cbAddress;
+    cbvDesc.SizeInBytes = objCBByteSize;
+
+    Device->CreateConstantBufferView(&cbvDesc, CbvHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+void Graphic::BuildRootSignature()
+{
+	// Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[1];
+
+    // Create a single descriptor table of CBVs.
+    CD3DX12_DESCRIPTOR_RANGE cbvTable;
+    cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr =
+        D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+    if (errorBlob != nullptr)
+    {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+
+    Device->CreateRootSignature(
+        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&mRootSignature)) >> Check;
+}
+
+void Graphic::BuildShadersAndInputLayout()
+{
+    HRESULT hr = S_OK;
+
+    mvsByteCode = D3D12Utils::CompileShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+    mpsByteCode = D3D12Utils::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+
+    mInputLayout = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+        {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
+}
+
+void Graphic::BuildBoxGeometry()
+{
+    std::array<Vertex, 8> vertices = {Vertex({XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White)}),
+        Vertex({XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black)}), Vertex({XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red)}),
+        Vertex({XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green)}), Vertex({XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue)}),
+        Vertex({XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow)}), Vertex({XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan)}),
+        Vertex({XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta)})};
+
+    std::array<std::uint16_t, 36> indices = {// front face
+        0, 1, 2, 0, 2, 3,
+
+        // back face
+        4, 6, 5, 4, 7, 6,
+
+        // left face
+        4, 5, 1, 4, 1, 0,
+
+        // right face
+        3, 2, 6, 3, 6, 7,
+
+        // top face
+        1, 5, 6, 1, 6, 2,
+
+        // bottom face
+        4, 0, 3, 4, 3, 7};
+
+    const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+    const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+    mBoxGeo = std::make_unique<MeshGeometry>();
+    mBoxGeo->Name = "boxGeo";
+
+    D3DCreateBlob(vbByteSize, &mBoxGeo->VertexBufferCPU) >> Check;
+    CopyMemory(mBoxGeo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+    D3DCreateBlob(ibByteSize, &mBoxGeo->IndexBufferCPU) >> Check;
+    CopyMemory(mBoxGeo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+    mBoxGeo->VertexBufferGPU =
+        D3D12Utils::CreateDefaultBuffer(Device.Get(), CommandList.Get(), vertices.data(), vbByteSize, mBoxGeo->VertexBufferUploader);
+
+    mBoxGeo->IndexBufferGPU =
+        D3D12Utils::CreateDefaultBuffer(Device.Get(), CommandList.Get(), indices.data(), ibByteSize, mBoxGeo->IndexBufferUploader);
+
+    mBoxGeo->VertexByteStride = sizeof(Vertex);
+    mBoxGeo->VertexBufferByteSize = vbByteSize;
+    mBoxGeo->IndexFormat = DXGI_FORMAT_R16_UINT;
+    mBoxGeo->IndexBufferByteSize = ibByteSize;
+
+    SubmeshGeometry submesh;
+    submesh.IndexCount = (UINT)indices.size();
+    submesh.StartIndexLocation = 0;
+    submesh.BaseVertexLocation = 0;
+
+    mBoxGeo->DrawArgs["box"] = submesh;
+}
+
+void Graphic::BuildPSO()
+{
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
+    ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+    psoDesc.InputLayout = {mInputLayout.data(), (UINT)mInputLayout.size()};
+    psoDesc.pRootSignature = mRootSignature.Get();
+    psoDesc.VS = {reinterpret_cast<BYTE*>(mvsByteCode->GetBufferPointer()), mvsByteCode->GetBufferSize()};
+    psoDesc.PS = {reinterpret_cast<BYTE*>(mpsByteCode->GetBufferPointer()), mpsByteCode->GetBufferSize()};
+    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psoDesc.SampleMask = UINT_MAX;
+    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psoDesc.NumRenderTargets = 1;
+    psoDesc.RTVFormats[0] = BackBufferFormat;
+    psoDesc.SampleDesc.Count = 1;
+    psoDesc.SampleDesc.Quality =  0;
+    psoDesc.DSVFormat = DepthStencilFormat;
+    Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO)) >> Check;
 }

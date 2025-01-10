@@ -116,6 +116,7 @@ set(DIRECTX_LIBS
     d3d12.lib  
     dxgi.lib  
     dxguid.lib  
+    d3dcompiler.lib
 )  
 
 # Library linking  

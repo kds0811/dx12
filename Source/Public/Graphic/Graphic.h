@@ -2,9 +2,22 @@
 #include "D3D12Utils.h"
 #include <memory>
 #include "UploadBuffer.h"
+#include "MathHelper.h"
 
 using namespace Microsoft::WRL;
-using namespace Kds::App;
+
+
+struct Vertex
+{
+    DirectX::XMFLOAT3 Pos;
+    DirectX::XMFLOAT4 Color;
+};
+
+struct ObjectConstants
+{
+    DirectX::XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+};
+
 
 
 class Graphic
@@ -53,7 +66,7 @@ private:
     ComPtr<ID3D12Resource> DepthStencilBuffer;
 
 
-
+    // New
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 
     std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
@@ -67,12 +80,12 @@ private:
 
     ComPtr<ID3D12PipelineState> mPSO = nullptr;
 
-    XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
-    XMFLOAT4X4 mView = MathHelper::Identity4x4();
-    XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-    float mTheta = 1.5f * XM_PI;
-    float mPhi = XM_PIDIV4;
+    float mTheta = 1.5f * DirectX::XM_PI;
+    float mPhi = DirectX::XM_PIDIV4;
     float mRadius = 5.0f;
 
     POINT mLastMousePos;
@@ -98,6 +111,13 @@ private:
     void CreateScissorRect();
     void FlushCommandQueue();
 
+
+    // new
     void BuildDescriptorHeaps();
+    void BuildConstantBuffers();
+    void BuildRootSignature();
+    void BuildShadersAndInputLayout();
+    void BuildBoxGeometry();
+    void BuildPSO();
     
 };

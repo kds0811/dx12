@@ -5,7 +5,7 @@
 #include <d3dcompiler.h>
 #include <directx/d3dx12.h>
 #include "GraphicError.h"
-#include "D3D12Utils.h"
+//#include "D3D12Utils.h"
 
 template <typename T>
 class UploadBuffer
@@ -21,9 +21,9 @@ public:
 
         device->CreateCommittedResource(
             &HeapUploadProp, D3D12_HEAP_FLAG_NONE, &BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&mUploadBuffer)) >>
-            Check;
+            Kds::App::Check;
 
-        mUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData)) >> Check;
+        mUploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData)) >> Kds::App::Check;
 
         // We do not need to unmap until we are done with the resource.  However, we must not write to
         // the resource while it is in use by the GPU (so we must use synchronization techniques).

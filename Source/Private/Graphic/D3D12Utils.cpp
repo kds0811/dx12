@@ -1,11 +1,13 @@
 #include "D3D12Utils.h"
 #include <fstream>
 
-Microsoft::WRL::ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
+using namespace Microsoft::WRL;
+
+ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
     ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
-    const void* initData, UINT64 byteSize, Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer)
+    const void* initData, UINT64 byteSize, ComPtr<ID3D12Resource>& uploadBuffer)
 {
-    Microsoft::WRL::ComPtr<ID3D12Resource> defaultBuffer;
+    ComPtr<ID3D12Resource> defaultBuffer;
     const auto ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
 
     // Create the actual default buffer resource.
@@ -50,19 +52,39 @@ Microsoft::WRL::ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
 }
 
 
-Microsoft::WRL::ComPtr<ID3DBlob> D3D12Utils::LoadBinary(const std::wstring& filename)
+ComPtr<ID3DBlob>D3D12Utils::LoadBinary(const std::string& filename)
 {
     std::ifstream fin(filename, std::ios::binary);
 
     fin.seekg(0, std::ios_base::end);
-    std::ifstream::pos_type size = (int)fin.tellg();
+    std::ifstream::pos_type size = static_cast<size_t>(fin.tellg());
     fin.seekg(0, std::ios_base::beg);
 
-   Microsoft::WRL::ComPtr<ID3DBlob> blob;
+   ComPtr<ID3DBlob> blob;
     D3DCreateBlob(size, blob.GetAddressOf()) >> Kds::App::Check;
 
-    fin.read((char*)blob->GetBufferPointer(), size);
+    fin.read(static_cast<char*>(blob->GetBufferPointer()), size);
     fin.close();
 
     return blob;
+}
+
+ComPtr<ID3DBlob> D3D12Utils::CompileShader(
+    const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target)
+{
+    UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+    compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    HRESULT hr = S_OK;
+
+    ComPtr<ID3DBlob> byteCode = nullptr;
+    ComPtr<ID3DBlob> errors;
+    hr = D3DCompileFromFile(filename.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE, entrypoint.c_str(), target.c_str(), compileFlags,
+        0, &byteCode, &errors);
+
+    if (errors != nullptr) OutputDebugStringA((char*)errors->GetBufferPointer());
+
+    return byteCode;
 }

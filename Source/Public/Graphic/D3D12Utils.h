@@ -16,7 +16,10 @@ public:
 
     static UINT CalcConstantBufferByteSize(UINT byteSize) { return (byteSize + 255) & ~255; }
 
-    static Microsoft::WRL::ComPtr<ID3DBlob> LoadBinary(const std::wstring& filename);
+    static Microsoft::WRL::ComPtr<ID3DBlob> LoadBinary(const std::string& filename);
+
+    static Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
+        const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target);
 };
 
 
@@ -56,7 +59,7 @@ struct MeshGeometry
 
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
     {
-        D3D12_VERTEX_BUFFER_VIEW vbv;
+        D3D12_VERTEX_BUFFER_VIEW vbv{};
         vbv.BufferLocation = VertexBufferGPU->GetGPUVirtualAddress();
         vbv.StrideInBytes = VertexByteStride;
         vbv.SizeInBytes = VertexBufferByteSize;
@@ -66,7 +69,7 @@ struct MeshGeometry
 
     D3D12_INDEX_BUFFER_VIEW IndexBufferView() const
     {
-        D3D12_INDEX_BUFFER_VIEW ibv;
+        D3D12_INDEX_BUFFER_VIEW ibv{};
         ibv.BufferLocation = IndexBufferGPU->GetGPUVirtualAddress();
         ibv.Format = IndexFormat;
         ibv.SizeInBytes = IndexBufferByteSize;
