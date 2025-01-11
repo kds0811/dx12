@@ -45,11 +45,7 @@ Vector& Vector::operator*=(const float& sc) noexcept
 
 Vector Vector::operator*(const float& sc) const noexcept
 {
-    Vector result;
-    result.Data.x = Data.x * sc;
-    result.Data.y = Data.y * sc;
-    result.Data.z = Data.z * sc;
-    return result;
+    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), sc));
 }
 
 Vector& Vector::operator/=(const float& dv) noexcept
@@ -62,16 +58,14 @@ Vector& Vector::operator/=(const float& dv) noexcept
 
 Vector Vector::operator/(const float& dv) const noexcept
 {
-    Vector result;
-    result.Data.x = Data.x / dv;
-    result.Data.y = Data.y / dv;
-    result.Data.z = Data.z / dv;
-    return result;
+    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), 1 / dv));
 }
 
 bool Vector::operator==(const Vector& other) const noexcept
 {
-    return Data.x == other.Data.x && Data.y == other.Data.y && Data.z == other.Data.z;
+    const float epsilon = 0.001;
+    return std::abs(Data.x - other.Data.x) < epsilon && std::abs(Data.y - other.Data.y) < epsilon &&
+           std::abs(Data.z - other.Data.z) < epsilon;
 }
 
 bool Vector::operator!=(const Vector& other) const noexcept
@@ -83,16 +77,6 @@ bool Vector::NearEqual(const Vector& other, float epsilon) const noexcept
 {
     return std::abs(Data.x - other.Data.x) < epsilon && std::abs(Data.y - other.Data.y) < epsilon &&
            std::abs(Data.z - other.Data.z) < epsilon;
-}
-
-Vector Vector::SIMDMul(const float& sc) const noexcept
-{
-    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), sc));
-}
-
-Vector Vector::SIMDDiv(const float& dv) const noexcept
-{
-    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), 1 / dv));
 }
 
 Vector Vector::Abs() const noexcept
