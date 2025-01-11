@@ -4,9 +4,6 @@
 #include "GameTimerCr.h"
 #include "Utils/Math/Vector.h"
 
-
-
-
 static void BM_VectorLength(benchmark::State& state)
 {
     Vector v1[16];

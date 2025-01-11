@@ -6,8 +6,19 @@
 #include "Vector.h"
 
 using namespace DirectX;
+std::string SIMDSupport{};
 
-App::App() : mWindow(Width, Height, this), mGraphics(Width, Height, mWindow.GetHwnd()) {}
+App::App() : mWindow(Width, Height, this), mGraphics(Width, Height, mWindow.GetHwnd()) 
+{
+    if (DirectX::XMVerifyCPUSupport())
+    {
+        SIMDSupport =  "DirectXMath SIMD Extensions Supported\n";
+    }
+    else
+    {
+        SIMDSupport =  "DirectXMath SIMD Extensions NOT Supported\n";
+    }
+}
 
 std::optional<int> App::Go()
 {
@@ -91,17 +102,14 @@ void App::CalculateFrameStats()
 
     if ((mTimer.GetTotalTime() - timeElapsed) >= 1.0)
     {
-        Vector vec{};
-
         double fps = static_cast<double>(frameCnt);
         double mspf = 1000.0 / fps;
         int xMouse = mWindow.mouse.GetPosX();
         int yMouse = mWindow.mouse.GetPosX();
 
-        auto Size = sizeof(vec);
 
-        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f} MOUSE PISTION: X {} Y {} SIZE {}",
-            mWindow.GetTitle(), fps, mspf, mTimer.GetTotalTime(), xMouse, yMouse, Size);
+        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f}  SIMD - {} ",
+            mWindow.GetTitle(), fps, mspf, mTimer.GetTotalTime(), SIMDSupport);
 
         SetWindowText(mWindow.GetHwnd(), windowText.c_str());
 

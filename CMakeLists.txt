@@ -107,8 +107,10 @@ auto_source_group("Shaders" "${SHADERS_DIR}" ${SHADER_SOURCES})
 add_executable(Tests   
     Test/Test.cpp   
     Test/GameTimerTests.cpp
+    Test/VectorTests.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
+    Source/Private/Utils/Math/Vector.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 
