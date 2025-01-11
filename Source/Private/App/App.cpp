@@ -6,8 +6,7 @@
 
 using namespace DirectX;
 
-App::App() :
-    mWindow(Width, Height, this), mGraphics(Width, Height, mWindow.GetHwnd()) {}
+App::App() : mWindow(Width, Height, this), mGraphics(Width, Height, mWindow.GetHwnd()) {}
 
 std::optional<int> App::Go()
 {
@@ -52,33 +51,32 @@ void App::OnStart()
     }
 }
 
-void App::Update(const GameTimerW& gt) 
+void App::Update(const GameTimerW& gt)
 {
     //// Convert Spherical to Cartesian coordinates.
-    //float x = mRadius * sinf(mPhi) * cosf(mTheta);
-    //float z = mRadius * sinf(mPhi) * sinf(mTheta);
-    //float y = mRadius * cosf(mPhi);
+    // float x = mRadius * sinf(mPhi) * cosf(mTheta);
+    // float z = mRadius * sinf(mPhi) * sinf(mTheta);
+    // float y = mRadius * cosf(mPhi);
 
     //// Build the view matrix.
-    //XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-    //XMVECTOR target = XMVectorZero();
-    //XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    // XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+    // XMVECTOR target = XMVectorZero();
+    // XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-    //XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-    //XMStoreFloat4x4(&mView, view);
+    // XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+    // XMStoreFloat4x4(&mView, view);
 
-    //XMMATRIX world = XMLoadFloat4x4(&mWorld);
-    //XMMATRIX proj = XMLoadFloat4x4(&mProj);
-    //XMMATRIX worldViewProj = world * view * proj;
+    // XMMATRIX world = XMLoadFloat4x4(&mWorld);
+    // XMMATRIX proj = XMLoadFloat4x4(&mProj);
+    // XMMATRIX worldViewProj = world * view * proj;
 
     //// Update the constant buffer with the latest worldViewProj matrix.
-    //ObjectConstants objConstants;
-    //XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
-    //mObjectCB->CopyData(0, objConstants);
-
+    // ObjectConstants objConstants;
+    // XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+    // mObjectCB->CopyData(0, objConstants);
 }
 
-void App::Draw() 
+void App::Draw()
 {
     mGraphics.Draw();
 }
@@ -93,8 +91,13 @@ void App::CalculateFrameStats()
     {
         double fps = static_cast<double>(frameCnt);
         double mspf = 1000.0 / fps;
+        int xMouse = mWindow.mouse.GetPosX();
+        int yMouse = mWindow.mouse.GetPosX();
 
-        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f}", mWindow.GetTitle(), fps, mspf, mTimer.GetTotalTime());
+        auto Key = mWindow.kbd.KeyIsPressed('W');
+
+        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f} MOUSE PISTION: X {} Y {} KEY {}",
+            mWindow.GetTitle(), fps, mspf, mTimer.GetTotalTime(), xMouse, yMouse, Key);
 
         SetWindowText(mWindow.GetHwnd(), windowText.c_str());
 

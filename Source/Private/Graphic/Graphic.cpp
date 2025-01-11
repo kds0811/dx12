@@ -290,7 +290,7 @@ void Graphic::CreateDevice()
     {
         ComPtr<IDXGIAdapter> pWarpAdapter;
         Factory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
-        D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&Device)) >> Check;
+        D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&Device)) >> Check;
     }
 }
 
