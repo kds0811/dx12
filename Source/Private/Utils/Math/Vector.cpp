@@ -37,9 +37,7 @@ Vector Vector::operator-(const Vector& other) const noexcept
 
 Vector& Vector::operator*=(const float& sc) noexcept
 {
-    Data.x *= sc;
-    Data.y *= sc;
-    Data.z *= sc;
+    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), sc)));
     return *this;
 }
 
@@ -50,9 +48,7 @@ Vector Vector::operator*(const float& sc) const noexcept
 
 Vector& Vector::operator/=(const float& dv) noexcept
 {
-    Data.x /= dv;
-    Data.y /= dv;
-    Data.z /= dv;
+    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), 1 / dv)));
     return *this;
 }
 
