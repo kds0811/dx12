@@ -30,6 +30,9 @@ public:
     bool operator!=(const Vector& other) const noexcept;
     bool NearEqual(const Vector& other, float epsilon = 0.01) const noexcept;
 
+    Vector SIMDMul(const float& sc) const noexcept;
+    Vector SIMDDiv(const float& dv) const noexcept;
+
     [[nodiscard]] Vector Abs() const noexcept;
     [[nodiscard]] float Length() const noexcept;
     [[nodiscard]] float LengthSq() const noexcept;

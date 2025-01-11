@@ -85,11 +85,20 @@ bool Vector::NearEqual(const Vector& other, float epsilon) const noexcept
            std::abs(Data.z - other.Data.z) < epsilon;
 }
 
+Vector Vector::SIMDMul(const float& sc) const noexcept
+{
+    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), sc));
+}
+
+Vector Vector::SIMDDiv(const float& dv) const noexcept
+{
+    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), 1 / dv));
+}
+
 Vector Vector::Abs() const noexcept
 {
     return Vector(DirectX::XMVectorAbs(ToSIMD()));
 }
-
 
 float Vector::Length() const noexcept
 {
@@ -108,16 +117,12 @@ float Vector::LengthEst() const noexcept
 
 Vector Vector::Normalize() const noexcept
 {
-    Vector result;
-    DirectX::XMStoreFloat3(&result.Data, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&Data)));
-    return result;
+    return Vector(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&Data)));
 }
 
 float Vector::Dot(const Vector& other) const noexcept
 {
-    auto v1 = DirectX::XMLoadFloat3(&Data);
-    auto v2 = DirectX::XMLoadFloat3(&other.Data);
-    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(v1, v2));
+    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat3(&Data), DirectX::XMLoadFloat3(&other.Data)));
 }
 
 Vector Vector::Cross(const Vector& other) const noexcept
