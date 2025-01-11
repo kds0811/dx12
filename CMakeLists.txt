@@ -117,6 +117,7 @@ add_executable(Benchmark
     Benchmark/GameTimerBenchmarkTest.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
+    Source/Private/Utils/Math/Vector.cpp
 )
 auto_include_directories(Benchmark ${CMAKE_SOURCE_DIR}/Source)  
 
