@@ -2,47 +2,13 @@
 
 Vector& Vector::operator+=(const Vector& other) noexcept
 {
-    auto v1 = DirectX::XMLoadFloat3(&Data);
-    auto v2 = DirectX::XMLoadFloat3(&other.Data);
-    DirectX::XMStoreFloat3(&Data, DirectX::XMVectorAdd(v1, v2));
+    Data.x += other.Data.x;
+    Data.y += other.Data.y;
+    Data.z += other.Data.z;
     return *this;
 }
 
 Vector Vector::operator+(const Vector& other) const noexcept
-{
-    Vector result;
-    auto v1 = DirectX::XMLoadFloat3(&Data);
-    auto v2 = DirectX::XMLoadFloat3(&other.Data);
-    DirectX::XMStoreFloat3(&result.Data, DirectX::XMVectorAdd(v1, v2));
-    return result;
-}
-
-Vector& Vector::operator-=(const Vector& other) noexcept
-{
-    auto v1 = DirectX::XMLoadFloat3(&Data);
-    auto v2 = DirectX::XMLoadFloat3(&other.Data);
-    DirectX::XMStoreFloat3(&Data, DirectX::XMVectorSubtract(v1, v2));
-    return *this;
-}
-
-Vector Vector::operator-(const Vector& other) const noexcept
-{
-    Vector result;
-    auto v1 = DirectX::XMLoadFloat3(&Data);
-    auto v2 = DirectX::XMLoadFloat3(&other.Data);
-    DirectX::XMStoreFloat3(&result.Data, DirectX::XMVectorSubtract(v1, v2));
-    return result;
-}
-
-Vector& Vector::AddAs(const Vector& other) noexcept
-{
-    Data.x += other.X();
-    Data.y += other.Y();
-    Data.z += other.Z();
-    return *this;
-}
-
-Vector Vector::Add(const Vector& other) const noexcept
 {
     Vector result;
     result.Data.x = Data.x + other.Data.x;
@@ -51,15 +17,15 @@ Vector Vector::Add(const Vector& other) const noexcept
     return result;
 }
 
-Vector& Vector::SubAs(const Vector& other) noexcept
+Vector& Vector::operator-=(const Vector& other) noexcept
 {
-    Data.x -= other.X();
-    Data.y -= other.Y();
-    Data.z -= other.Z();
+    Data.x -= other.Data.x;
+    Data.y -= other.Data.y;
+    Data.z -= other.Data.z;
     return *this;
 }
 
-Vector Vector::Sub(const Vector& other) const noexcept
+Vector Vector::operator-(const Vector& other) const noexcept
 {
     Vector result;
     result.Data.x = Data.x - other.Data.x;
@@ -68,17 +34,26 @@ Vector Vector::Sub(const Vector& other) const noexcept
     return result;
 }
 
+
 float Vector::Length() const noexcept
 {
-    auto v = DirectX::XMLoadFloat3(&Data);
-    return DirectX::XMVectorGetX(DirectX::XMVector3Length(v));
+    return DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat3(&Data)));
+}
+
+float Vector::LengthSq() const noexcept
+{
+    return DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(DirectX::XMLoadFloat3(&Data)));
+}
+
+float Vector::LengthEst() const noexcept
+{
+    return DirectX::XMVectorGetX(DirectX::XMVector3LengthEst(DirectX::XMLoadFloat3(&Data)));
 }
 
 Vector Vector::Normalize() const noexcept
 {
     Vector result;
-    auto v = DirectX::XMLoadFloat3(&Data);
-    DirectX::XMStoreFloat3(&result.Data, DirectX::XMVector3Normalize(v));
+    DirectX::XMStoreFloat3(&result.Data, DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&Data)));
     return result;
 }
 
@@ -88,3 +63,5 @@ float Vector::Dot(const Vector& other) const noexcept
     auto v2 = DirectX::XMLoadFloat3(&other.Data);
     return DirectX::XMVectorGetX(DirectX::XMVector3Dot(v1, v2));
 }
+
+

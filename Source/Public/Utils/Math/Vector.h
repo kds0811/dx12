@@ -13,9 +13,6 @@ public:
     explicit Vector(DirectX::FXMVECTOR vec) noexcept { DirectX::XMStoreFloat3(&Data, vec); }
 
     [[nodiscard]] DirectX::XMVECTOR ToSIMD() const noexcept { DirectX::XMLoadFloat3A(&Data); }
-    [[nodiscard]] inline float X() const noexcept { return Data.x; }
-    [[nodiscard]] inline float Y() const noexcept { return Data.y; }
-    [[nodiscard]] inline float Z() const noexcept { return Data.z; }
 
     void SetX(float x) noexcept { Data.x = x; }
     void SetY(float y) noexcept { Data.y = y; }
@@ -26,16 +23,10 @@ public:
     Vector& operator-=(const Vector& other) noexcept;
     Vector operator-(const Vector& other) const noexcept;
 
-    Vector& AddAs(const Vector& other) noexcept;
-    Vector Add(const Vector& other) const noexcept;
-    Vector& SubAs(const Vector& other) noexcept;
-    Vector Sub(const Vector& other) const noexcept;
-
-
     [[nodiscard]] float Length() const noexcept;
-
+    [[nodiscard]] float LengthSq() const noexcept;
+    [[nodiscard]] float LengthEst() const noexcept;
     [[nodiscard]] Vector Normalize() const noexcept;
-
     [[nodiscard]] float Dot(const Vector& other) const noexcept;
 
     static Vector Zero() noexcept { return Vector(0.0f, 0.0f, 0.0f); }
