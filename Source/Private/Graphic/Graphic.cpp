@@ -44,7 +44,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     // Resize the swap chain.
     SwapChain->ResizeBuffers(SwapChainBufferCount, ClientWidth, ClientHeight, BackBufferFormat,
         DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) >>
-       Check;
+        Check;
 
     CurrBackBuffer = 0;
 
@@ -110,7 +110,6 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
 
     ScissorRect = {0, 0, static_cast<LONG>(ClientWidth), static_cast<LONG>(ClientHeight)};
 
-
     // The window resized, so update the aspect ratio and recompute the projection matrix.
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
@@ -118,42 +117,39 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
 
 void Graphic::Draw()
 {
-    
-    //CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
 
-    //auto ResBar =
-    //    CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    //CommandList->ResourceBarrier(1, &ResBar);
-    //CommandList->RSSetViewports(1, &ScreenViewport);
-    //CommandList->RSSetScissorRects(1, &ScissorRect);
-    //CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
-    //CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+    // CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
+
+    // auto ResBar =
+    //     CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    // CommandList->ResourceBarrier(1, &ResBar);
+    // CommandList->RSSetViewports(1, &ScreenViewport);
+    // CommandList->RSSetScissorRects(1, &ScissorRect);
+    // CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+    // CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     ////	Specify	the	buffers	we	are	going	to	render	to.
-    //auto CBV = GetCurrentBackBufferView();
-    //auto DSV = GetDepthStencilView();
-    //CommandList->OMSetRenderTargets(1, &CBV, true, &DSV);
+    // auto CBV = GetCurrentBackBufferView();
+    // auto DSV = GetDepthStencilView();
+    // CommandList->OMSetRenderTargets(1, &CBV, true, &DSV);
 
     ////	Indicate	a	state	transition	on	the	resource usage
-    //auto ResBar1 =
-    //    CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    //CommandList->ResourceBarrier(1, &ResBar1);
+    // auto ResBar1 =
+    //     CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    // CommandList->ResourceBarrier(1, &ResBar1);
     ////	Done	recording	commands.
-    //CommandList->Close() >> Check;
+    // CommandList->Close() >> Check;
 
     ////	Add	the	command	list	to	the	queue	for	execution.
-    //ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
-    //CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+    // ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
+    // CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     ////	swap	the	back	and	front	buffers
-    //SwapChain->Present(0, 0) >> Check;
-    //CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
-    //FlushCommandQueue();
+    // SwapChain->Present(0, 0) >> Check;
+    // CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
+    // FlushCommandQueue();
 
-
-
-
-     // Reuse the memory associated with command recording.
+    // Reuse the memory associated with command recording.
     // We can only reset when the associated command lists have finished execution on the GPU.
     CommandAlloc->Reset() >> Check;
 
@@ -165,23 +161,30 @@ void Graphic::Draw()
     CommandList->RSSetScissorRects(1, &ScissorRect);
 
     // Indicate a state transition on the resource usage.
-    CommandList->ResourceBarrier(
-        1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+    auto ResBarPresToRT =
+        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    CommandList->ResourceBarrier(1, &ResBarPresToRT);
 
     // Clear the back buffer and depth buffer.
     CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
     CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     // Specify the buffers we are going to render to.
-    CommandList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), true, &GetDepthStencilView());
+    auto CurBBV = GetCurrentBackBufferView();
+    auto CurDSV = GetDepthStencilView();
+    CommandList->OMSetRenderTargets(1, &CurBBV, true, &CurDSV);
 
     ID3D12DescriptorHeap* descriptorHeaps[] = {CbvHeap.Get()};
     CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
     CommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
-    CommandList->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());
-    CommandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());
+
+    auto BoxVBC = mBoxGeo->VertexBufferView();
+    CommandList->IASetVertexBuffers(0, 1, &BoxVBC);
+
+    auto BoxIBV = mBoxGeo->IndexBufferView();
+    CommandList->IASetIndexBuffer(&BoxIBV);
     CommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     CommandList->SetGraphicsRootDescriptorTable(0, CbvHeap->GetGPUDescriptorHandleForHeapStart());
@@ -189,8 +192,9 @@ void Graphic::Draw()
     CommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
 
     // Indicate a state transition on the resource usage.
-    CommandList->ResourceBarrier(
-        1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+    auto ResBarRTtoPresent =
+        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    CommandList->ResourceBarrier(1, &ResBarRTtoPresent);
 
     // Done recording commands.
     CommandList->Close() >> Check;
@@ -207,8 +211,6 @@ void Graphic::Draw()
     // done for simplicity.  Later we will show how to organize our rendering code
     // so we do not have to wait per frame.
     FlushCommandQueue();
-
-
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
@@ -242,7 +244,6 @@ void Graphic::InitPipeline()
     CreateAndSetViewport();
     CreateScissorRect();
 
-
     // Reset the command list to prep for initialization commands.
     CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
 
@@ -260,7 +261,6 @@ void Graphic::InitPipeline()
 
     // Wait until initialization is complete.
     FlushCommandQueue();
-
 }
 
 void Graphic::EnableDebugLayer()
@@ -460,7 +460,7 @@ void Graphic::FlushCommandQueue()
     }
 }
 
-void Graphic::BuildDescriptorHeaps() 
+void Graphic::BuildDescriptorHeaps()
 {
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc{};
     cbvHeapDesc.NumDescriptors = 1;
@@ -481,7 +481,7 @@ void Graphic::BuildConstantBuffers()
     int boxCBufIndex = 0;
     cbAddress += boxCBufIndex * objCBByteSize;
 
-    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
     cbvDesc.BufferLocation = cbAddress;
     cbvDesc.SizeInBytes = objCBByteSize;
 
@@ -490,11 +490,11 @@ void Graphic::BuildConstantBuffers()
 
 void Graphic::BuildRootSignature()
 {
-	// Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[1];
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[1]{};
 
     // Create a single descriptor table of CBVs.
-    CD3DX12_DESCRIPTOR_RANGE cbvTable;
+    CD3DX12_DESCRIPTOR_RANGE cbvTable{};
     cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
     slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
 
@@ -513,15 +513,16 @@ void Graphic::BuildRootSignature()
     }
 
     Device->CreateRootSignature(
-        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&mRootSignature)) >> Check;
+        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&mRootSignature)) >>
+        Check;
 }
 
 void Graphic::BuildShadersAndInputLayout()
 {
     HRESULT hr = S_OK;
 
-    mvsByteCode = D3D12Utils::CompileShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-    mpsByteCode = D3D12Utils::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+    mvsByteCode = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Color.hlsl", nullptr, "VS", "vs_5_0");
+    mpsByteCode = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Color.hlsl", nullptr, "PS", "ps_5_0");
 
     mInputLayout = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
@@ -600,7 +601,7 @@ void Graphic::BuildPSO()
     psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = BackBufferFormat;
     psoDesc.SampleDesc.Count = 1;
-    psoDesc.SampleDesc.Quality =  0;
+    psoDesc.SampleDesc.Quality = 0;
     psoDesc.DSVFormat = DepthStencilFormat;
     Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSO)) >> Check;
 }

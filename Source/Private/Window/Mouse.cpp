@@ -3,32 +3,32 @@
 
 Mouse::Mouse() : x(0), y(0), lPressed(false), rPressed(false) {}
 
-// Vec2 Mouse::GetPosVec()
-//{
-//	return Vec2{ static_cast<float>(x), static_cast<float>(y) };
-// }
+DirectX::XMFLOAT2 Mouse::GetPosVec()
+{
+    return DirectX::XMFLOAT2{static_cast<float>(x), static_cast<float>(y)};
+ }
 
-int Mouse::GetPosX()
+int Mouse::GetPosX() const
 {
     return x;
 }
 
-int Mouse::GetPosY()
+int Mouse::GetPosY() const
 {
     return y;
 }
 
-bool Mouse::IsInWindow()
+bool Mouse::IsInWindow() const
 {
     return isInWindow;
 }
 
-bool Mouse::LIsPressed()
+bool Mouse::LIsPressed() const
 {
     return lPressed;
 }
 
-bool Mouse::RIsPressed()
+bool Mouse::RIsPressed() const
 {
     return rPressed;
 }

@@ -86,5 +86,7 @@ ComPtr<ID3DBlob> D3D12Utils::CompileShader(
 
     if (errors != nullptr) OutputDebugStringA((char*)errors->GetBufferPointer());
 
+    hr >> Kds::App::Check;
+
     return byteCode;
 }

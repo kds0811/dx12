@@ -1,5 +1,6 @@
 #pragma once
 #include <queue>
+#include <DirectXMath.h>
 
 class Mouse
 {
@@ -33,23 +34,23 @@ public:
     public:
         EventM() : type(Type::Invalid), x(0), y(0), lPressed(false), rPressed(false) {}
         EventM(Type type, Mouse parent) : type(type), x(parent.x), y(parent.y), lPressed(parent.lPressed), rPressed(parent.rPressed) {}
-        Type GetType() { return type; }
-        // Vec2 GetPosVec()
-        int GetPosX() { return x; }
-        int GetPosY() { return y; }
-        bool LIsPressed() { return lPressed; }
-        bool RIsPressed() { return rPressed; }
+        Type GetType() const { return type; }
+        DirectX::XMFLOAT2 GetPosVec() const { return DirectX::XMFLOAT2{static_cast<float>(x), static_cast<float>(y)}; };
+        int GetPosX() const { return x; }
+        int GetPosY() const { return y; }
+        bool LIsPressed() const { return lPressed; }
+        bool RIsPressed() const { return rPressed; }
     };
 
 public:
     Mouse();
     Mouse& operator=(const Mouse&) = delete;
-    // Vec2 GetPosVec();
-    int GetPosX();
-    int GetPosY();
-    bool IsInWindow();
-    bool LIsPressed();
-    bool RIsPressed();
+    DirectX::XMFLOAT2 GetPosVec();
+    int GetPosX() const;
+    int GetPosY() const;
+    bool IsInWindow() const;
+    bool LIsPressed() const;
+    bool RIsPressed() const;
     Mouse::EventM Read();
     bool IsEmpty();
     void Flush();

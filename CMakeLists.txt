@@ -28,12 +28,18 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)  
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT dx12)  
 
+# Paths and resources  
+set(PUBLIC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Public)  
+set(PRIVATE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Private)  
+set(SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Shaders)  
+
 # Function for automatic include directories  
 function(auto_include_directories target_name base_dir)  
     file(GLOB_RECURSE HEADER_DIRS   
         LIST_DIRECTORIES true   
         "${base_dir}/*.h"  
         "${base_dir}/*.hpp"  
+        "${base_dir}/*.hlsl"  
     )  
 
     set(INCLUDE_DIRS "")  
@@ -63,12 +69,9 @@ function(auto_source_group base_group base_dir)
     endforeach()  
 endfunction()   
 
-# Paths and resources  
-set(PUBLIC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Public)  
-set(PRIVATE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source/Private)  
-
 file(GLOB_RECURSE PUBLIC_HEADERS "${PUBLIC_DIR}/*.h")  
 file(GLOB_RECURSE PRIVATE_SOURCES "${PRIVATE_DIR}/*.cpp")  
+file(GLOB_RECURSE SHADER_SOURCES "${SHADERS_DIR}/*.hlsl")
 
 # C++ settings  
 set(CMAKE_CXX_STANDARD 20)  
@@ -81,7 +84,11 @@ find_package(directx-headers CONFIG REQUIRED)
 find_package(directxtk12 CONFIG REQUIRED)  
 
 # Основной исполняемый файл  
-add_executable(dx12 WIN32 ${PRIVATE_SOURCES} ${PUBLIC_HEADERS})  
+add_executable(dx12 WIN32
+  ${PRIVATE_SOURCES}
+  ${PUBLIC_HEADERS}
+  ${SHADER_SOURCES}
+  )  
 
 # Автоматическое включение директорий  
 auto_include_directories(dx12 "${CMAKE_SOURCE_DIR}/Source")  
@@ -91,6 +98,10 @@ auto_source_group("Public" "${PUBLIC_DIR}" ${PUBLIC_HEADERS})
 
 # Группируем приватные исходные файлы под "Private"  
 auto_source_group("Private" "${PRIVATE_DIR}" ${PRIVATE_SOURCES})  
+
+# Группируем шейдеры под "Shaders"  
+auto_source_group("Shaders" "${SHADERS_DIR}" ${SHADER_SOURCES}) 
+
 
 # Test executable  
 add_executable(Tests   
