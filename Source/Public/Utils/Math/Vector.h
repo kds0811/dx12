@@ -10,14 +10,12 @@ public:
     Vector() noexcept : Data(0.0f, 0.0f, 0.0f) {}
     Vector(float x, float y, float z) noexcept : Data(x, y, z) {}
     explicit Vector(const DirectX::XMFLOAT3& vec) noexcept : Data(vec.x, vec.y, vec.z) {}
-    explicit Vector(DirectX::FXMVECTOR vec) noexcept { DirectX::XMStoreFloat3(&Data, vec); }
+    explicit Vector(DirectX::FXMVECTOR vec) noexcept { DirectX::XMStoreFloat3A(&Data, vec); }
 
     [[nodiscard]] inline DirectX::XMVECTOR ToSIMD() const noexcept { return DirectX::XMLoadFloat3A(&Data); }
 
-    void SetX(float x) noexcept { Data.x = x; }
-    void SetY(float y) noexcept { Data.y = y; }
-    void SetZ(float z) noexcept { Data.z = z; }
 
+    // operators
     Vector& operator+= (const Vector& other) noexcept;
     Vector operator+ (const Vector& other) const noexcept;
     Vector& operator-= (const Vector& other) noexcept;
@@ -30,6 +28,7 @@ public:
     bool operator!=(const Vector& other) const noexcept;
     bool NearEqual(const Vector& other, float epsilon = 0.01) const noexcept;
 
+    //Base methods
     [[nodiscard]] Vector Abs() const noexcept;
     [[nodiscard]] float Length() const noexcept;
     [[nodiscard]] float LengthSq() const noexcept;
@@ -39,11 +38,13 @@ public:
     [[nodiscard]] Vector Cross(const Vector& other) const noexcept;
     [[nodiscard]] float Angle(const Vector& other) const noexcept;
     [[nodiscard]] Vector Clamp(const Vector& min, const Vector& max) const noexcept;
+    [[nodiscard]] Vector Rotate(DirectX::FXMVECTOR quat) const noexcept;
+    [[nodiscard]] Vector InverseRotate(DirectX::FXMVECTOR quat) const noexcept;
+
+    // Static methods
     [[nodiscard]] static float Distance(const Vector& a, const Vector& b) noexcept;
-
-    static Vector Zero() noexcept { return Vector(0.0f, 0.0f, 0.0f); }
-    static Vector One() noexcept { return Vector(1.0f, 1.0f, 1.0f); }
-    static Vector Up() noexcept { return Vector(0.0f, 1.0f, 0.0f); }
-    static Vector Lerp(const Vector& start, const Vector& end, float t) noexcept;
-
+    [[nodiscard]] static Vector Zero() noexcept { return Vector(0.0f, 0.0f, 0.0f); }
+    [[nodiscard]] static Vector One() noexcept { return Vector(1.0f, 1.0f, 1.0f); }
+    [[nodiscard]] static Vector Up() noexcept { return Vector(0.0f, 1.0f, 0.0f); }
+    [[nodiscard]] static Vector Lerp(const Vector& start, const Vector& end, float t) noexcept;
 };

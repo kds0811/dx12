@@ -37,24 +37,24 @@ Vector Vector::operator-(const Vector& other) const noexcept
 
 Vector& Vector::operator*=(const float& sc) noexcept
 {
-    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), sc)));
+    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), sc)));
     return *this;
 }
 
 Vector Vector::operator*(const float& sc) const noexcept
 {
-    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), sc));
+    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), sc));
 }
 
 Vector& Vector::operator/=(const float& dv) noexcept
 {
-    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), 1 / dv)));
+    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv)));
     return *this;
 }
 
 Vector Vector::operator/(const float& dv) const noexcept
 {
-    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3(&Data), 1 / dv));
+    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv));
 }
 
 bool Vector::operator==(const Vector& other) const noexcept
@@ -82,27 +82,27 @@ Vector Vector::Abs() const noexcept
 
 float Vector::Length() const noexcept
 {
-    return DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat3(&Data)));
+    return DirectX::XMVectorGetX(DirectX::XMVector3Length(DirectX::XMLoadFloat3A(&Data)));
 }
 
 float Vector::LengthSq() const noexcept
 {
-    return DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(DirectX::XMLoadFloat3(&Data)));
+    return DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(DirectX::XMLoadFloat3A(&Data)));
 }
 
 float Vector::LengthEst() const noexcept
 {
-    return DirectX::XMVectorGetX(DirectX::XMVector3LengthEst(DirectX::XMLoadFloat3(&Data)));
+    return DirectX::XMVectorGetX(DirectX::XMVector3LengthEst(DirectX::XMLoadFloat3A(&Data)));
 }
 
 Vector Vector::Normalize() const noexcept
 {
-    return Vector(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&Data)));
+    return Vector(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3A(&Data)));
 }
 
 float Vector::Dot(const Vector& other) const noexcept
 {
-    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat3(&Data), DirectX::XMLoadFloat3(&other.Data)));
+    return DirectX::XMVectorGetX(DirectX::XMVector3Dot(DirectX::XMLoadFloat3A(&Data), DirectX::XMLoadFloat3A(&other.Data)));
 }
 
 Vector Vector::Cross(const Vector& other) const noexcept
@@ -118,6 +118,16 @@ float Vector::Angle(const Vector& other) const noexcept
 Vector Vector::Clamp(const Vector& min, const Vector& max) const noexcept
 {
     return Vector(DirectX::XMVectorClamp(ToSIMD(), min.ToSIMD(), max.ToSIMD()));
+}
+
+Vector Vector::Rotate(DirectX::FXMVECTOR quat) const noexcept
+{
+    return Vector(DirectX::XMVector3Rotate(ToSIMD(), quat));
+}
+
+Vector Vector::InverseRotate(DirectX::FXMVECTOR quat) const noexcept
+{
+    return Vector(DirectX::XMVector3InverseRotate(ToSIMD(), quat));
 }
 
 float Vector::Distance(const Vector& a, const Vector& b) noexcept
