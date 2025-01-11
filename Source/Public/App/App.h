@@ -2,6 +2,7 @@
 #include "WindowDK.h"
 #include "Graphic.h"
 #include "GameTimerW.h"
+#include "Camera.h"
 
 class App
 {
@@ -24,10 +25,10 @@ private:
     UINT Width = 1600;
     UINT Height = 1000;
 
-    Window Wnd;
-    Graphic Gfx;
-    GameTimerW Timer;
-
+    Window mWindow;
+    Graphic mGraphics;
+    GameTimerW mTimer;
+    Camera mCamera;
     
     bool bAppPaused = false;
 

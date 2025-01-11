@@ -7,18 +7,17 @@
 using namespace DirectX;
 
 App::App() :
-    Wnd(Width, Height, this),
-    Gfx(Width, Height, Wnd.GetHwnd()) {}
+    mWindow(Width, Height, this), mGraphics(Width, Height, mWindow.GetHwnd()) {}
 
 std::optional<int> App::Go()
 {
-    Timer.Reset();
+    mTimer.Reset();
 
     while (true)
     {
-        Timer.Tick();
+        mTimer.Tick();
         CalculateFrameStats();
-        Update(Timer);
+        Update(mTimer);
         Draw();
         if (const auto ecode = Window::PrecessMessages())
         {
@@ -32,7 +31,7 @@ void App::OnResize(UINT nWidth, UINT nHeight)
 {
     Width = nWidth;
     Height = nHeight;
-    Gfx.OnResize(nWidth, nHeight);
+    mGraphics.OnResize(nWidth, nHeight);
 }
 
 void App::OnStop()
@@ -40,7 +39,7 @@ void App::OnStop()
     if (!bAppPaused)
     {
         bAppPaused = true;
-        Timer.Stop();
+        mTimer.Stop();
     }
 }
 
@@ -49,7 +48,7 @@ void App::OnStart()
     if (bAppPaused)
     {
         bAppPaused = false;
-        Timer.Start();
+        mTimer.Start();
     }
 }
 
@@ -81,7 +80,7 @@ void App::Update(const GameTimerW& gt)
 
 void App::Draw() 
 {
-    Gfx.Draw();
+    mGraphics.Draw();
 }
 
 void App::CalculateFrameStats()
@@ -90,14 +89,14 @@ void App::CalculateFrameStats()
     static double timeElapsed = 0.0f;
     frameCnt++;
 
-    if ((Timer.GetTotalTime() - timeElapsed) >= 1.0)
+    if ((mTimer.GetTotalTime() - timeElapsed) >= 1.0)
     {
         double fps = static_cast<double>(frameCnt);
         double mspf = 1000.0 / fps;
 
-        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f}", Wnd.GetTitle(), fps, mspf, Timer.GetTotalTime());
+        std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f}", mWindow.GetTitle(), fps, mspf, mTimer.GetTotalTime());
 
-        SetWindowText(Wnd.GetHwnd(), windowText.c_str());
+        SetWindowText(mWindow.GetHwnd(), windowText.c_str());
 
         frameCnt = 0;
         timeElapsed += 1.0;
