@@ -60,8 +60,8 @@ Vector Vector::operator/(const float& dv) const noexcept
 bool Vector::operator==(const Vector& other) const noexcept
 {
     const float epsilon = 0.001;
-    return std::abs(Data.x - other.Data.x) < epsilon && std::abs(Data.y - other.Data.y) < epsilon &&
-           std::abs(Data.z - other.Data.z) < epsilon;
+    return (std::abs(Data.x - other.Data.x) < epsilon) && (std::abs(Data.y - other.Data.y) < epsilon) &&
+           (std::abs(Data.z - other.Data.z) < epsilon);
 }
 
 bool Vector::operator!=(const Vector& other) const noexcept
@@ -71,8 +71,8 @@ bool Vector::operator!=(const Vector& other) const noexcept
 
 bool Vector::NearEqual(const Vector& other, float epsilon) const noexcept
 {
-    return std::abs(Data.x - other.Data.x) < epsilon && std::abs(Data.y - other.Data.y) < epsilon &&
-           std::abs(Data.z - other.Data.z) < epsilon;
+    return (std::abs(Data.x - other.Data.x) < epsilon) && (std::abs(Data.y - other.Data.y) < epsilon) &&
+           (std::abs(Data.z - other.Data.z) < epsilon);
 }
 
 Vector Vector::Abs() const noexcept
@@ -98,6 +98,16 @@ float Vector::LengthEst() const noexcept
 Vector Vector::Normalize() const noexcept
 {
     DirectX::XMVECTOR normalized = DirectX::XMVector3Normalize(ToSIMD());
+    if (DirectX::XMVector3Equal(normalized, DirectX::XMVectorZero()))
+    {
+        return Vector::Zero();
+    }
+    return Vector(normalized);
+}
+
+Vector Vector::NormalizeEst() const noexcept
+{
+    DirectX::XMVECTOR normalized = DirectX::XMVector3NormalizeEst(ToSIMD());
     if (DirectX::XMVector3Equal(normalized, DirectX::XMVectorZero()))
     {
         return Vector::Zero();

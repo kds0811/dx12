@@ -287,7 +287,7 @@ TEST_F(VectorTest, Rotation)
     EXPECT_NEAR(rotatedVector.GetZ(), -1.0f, epsilon);
 
     // Обратный поворот
-    Vector inverseRotatedVector = originalVector.InverseRotate(rotationQuaternion);
+    Vector inverseRotatedVector = originalVector.RotateInverse(rotationQuaternion);
     EXPECT_NEAR(inverseRotatedVector.GetX(), 0.0f, epsilon);
     EXPECT_NEAR(inverseRotatedVector.GetY(), 0.0f, epsilon);
     EXPECT_NEAR(inverseRotatedVector.GetZ(), 1.0f, epsilon);

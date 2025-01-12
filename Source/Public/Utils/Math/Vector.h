@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include <utility>
 
+
+
 struct alignas(16) Vector final
 {
 public:
@@ -72,6 +74,7 @@ public:
     [[nodiscard]] float LengthSq() const noexcept;
     [[nodiscard]] float LengthEst() const noexcept;
     [[nodiscard]] Vector Normalize() const noexcept;
+    [[nodiscard]] Vector NormalizeEst() const noexcept;
     [[nodiscard]] float Dot(const Vector& other) const noexcept;
     [[nodiscard]] Vector Cross(const Vector& other) const noexcept;
     [[nodiscard]] float Angle(const Vector& other) const noexcept;

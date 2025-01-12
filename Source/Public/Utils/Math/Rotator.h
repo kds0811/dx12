@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include <utility>
 
+class Vector;
+
 struct alignas(16) Rotator final
 {
 public:
@@ -12,7 +14,7 @@ public:
     inline Rotator(float pitch, float yaw, float roll) noexcept : Data(pitch, yaw, roll) {}
     inline explicit Rotator(const DirectX::XMFLOAT3A& rot) noexcept : Data(rot.x, rot.y, rot.z) {}
     inline explicit Rotator(const DirectX::XMFLOAT3& rot) noexcept : Data(rot.x, rot.y, rot.z) {}
-    inline explicit Rotator(DirectX::FXMVECTOR rot) noexcept { DirectX::XMStoreFloat3A(&Data, rot); }
+    inline explicit Rotator(DirectX::FXMVECTOR rot) noexcept { DirectX::XMStoreFloat3A(&Data, rot);}
 
      // standart members
     Rotator& operator=(const Rotator& rhs) noexcept
@@ -63,4 +65,19 @@ public:
     bool operator==(const Rotator& other) const noexcept;
     bool operator!=(const Rotator& other) const noexcept;
     bool NearEqual(const Rotator& other, float epsilon = 0.01) const noexcept;
+
+    // Base methods
+    [[nodiscard]] inline DirectX::XMVECTOR ToSIMD() const noexcept { return DirectX::XMLoadFloat3A(&Data); }
+    [[nodiscard]] Rotator Normalize180() const noexcept;
+    [[nodiscard]] Rotator Normalize360() const noexcept;
+    [[nodiscard]] DirectX::XMVECTOR ToQuaternion() const noexcept;
+    static Rotator FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept;
+    [[nodiscard]] Vector GetForwardVector() const noexcept;
+    [[nodiscard]] Vector GetRightVector() const noexcept;
+    [[nodiscard]] Vector GetUpVector() const noexcept;
+    [[nodiscard]] Rotator Clamp(const Rotator& min, const Rotator& max) const noexcept;
+
+    // Statics
+    [[nodiscard]] static Rotator Zero() noexcept { return Rotator(0.0f, 0.0f, 0.0f); }
+    [[nodiscard]] static Rotator Lerp(const Rotator& start, const Rotator& end, float alpha) noexcept;
 };

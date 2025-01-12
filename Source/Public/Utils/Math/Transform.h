@@ -1,5 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
+#include "Vector.h"
+#include "Rotator.h"
 
 struct alignas(16) Transform final
 {
