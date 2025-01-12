@@ -119,6 +119,7 @@ Rotator Rotator::Normalize360() const noexcept
     return Rotator(angles);
 }
 
+
 DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
 {
     return DirectX::XMQuaternionRotationRollPitchYaw(
@@ -128,37 +129,59 @@ DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
 Rotator Rotator::FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept
 {
     using namespace DirectX;
-    float X = XMVectorGetX(quaternion);
-    float Y = XMVectorGetY(quaternion);
-    float Z = XMVectorGetZ(quaternion);
-    float W = XMVectorGetW(quaternion);
-    
-    const float SingularityTest = Z * X - W * Y;
-    const float YawY = 2.f * (W * Z + X * Y);
-    const float YawX = (1.f - 2.f * (Y * Y + Z * Z));
-    const float PI = 3.1415926535897932f;
-    const float SINGULARITY_THRESHOLD = 0.4999995f;
-    const float RAD_TO_DEG = (180.f / PI);
+
+    // Получаем компоненты кватерниона
+    float w = XMVectorGetW(quaternion);
+    float x = XMVectorGetX(quaternion);
+    float y = XMVectorGetY(quaternion);
+    float z = XMVectorGetZ(quaternion);
+
+    const float RAD_TO_DEG = 180.0f / XM_PI;
     float Pitch, Yaw, Roll;
-    
-    if (SingularityTest < -SINGULARITY_THRESHOLD)
+
+    // Нормализуем кватернион
+    float length = std::sqrt(w * w + x * x + y * y + z * z);
+    if (length != 0.0f)
     {
-        Pitch = -90.f;
-        Yaw = (std::atan2f(YawY, YawX) * RAD_TO_DEG);
-        Roll = Rotator::NormalizeAxis(-Yaw - (2.f * std::atan2f(X, W) * RAD_TO_DEG));
+        w /= length;
+        x /= length;
+        y /= length;
+        z /= length;
     }
-    else if (SingularityTest > SINGULARITY_THRESHOLD)
+
+    // Преобразуем в углы Эйлера
+    float sinp = 2.0f * (w * y - z * x);
+    if (std::abs(sinp) >= 1.0f)
     {
-        Pitch = 90.f;
-        Yaw = (std::atan2f(YawY, YawX) * RAD_TO_DEG);
-        Roll = Rotator::NormalizeAxis(Yaw - (2.f * std::atan2f(X, W) * RAD_TO_DEG));
+        // Случай gimbal lock
+        Pitch = std::copysignf(90.0f, sinp);
+        Roll = 0.0f;
+        Yaw = 2.0f * std::atan2f(x, w) * RAD_TO_DEG;
     }
     else
     {
-        Pitch = (std::asinf(2.f * SingularityTest) * RAD_TO_DEG);
-        Yaw = (std::atan2f(YawY, YawX) * RAD_TO_DEG);
-        Roll = (std::atan2f(-2.f * (W * X + Y * Z), (1.f - 2.f * (X * X + Y * Y))) * RAD_TO_DEG);
+        // Нормальный случай
+        Pitch = std::asinf(sinp) * RAD_TO_DEG;
+
+        float sinr_cosp = 2.0f * (w * x + y * z);
+        float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+        Roll = std::atan2f(sinr_cosp, cosr_cosp) * RAD_TO_DEG;
+
+        float siny_cosp = 2.0f * (w * z + x * y);
+        float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+        Yaw = std::atan2f(siny_cosp, cosy_cosp) * RAD_TO_DEG;
     }
+
+    // Нормализуем углы
+    if (Roll > 180.0f)
+        Roll -= 360.0f;
+    else if (Roll < -180.0f)
+        Roll += 360.0f;
+
+    if (Yaw > 180.0f)
+        Yaw -= 360.0f;
+    else if (Yaw < -180.0f)
+        Yaw += 360.0f;
 
     return Rotator(Pitch, Yaw, Roll);
 }

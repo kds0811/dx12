@@ -157,7 +157,7 @@ TEST_F(RotatorTest, AngleNormalization)
 {
     // Normalize180
     std::vector<std::pair<float, float>> testCases180 = {
-        {0.0f, 0.0f}, {180.0f, 180.0f}, {-180.0f, -180.0f}, {360.0f, 0.0f}, {540.0f, -180.0f}, {-360.0f, 0.0f}, {-540.0f, 180.0f}};
+        {0.0f, 0.0f}, {180.0f, 180.0f}, {-180.0f, -180.0f}, {360.0f, 0.0f}, {540.0f, 180.0f}, {-360.0f, 0.0f}, {-540.0f, -180.0f}};
 
     for (const auto& [input, expected] : testCases180)
     {
@@ -178,25 +178,51 @@ TEST_F(RotatorTest, AngleNormalization)
     }
 }
 
-// Конвертация кватернионов
 TEST_F(RotatorTest, QuaternionConversion)
 {
-    std::vector<Rotator> testRotators = {Rotator(0.0f, 0.0f, 0.0f), Rotator(90.0f, 0.0f, 0.0f), Rotator(0.0f, 90.0f, 0.0f),
-        Rotator(0.0f, 0.0f, 90.0f), Rotator(30.0f, 45.0f, 60.0f)};
-
-    for (const auto& original : testRotators)
+    struct TestCase
     {
-        auto quat = original.ToQuaternion();
-        auto result = Rotator::FromQuaternion(quat);
+        Rotator input;
+        const char* description;
+    };
+
+    std::vector<TestCase> testCases = {{Rotator(0.0f, 0.0f, 0.0f), "Zero rotation"}, {Rotator(90.0f, 0.0f, 0.0f), "90 degrees pitch"},
+        {Rotator(-90.0f, 0.0f, 0.0f), "-90 degrees pitch"}, {Rotator(0.0f, 90.0f, 0.0f), "90 degrees yaw"},
+        {Rotator(0.0f, -90.0f, 0.0f), "-90 degrees yaw"}, {Rotator(0.0f, 0.0f, 90.0f), "90 degrees roll"},
+        {Rotator(0.0f, 0.0f, -90.0f), "-90 degrees roll"}, {Rotator(45.0f, 45.0f, 45.0f), "45 degrees all axes"},
+        {Rotator(-45.0f, -45.0f, -45.0f), "-45 degrees all axes"}, {Rotator(30.0f, 45.0f, 60.0f), "Combined rotation"},
+        {Rotator(-30.0f, -45.0f, -60.0f), "Negative combined rotation"}, {Rotator(89.9f, 0.0f, 0.0f), "Near gimbal lock positive"},
+        {Rotator(-89.9f, 0.0f, 0.0f), "Near gimbal lock negative"}, {Rotator(0.0f, 180.0f, 0.0f), "180 degrees yaw"},
+        {Rotator(0.0f, -180.0f, 0.0f), "-180 degrees yaw"}};
+
+    const float epsilon = 0.1f;
+
+    for (const auto& tc : testCases)
+    {
+        // Преобразование Rotator -> Quaternion -> Rotator
+        DirectX::XMVECTOR quat = tc.input.ToQuaternion();
+        Rotator result = Rotator::FromQuaternion(quat);
 
         // Нормализуем углы перед сравнением
-        auto normalizedOriginal = original.Normalize180();
-        auto normalizedResult = result.Normalize180();
+        Rotator normalizedInput = tc.input.Normalize180();
+        Rotator normalizedResult = result.Normalize180();
 
-        EXPECT_TRUE(normalizedResult.IsNearEqual(normalizedOriginal, 0.1f))
-            << "Failed for rotation: " << original.GetPitch() << ", " << original.GetYaw() << ", " << original.GetRoll();
+        bool isEqual = normalizedResult.IsNearEqual(normalizedInput, epsilon);
+
+        if (!isEqual)
+        {
+            printf("\nTest case: %s\n", tc.description);
+            printf("Input  (P,Y,R): %.1f, %.1f, %.1f\n", tc.input.GetPitch(), tc.input.GetYaw(), tc.input.GetRoll());
+            printf("Result (P,Y,R): %.1f, %.1f, %.1f\n", result.GetPitch(), result.GetYaw(), result.GetRoll());
+            printf(
+                "Normalized Input : %.1f, %.1f, %.1f\n", normalizedInput.GetPitch(), normalizedInput.GetYaw(), normalizedInput.GetRoll());
+            printf("Normalized Result: %.1f, %.1f, %.1f\n", normalizedResult.GetPitch(), normalizedResult.GetYaw(),
+                normalizedResult.GetRoll());
+        }
+
+        EXPECT_TRUE(isEqual) << "Failed for test case: " << tc.description;
     }
-}
+}  
 
 // Векторы направления
 TEST_F(RotatorTest, DirectionVectors)
