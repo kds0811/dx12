@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include <utility>
 
-class alignas(16) Vector final
+struct alignas(16) Vector final
 {
 public:
     DirectX::XMFLOAT3A Data;
@@ -11,11 +11,12 @@ public:
     // constructors
     inline Vector() noexcept : Data(0.0f, 0.0f, 0.0f) {}
     inline Vector(float x, float y, float z) noexcept : Data(x, y, z) {}
+    inline explicit Vector(const DirectX::XMFLOAT3A& vec) noexcept : Data(vec.x, vec.y, vec.z) {}
     inline explicit Vector(const DirectX::XMFLOAT3& vec) noexcept : Data(vec.x, vec.y, vec.z) {}
     inline explicit Vector(DirectX::FXMVECTOR vec) noexcept { DirectX::XMStoreFloat3A(&Data, vec); }
 
     // standart members
-    Vector& operator=(const Vector& rhs)
+    Vector& operator=(const Vector& rhs) noexcept
     {
         if (this != &rhs)  
         {
@@ -25,7 +26,7 @@ public:
         }
         return *this;  
     }
-    Vector& operator=(Vector&& rhs)
+    Vector& operator=(Vector&& rhs) noexcept
     {
         if (this != &rhs)
         {
@@ -76,7 +77,7 @@ public:
     [[nodiscard]] float Angle(const Vector& other) const noexcept;
     [[nodiscard]] Vector Clamp(const Vector& min, const Vector& max) const noexcept;
     [[nodiscard]] Vector Rotate(DirectX::FXMVECTOR quat) const noexcept;
-    [[nodiscard]] Vector InverseRotate(DirectX::FXMVECTOR quat) const noexcept;
+    [[nodiscard]] Vector RotateInverse(DirectX::FXMVECTOR quat) const noexcept;
 
     // Static methods
     [[nodiscard]] static float Distance(const Vector& a, const Vector& b) noexcept;

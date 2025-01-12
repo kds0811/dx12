@@ -71,4 +71,6 @@ public:
 
     static constexpr float Infinity = FLT_MAX;
     static constexpr float Pi = 3.1415926535f;
+
+
 };

@@ -130,7 +130,7 @@ Vector Vector::Rotate(DirectX::FXMVECTOR quat) const noexcept
     return Vector(DirectX::XMVector3Rotate(ToSIMD(), quat));
 }
 
-Vector Vector::InverseRotate(DirectX::FXMVECTOR quat) const noexcept
+Vector Vector::RotateInverse(DirectX::FXMVECTOR quat) const noexcept
 {
     return Vector(DirectX::XMVector3InverseRotate(ToSIMD(), quat));
 }
