@@ -2,11 +2,11 @@
 #include <DirectXMath.h>
 #include "Vector.h"
 
-class alignas(16) Rotator
-{
-public:
-    
-
-public:
-   
-};
+//class alignas(16) Rotator
+//{
+//public:
+//    
+//
+//public:
+//   
+//};

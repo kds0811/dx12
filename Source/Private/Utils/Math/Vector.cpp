@@ -97,7 +97,12 @@ float Vector::LengthEst() const noexcept
 
 Vector Vector::Normalize() const noexcept
 {
-    return Vector(DirectX::XMVector3Normalize(DirectX::XMLoadFloat3A(&Data)));
+    DirectX::XMVECTOR normalized = DirectX::XMVector3Normalize(ToSIMD());
+    if (DirectX::XMVector3Equal(normalized, DirectX::XMVectorZero()))
+    {
+        return Vector::Zero();
+    }
+    return Vector(normalized);
 }
 
 float Vector::Dot(const Vector& other) const noexcept

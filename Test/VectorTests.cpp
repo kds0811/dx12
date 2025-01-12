@@ -241,3 +241,109 @@ TEST_F(VectorTest, Performance)
 
     EXPECT_NE(result, Vector::Zero());  // Предотвращаем оптимизацию
 }
+
+
+// Тест конструкторов копирования и перемещения
+TEST_F(VectorTest, CopyAndMoveConstructors)
+{
+    // Конструктор копирования
+    Vector v3(v1);
+    EXPECT_TRUE(v1 == v3);
+
+    // Конструктор перемещения
+    Vector v4 = std::move(v3);
+    EXPECT_TRUE(v1 == v4);
+    EXPECT_TRUE(v3 == Vector::Zero());  // Перемещенный объект обнуляется
+}
+
+// Тест операторов присваивания
+TEST_F(VectorTest, AssignmentOperators)
+{
+    // Копирующее присваивание
+    Vector v3;
+    v3 = v1;
+    EXPECT_TRUE(v1 == v3);
+
+    // Перемещающее присваивание
+    Vector v4;
+    v4 = std::move(v3);
+    EXPECT_TRUE(v1 == v4);
+    EXPECT_TRUE(v3 == Vector::Zero());  // Перемещенный объект обнуляется
+}
+
+// Тест поворота вектора
+TEST_F(VectorTest, Rotation)
+{
+    // Создаем кватернион поворота вокруг оси Y на 90 градусов
+    DirectX::XMVECTOR rotationQuaternion =
+        DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), DirectX::XM_PIDIV2);
+
+    Vector originalVector(1.0f, 0.0f, 0.0f);
+
+    // Прямой поворот
+    Vector rotatedVector = originalVector.Rotate(rotationQuaternion);
+    EXPECT_NEAR(rotatedVector.GetX(), 0.0f, epsilon);
+    EXPECT_NEAR(rotatedVector.GetY(), 0.0f, epsilon);
+    EXPECT_NEAR(rotatedVector.GetZ(), -1.0f, epsilon);
+
+    // Обратный поворот
+    Vector inverseRotatedVector = originalVector.InverseRotate(rotationQuaternion);
+    EXPECT_NEAR(inverseRotatedVector.GetX(), 0.0f, epsilon);
+    EXPECT_NEAR(inverseRotatedVector.GetY(), 0.0f, epsilon);
+    EXPECT_NEAR(inverseRotatedVector.GetZ(), 1.0f, epsilon);
+}
+
+// Расширенные тесты для Dot и Cross продукта
+TEST_F(VectorTest, DotAndCrossProduct)
+{
+    // Ортогональные векторы
+    Vector x(1.0f, 0.0f, 0.0f);
+    Vector y(0.0f, 1.0f, 0.0f);
+    Vector z(0.0f, 0.0f, 1.0f);
+
+    // Dot product
+    EXPECT_FLOAT_EQ(x.Dot(y), 0.0f);
+    EXPECT_FLOAT_EQ(x.Dot(x), 1.0f);
+
+    // Cross product
+    Vector crossXY = x.Cross(y);
+    EXPECT_TRUE(crossXY == z);
+
+    Vector crossYX = y.Cross(x);
+    EXPECT_TRUE(crossXY == crossYX * -1.0f);
+}
+
+
+// Тест на инварианты операций
+TEST_F(VectorTest, Invariants)
+{
+    // a + (-a) должно быть Zero()
+    Vector negV1 = v1 * -1.0f;
+    EXPECT_TRUE((v1 + negV1).NearEqual(Vector::Zero()));
+
+    // |a * k| = |a| * |k|
+    float scalar = 2.0f;
+    EXPECT_NEAR((v1 * scalar).Length(), v1.Length() * std::abs(scalar), epsilon);
+
+    // Дистанция от вектора до себя = 0
+    EXPECT_NEAR(Vector::Distance(v1, v1), 0.0f, epsilon);
+}
+
+// Тест совместимости с DirectX Math
+TEST_F(VectorTest, DirectXMathCompatibility)
+{
+    // Загрузка из SIMD вектора
+    DirectX::XMVECTOR simdVector = DirectX::XMVectorSet(1.0f, 2.0f, 3.0f, 0.0f);
+    Vector fromSIMD(simdVector);
+
+    // Преобразование обратно в SIMD
+    DirectX::XMVECTOR backToSIMD = fromSIMD.ToSIMD();
+
+    // Проверка компонент
+    float components[4];
+    DirectX::XMStoreFloat4(reinterpret_cast<DirectX::XMFLOAT4*>(components), backToSIMD);
+
+    EXPECT_NEAR(components[0], 1.0f, epsilon);
+    EXPECT_NEAR(components[1], 2.0f, epsilon);
+    EXPECT_NEAR(components[2], 3.0f, epsilon);
+}
