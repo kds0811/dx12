@@ -48,13 +48,20 @@ Vector Vector::operator*(const float& sc) const noexcept
 
 Vector& Vector::operator/=(const float& dv) noexcept
 {
-    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv)));
+    if (dv != 0.0f)
+    {
+        DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv)));
+    }
     return *this;
 }
 
 Vector Vector::operator/(const float& dv) const noexcept
 {
-    return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv));
+    if (dv != 0.0f)
+    {
+        return Vector(DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv));
+    }
+    return Vector::Zero();
 }
 
 bool Vector::operator==(const Vector& other) const noexcept
@@ -69,7 +76,7 @@ bool Vector::operator!=(const Vector& other) const noexcept
     return !(*this == other);
 }
 
-bool Vector::NearEqual(const Vector& other, float epsilon) const noexcept
+bool Vector::IsNearEqual(const Vector& other, float epsilon) const noexcept
 {
     return (std::abs(Data.x - other.Data.x) < epsilon) && (std::abs(Data.y - other.Data.y) < epsilon) &&
            (std::abs(Data.z - other.Data.z) < epsilon);

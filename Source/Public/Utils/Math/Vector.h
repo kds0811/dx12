@@ -65,7 +65,7 @@ public:
     Vector operator/(const float& dv) const noexcept;
     bool operator==(const Vector& other) const noexcept;
     bool operator!=(const Vector& other) const noexcept;
-    bool NearEqual(const Vector& other, float epsilon = 0.01) const noexcept;
+    bool IsNearEqual(const Vector& other, float epsilon = 0.01) const noexcept;
 
     // Base methods
     [[nodiscard]] inline DirectX::XMVECTOR ToSIMD() const noexcept { return DirectX::XMLoadFloat3A(&Data); }

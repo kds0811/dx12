@@ -108,9 +108,11 @@ add_executable(Tests
     Test/Test.cpp   
     Test/GameTimerTests.cpp
     Test/VectorTests.cpp
+    Test/RotatorTests.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
     Source/Private/Utils/Math/Vector.cpp
+    Source/Private/Utils/Math/Rotator.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 

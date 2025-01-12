@@ -51,13 +51,20 @@ Rotator Rotator::operator*(const float& sc) const noexcept
 
 Rotator& Rotator::operator/=(const float& dv) noexcept
 {
-    DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv)));
+    if (dv != 0.0f)
+    {
+        DirectX::XMStoreFloat3A(&Data, (DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv)));
+    }
     return *this;
 }
 
 Rotator Rotator::operator/(const float& dv) const noexcept
 {
-    return Rotator(DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv));
+    if (dv != 0.0f)
+    {
+        return Rotator(DirectX::XMVectorScale(DirectX::XMLoadFloat3A(&Data), 1 / dv));
+    }
+    return Rotator::Zero();
 }
 
 bool Rotator::operator==(const Rotator& other) const noexcept
@@ -72,7 +79,7 @@ bool Rotator::operator!=(const Rotator& other) const noexcept
     return !(*this == other);
 }
 
-bool Rotator::NearEqual(const Rotator& other, float epsilon) const noexcept
+bool Rotator::IsNearEqual(const Rotator& other, float epsilon) const noexcept
 {
     return (std::abs(Data.x - other.Data.x) < epsilon) && (std::abs(Data.y - other.Data.y) < epsilon) &&
            (std::abs(Data.z - other.Data.z) < epsilon);
@@ -80,37 +87,36 @@ bool Rotator::NearEqual(const Rotator& other, float epsilon) const noexcept
 
 Rotator Rotator::Normalize180() const noexcept
 {
-    auto NormalizeAngle = [](float angle) -> float
-    {
-        angle = std::fmod(angle, 360.0f);
-        if (angle > 180.0f)
-        {
-            angle -= 360.0f;
-        }
-        else if (angle < -180.0f)
-        {
-            angle += 360.0f;
-        }
+    // Загружаем углы в SIMD вектор
+    DirectX::XMVECTOR angles = ToSIMD();
 
-        return angle;
-    };
+    // Преобразуем в диапазон [-180, 180]
+    angles = DirectX::XMVectorMod(angles, DirectX::XMVectorReplicate(360.0f));
 
-    return Rotator(NormalizeAngle(Data.x), NormalizeAngle(Data.y), NormalizeAngle(Data.z));
+    // Корректируем углы > 180
+    DirectX::XMVECTOR mask = DirectX::XMVectorGreater(angles, DirectX::XMVectorReplicate(180.0f));
+    angles = DirectX::XMVectorSelect(angles, DirectX::XMVectorSubtract(angles, DirectX::XMVectorReplicate(360.0f)), mask);
+
+    // Корректируем углы < -180
+    mask = DirectX::XMVectorLess(angles, DirectX::XMVectorReplicate(-180.0f));
+    angles = DirectX::XMVectorSelect(angles, DirectX::XMVectorAdd(angles, DirectX::XMVectorReplicate(360.0f)), mask);
+
+    return Rotator(angles);
 }
 
 Rotator Rotator::Normalize360() const noexcept
 {
-    auto NormalizeAngle = [](float angle) -> float
-    {
-        angle = std::fmod(angle, 360.0f);
-        if (angle < 0.0f)
-        {
-            angle += 360.0f;
-        }
-        return angle;
-    };
+    // Загружаем углы в SIMD вектор
+    DirectX::XMVECTOR angles = ToSIMD();
 
-    return Rotator(NormalizeAngle(Data.x), NormalizeAngle(Data.y), NormalizeAngle(Data.z));
+    // Преобразуем в диапазон [0, 360]
+    angles = DirectX::XMVectorMod(angles, DirectX::XMVectorReplicate(360.0f));
+
+    // Корректируем отрицательные углы
+    DirectX::XMVECTOR mask = DirectX::XMVectorLess(angles, DirectX::XMVectorZero());
+    angles = DirectX::XMVectorSelect(angles, DirectX::XMVectorAdd(angles, DirectX::XMVectorReplicate(360.0f)), mask);
+
+    return Rotator(angles);
 }
 
 DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
@@ -121,20 +127,40 @@ DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
 
 Rotator Rotator::FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept
 {
-    DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
+    using namespace DirectX;
+    float X = XMVectorGetX(quaternion);
+    float Y = XMVectorGetY(quaternion);
+    float Z = XMVectorGetZ(quaternion);
+    float W = XMVectorGetW(quaternion);
+    
+    const float SingularityTest = Z * X - W * Y;
+    const float YawY = 2.f * (W * Z + X * Y);
+    const float YawX = (1.f - 2.f * (Y * Y + Z * Z));
+    const float PI = 3.1415926535897932f;
+    const float SINGULARITY_THRESHOLD = 0.4999995f;
+    const float RAD_TO_DEG = (180.f / PI);
+    float Pitch, Yaw, Roll;
+    
+    if (SingularityTest < -SINGULARITY_THRESHOLD)
+    {
+        Pitch = -90.f;
+        Yaw = (std::atan2f(YawY, YawX) * RAD_TO_DEG);
+        Roll = Rotator::NormalizeAxis(-Yaw - (2.f * std::atan2f(X, W) * RAD_TO_DEG));
+    }
+    else if (SingularityTest > SINGULARITY_THRESHOLD)
+    {
+        Pitch = 90.f;
+        Yaw = (std::atan2f(YawY, YawX) * RAD_TO_DEG);
+        Roll = Rotator::NormalizeAxis(Yaw - (2.f * std::atan2f(X, W) * RAD_TO_DEG));
+    }
+    else
+    {
+        Pitch = (std::asinf(2.f * SingularityTest) * RAD_TO_DEG);
+        Yaw = (std::atan2f(YawY, YawX) * RAD_TO_DEG);
+        Roll = (std::atan2f(-2.f * (W * X + Y * Z), (1.f - 2.f * (X * X + Y * Y))) * RAD_TO_DEG);
+    }
 
-    DirectX::XMVECTOR angles = DirectX::XMVectorSet(
-        -DirectX::XMVectorGetY(rotMatrix.r[2]), DirectX::XMVectorGetX(rotMatrix.r[2]), DirectX::XMVectorGetZ(rotMatrix.r[2]), 0.0f);
-
-    DirectX::XMVECTOR eulerAngles =
-        DirectX::XMVectorSet(std::atan2(DirectX::XMVectorGetY(rotMatrix.r[2]), DirectX::XMVectorGetZ(rotMatrix.r[2])),  // pitch
-            -std::asin(DirectX::XMVectorGetX(rotMatrix.r[2])),                                                          // yaw
-            std::atan2(DirectX::XMVectorGetX(rotMatrix.r[1]), DirectX::XMVectorGetX(rotMatrix.r[0])),                   // roll
-            0.0f);
-
-    eulerAngles = DirectX::XMVectorMultiply(eulerAngles, DirectX::XMVectorReplicate(180.0f / DirectX::XM_PI));
-
-    return Rotator(eulerAngles);
+    return Rotator(Pitch, Yaw, Roll);
 }
 
 Vector Rotator::GetForwardVector() const noexcept
@@ -175,5 +201,29 @@ Rotator Rotator::Clamp(const Rotator& min, const Rotator& max) const noexcept
 {
     return Rotator(
         std::clamp(Data.x, min.Data.x, max.Data.x), std::clamp(Data.y, min.Data.y, max.Data.y), std::clamp(Data.z, min.Data.z, max.Data.z));
+}
+
+float Rotator::NormalizeAxis(float Angle)
+{
+    // returns Angle in the range [0,360)
+    Angle = ClampAxis(Angle);
+
+    if (Angle > 180.0f)
+    {
+        // shift to (-180,180]
+        Angle -= 360.0f;
+    }
+
+    return Angle;
+}
+
+float Rotator::ClampAxis(float Angle)
+{
+    Angle = std::fmod(Angle, 360.0f);
+    if (Angle < 0.0f)
+    {
+        Angle += 360.0f;
+    }
+    return Angle;
 }
 

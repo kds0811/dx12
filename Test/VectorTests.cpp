@@ -136,8 +136,8 @@ TEST_F(VectorTest, Comparison)
 TEST_F(VectorTest, NearEqual)
 {
     Vector v3(1.001f, 2.001f, 3.001f);
-    EXPECT_TRUE(v1.NearEqual(v3, 0.01f));
-    EXPECT_FALSE(v1.NearEqual(v3, 0.0001f));
+    EXPECT_TRUE(v1.IsNearEqual(v3, 0.01f));
+    EXPECT_FALSE(v1.IsNearEqual(v3, 0.0001f));
 }
 
 // Тесты математических функций
@@ -197,7 +197,7 @@ TEST_F(VectorTest, StaticFunctions)
     Vector start(0.0f, 0.0f, 0.0f);
     Vector end(2.0f, 2.0f, 2.0f);
     Vector mid = Vector::Lerp(start, end, 0.5f);
-    EXPECT_TRUE(mid.NearEqual(Vector(1.0f, 1.0f, 1.0f)));
+    EXPECT_TRUE(mid.IsNearEqual(Vector(1.0f, 1.0f, 1.0f)));
 }
 
 // Тест конвертации SIMD
@@ -213,7 +213,7 @@ TEST_F(VectorTest, EdgeCases)
 {
     // Деление на ноль
     Vector v3 = v1 / 0.0f;
-    EXPECT_TRUE(std::isinf(v3.Data.x) || std::isnan(v3.Data.x));
+    EXPECT_TRUE(v3.IsNearEqual(Vector(0.0f, 0.0f, 0.0f)));
 
     // Нормализация нулевого вектора
     Vector normalizedZero = zero.Normalize();
@@ -319,7 +319,7 @@ TEST_F(VectorTest, Invariants)
 {
     // a + (-a) должно быть Zero()
     Vector negV1 = v1 * -1.0f;
-    EXPECT_TRUE((v1 + negV1).NearEqual(Vector::Zero()));
+    EXPECT_TRUE((v1 + negV1).IsNearEqual(Vector::Zero()));
 
     // |a * k| = |a| * |k|
     float scalar = 2.0f;

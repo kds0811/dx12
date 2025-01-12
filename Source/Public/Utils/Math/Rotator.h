@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include <utility>
 
-class Vector;
+struct Vector;
 
 struct alignas(16) Rotator final
 {
@@ -64,20 +64,24 @@ public:
     Rotator operator/(const float& dv) const noexcept;
     bool operator==(const Rotator& other) const noexcept;
     bool operator!=(const Rotator& other) const noexcept;
-    bool NearEqual(const Rotator& other, float epsilon = 0.01) const noexcept;
+    bool IsNearEqual(const Rotator& other, float epsilon = 0.01) const noexcept;
 
     // Base methods
     [[nodiscard]] inline DirectX::XMVECTOR ToSIMD() const noexcept { return DirectX::XMLoadFloat3A(&Data); }
     [[nodiscard]] Rotator Normalize180() const noexcept;
     [[nodiscard]] Rotator Normalize360() const noexcept;
+    
     [[nodiscard]] DirectX::XMVECTOR ToQuaternion() const noexcept;
     static Rotator FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept;
     [[nodiscard]] Vector GetForwardVector() const noexcept;
     [[nodiscard]] Vector GetRightVector() const noexcept;
     [[nodiscard]] Vector GetUpVector() const noexcept;
     [[nodiscard]] Rotator Clamp(const Rotator& min, const Rotator& max) const noexcept;
+    
 
     // Statics
     [[nodiscard]] static Rotator Zero() noexcept { return Rotator(0.0f, 0.0f, 0.0f); }
     [[nodiscard]] static Rotator Lerp(const Rotator& start, const Rotator& end, float alpha) noexcept;
+    [[nodiscard]] static float NormalizeAxis(float Angle);
+    [[nodiscard]] static float ClampAxis(float Angle);
 };
