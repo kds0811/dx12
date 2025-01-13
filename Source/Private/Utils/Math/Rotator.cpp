@@ -177,10 +177,11 @@ Vector Rotator::GetUpVector() const noexcept
 Rotator Rotator::Lerp(const Rotator& start, const Rotator& end, float alpha) noexcept
 {
     alpha = std::clamp(alpha, 0.0f, 1.0f);
-    auto startQuat = start.ToQuaternion();
-    auto endQuat = end.ToQuaternion();
-    auto resultQuat = DirectX::XMQuaternionSlerp(startQuat, endQuat, alpha);
-    return FromQuaternion(resultQuat);
+    Rotator res;
+    res.SetPitch(start.GetPitch() + alpha * (end.GetPitch() - start.GetPitch()));
+    res.SetYaw(start.GetYaw() + alpha * (end.GetYaw() - start.GetYaw()));
+    res.SetRoll(start.GetRoll() + alpha * (end.GetRoll() - start.GetRoll()));
+    return res;
 }
 
 Rotator Rotator::Clamp(const Rotator& min, const Rotator& max) const noexcept

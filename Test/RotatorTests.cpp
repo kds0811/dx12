@@ -52,14 +52,15 @@ TEST_F(RotatorTest, QuaternionConversion)
         {Rotator(-45.0f, -45.0f, -45.0f), "-45 degrees all axes"}, {Rotator(30.0f, 45.0f, 60.0f), "Combined rotation"},
         {Rotator(-30.0f, -45.0f, -60.0f), "Negative combined rotation"}, {Rotator(89.9f, 0.0f, 0.0f), "Near gimbal lock positive"},
         {Rotator(-89.9f, 0.0f, 0.0f), "Near gimbal lock negative"}, {Rotator(0.0f, 180.0f, 0.0f), "180 degrees yaw"},
-        {Rotator(0.0f, -180.0f, 0.0f), "-180 degrees yaw"}};
+        {Rotator(0.0f, -180.0f, 0.0f), "-180 degrees yaw"}, {Rotator(12.35f, 177.0f, 55.546f), "Random"},
+        {Rotator(45.0021f, 66.7899f, 0.546f), "Random1"}, {Rotator(0.0021f, 90.7899f, 0.546f), "Random2"}};
 
     for (const auto& tc : testCases)
     {
         DirectX::XMVECTOR quat = tc.input.ToQuaternion();
         Rotator result = Rotator::FromQuaternion(quat);
         bool isEqual = tc.input.Normalize360() == result.Normalize360();
-        if (!isEqual)
+        //if (!isEqual)
         {
             printf("\nTest case: %s\n", tc.description);
             printf("Input  (P,Y,R): %.1f, %.1f, %.1f\n", tc.input.GetPitch(), tc.input.GetYaw(), tc.input.GetRoll());
@@ -395,13 +396,6 @@ TEST_F(RotatorTest, Interpolation)
     // Начальный и конечный повороты
     Rotator start(0.0f, 0.0f, 0.0f);
     Rotator end(90.0f, 90.0f, 90.0f);
-
-    // Вывод информации о начальном и конечном поворотах
-    std::cout << "Interpolation Test:" << std::endl;
-    std::cout << "Start Rotator: "
-              << "Pitch=" << start.GetPitch() << ", Yaw=" << start.GetYaw() << ", Roll=" << start.GetRoll() << std::endl;
-    std::cout << "End Rotator: "
-              << "Pitch=" << end.GetPitch() << ", Yaw=" << end.GetYaw() << ", Roll=" << end.GetRoll() << std::endl;
 
     // Interpolation at 0.0 (start)
     auto result0 = Rotator::Lerp(start, end, 0.0f);
