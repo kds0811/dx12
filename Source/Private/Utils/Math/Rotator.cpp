@@ -3,6 +3,7 @@
 #include <cmath>
 #include "Vector.h"
 #include <algorithm>
+#include "EulerAngles.h"
 
 Rotator& Rotator::operator+=(const Rotator& other) noexcept
 {
@@ -127,62 +128,20 @@ DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
 
 Rotator Rotator::FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept
 {
-    // using namespace DirectX;
+    using namespace DirectX;
 
-    //// Получаем компоненты кватерниона
-    // float w = XMVectorGetW(quaternion);
-    // float x = XMVectorGetX(quaternion);
-    // float y = XMVectorGetY(quaternion);
-    // float z = XMVectorGetZ(quaternion);
+    auto NormQuat = XMQuaternionNormalize(quaternion);
+    Quat qt;
+    qt.w = XMVectorGetW(quaternion);
+    qt.x = XMVectorGetX(quaternion);
+    qt.y = XMVectorGetY(quaternion);
+    qt.z = XMVectorGetZ(quaternion); 
+    
+    const float RAD_TO_DEG = 180.0f / XM_PI;
 
-    // const float RAD_TO_DEG = 180.0f / XM_PI;
-    // float Pitch, Yaw, Roll;
-
-    //// Нормализуем кватернион
-    // float length = std::sqrt(w * w + x * x + y * y + z * z);
-    // if (length != 0.0f)
-    //{
-    //     w /= length;
-    //     x /= length;
-    //     y /= length;
-    //     z /= length;
-    // }
-
-    //// Преобразуем в углы Эйлера
-    // float sinp = 2.0f * (w * y - z * x);
-    // if (std::abs(sinp) >= 1.0f)
-    //{
-    //     // Случай gimbal lock
-    //     Pitch = std::copysignf(90.0f, sinp);
-    //     Roll = 0.0f;
-    //     Yaw = 2.0f * std::atan2f(x, w) * RAD_TO_DEG;
-    // }
-    // else
-    //{
-    //     // Нормальный случай
-    //     Pitch = std::asinf(sinp) * RAD_TO_DEG;
-
-    //    float sinr_cosp = 2.0f * (w * x + y * z);
-    //    float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
-    //    Roll = std::atan2f(sinr_cosp, cosr_cosp) * RAD_TO_DEG;
-
-    //    float siny_cosp = 2.0f * (w * z + x * y);
-    //    float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
-    //    Yaw = std::atan2f(siny_cosp, cosy_cosp) * RAD_TO_DEG;
-    //}
-
-    //// Нормализуем углы
-    // if (Roll > 180.0f)
-    //     Roll -= 360.0f;
-    // else if (Roll < -180.0f)
-    //     Roll += 360.0f;
-
-    // if (Yaw > 180.0f)
-    //     Yaw -= 360.0f;
-    // else if (Yaw < -180.0f)
-    //     Yaw += 360.0f;
-
-    // return Rotator(Pitch, Yaw, Roll);
+    auto eul = Eul_FromQuat(qt, EulOrdYXZr);
+    
+    return Rotator(eul.y * RAD_TO_DEG, eul.x * RAD_TO_DEG, eul.z * RAD_TO_DEG);
 }
 
 DirectX::XMMATRIX Rotator::ToMatrix() const noexcept
