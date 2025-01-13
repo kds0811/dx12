@@ -119,7 +119,6 @@ Rotator Rotator::Normalize360() const noexcept
     return Rotator(angles);
 }
 
-
 DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
 {
     return DirectX::XMQuaternionRotationRollPitchYaw(
@@ -128,62 +127,68 @@ DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
 
 Rotator Rotator::FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept
 {
-    using namespace DirectX;
+    // using namespace DirectX;
 
-    // Получаем компоненты кватерниона
-    float w = XMVectorGetW(quaternion);
-    float x = XMVectorGetX(quaternion);
-    float y = XMVectorGetY(quaternion);
-    float z = XMVectorGetZ(quaternion);
+    //// Получаем компоненты кватерниона
+    // float w = XMVectorGetW(quaternion);
+    // float x = XMVectorGetX(quaternion);
+    // float y = XMVectorGetY(quaternion);
+    // float z = XMVectorGetZ(quaternion);
 
-    const float RAD_TO_DEG = 180.0f / XM_PI;
-    float Pitch, Yaw, Roll;
+    // const float RAD_TO_DEG = 180.0f / XM_PI;
+    // float Pitch, Yaw, Roll;
 
-    // Нормализуем кватернион
-    float length = std::sqrt(w * w + x * x + y * y + z * z);
-    if (length != 0.0f)
-    {
-        w /= length;
-        x /= length;
-        y /= length;
-        z /= length;
-    }
+    //// Нормализуем кватернион
+    // float length = std::sqrt(w * w + x * x + y * y + z * z);
+    // if (length != 0.0f)
+    //{
+    //     w /= length;
+    //     x /= length;
+    //     y /= length;
+    //     z /= length;
+    // }
 
-    // Преобразуем в углы Эйлера
-    float sinp = 2.0f * (w * y - z * x);
-    if (std::abs(sinp) >= 1.0f)
-    {
-        // Случай gimbal lock
-        Pitch = std::copysignf(90.0f, sinp);
-        Roll = 0.0f;
-        Yaw = 2.0f * std::atan2f(x, w) * RAD_TO_DEG;
-    }
-    else
-    {
-        // Нормальный случай
-        Pitch = std::asinf(sinp) * RAD_TO_DEG;
+    //// Преобразуем в углы Эйлера
+    // float sinp = 2.0f * (w * y - z * x);
+    // if (std::abs(sinp) >= 1.0f)
+    //{
+    //     // Случай gimbal lock
+    //     Pitch = std::copysignf(90.0f, sinp);
+    //     Roll = 0.0f;
+    //     Yaw = 2.0f * std::atan2f(x, w) * RAD_TO_DEG;
+    // }
+    // else
+    //{
+    //     // Нормальный случай
+    //     Pitch = std::asinf(sinp) * RAD_TO_DEG;
 
-        float sinr_cosp = 2.0f * (w * x + y * z);
-        float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
-        Roll = std::atan2f(sinr_cosp, cosr_cosp) * RAD_TO_DEG;
+    //    float sinr_cosp = 2.0f * (w * x + y * z);
+    //    float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+    //    Roll = std::atan2f(sinr_cosp, cosr_cosp) * RAD_TO_DEG;
 
-        float siny_cosp = 2.0f * (w * z + x * y);
-        float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
-        Yaw = std::atan2f(siny_cosp, cosy_cosp) * RAD_TO_DEG;
-    }
+    //    float siny_cosp = 2.0f * (w * z + x * y);
+    //    float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+    //    Yaw = std::atan2f(siny_cosp, cosy_cosp) * RAD_TO_DEG;
+    //}
 
-    // Нормализуем углы
-    if (Roll > 180.0f)
-        Roll -= 360.0f;
-    else if (Roll < -180.0f)
-        Roll += 360.0f;
+    //// Нормализуем углы
+    // if (Roll > 180.0f)
+    //     Roll -= 360.0f;
+    // else if (Roll < -180.0f)
+    //     Roll += 360.0f;
 
-    if (Yaw > 180.0f)
-        Yaw -= 360.0f;
-    else if (Yaw < -180.0f)
-        Yaw += 360.0f;
+    // if (Yaw > 180.0f)
+    //     Yaw -= 360.0f;
+    // else if (Yaw < -180.0f)
+    //     Yaw += 360.0f;
 
-    return Rotator(Pitch, Yaw, Roll);
+    // return Rotator(Pitch, Yaw, Roll);
+}
+
+DirectX::XMMATRIX Rotator::ToMatrix() const noexcept
+{
+    return DirectX::XMMatrixRotationRollPitchYaw(
+        DirectX::XMConvertToRadians(GetPitch()), DirectX::XMConvertToRadians(GetYaw()), DirectX::XMConvertToRadians(GetRoll()));
 }
 
 Vector Rotator::GetForwardVector() const noexcept
@@ -208,7 +213,7 @@ Vector Rotator::GetUpVector() const noexcept
     // Up = +Y
     auto up = DirectX::XMVector3Rotate(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), quat);
     return Vector(DirectX::XMVector3Normalize(up));
-}  
+}
 
 Rotator Rotator::Lerp(const Rotator& start, const Rotator& end, float alpha) noexcept
 {
@@ -218,7 +223,6 @@ Rotator Rotator::Lerp(const Rotator& start, const Rotator& end, float alpha) noe
     auto resultQuat = DirectX::XMQuaternionSlerp(startQuat, endQuat, alpha);
     return FromQuaternion(resultQuat);
 }
-
 
 Rotator Rotator::Clamp(const Rotator& min, const Rotator& max) const noexcept
 {
@@ -250,3 +254,22 @@ float Rotator::ClampAxis(float Angle)
     return Angle;
 }
 
+DirectX::XMVECTOR Rotator::MatrixToQuat(DirectX::FXMMATRIX matrix)
+{
+    return DirectX::XMQuaternionRotationMatrix(matrix);
+}
+
+bool Rotator::QuatsIsEqual(DirectX::FXMVECTOR quat1, DirectX::FXMVECTOR quat2)
+{
+    return DirectX::XMQuaternionEqual(quat1, quat2);
+}
+
+bool Rotator::QuaternionsAreEqual(DirectX::XMVECTOR quat1, DirectX::XMVECTOR quat2, float epsilon)
+{
+    DirectX::XMVECTOR normQuat1 = DirectX::XMQuaternionNormalize(quat1);
+    DirectX::XMVECTOR normQuat2 = DirectX::XMQuaternionNormalize(quat2);
+
+    float dot = DirectX::XMVectorGetX(DirectX::XMQuaternionDot(normQuat1, normQuat2));
+
+    return (std::abs(dot) >= 1.0f - epsilon);
+}

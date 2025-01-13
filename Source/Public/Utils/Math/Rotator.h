@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <utility>
+#include <cmath>
 
 struct Vector;
 
@@ -14,9 +15,9 @@ public:
     inline Rotator(float pitch, float yaw, float roll) noexcept : Data(pitch, yaw, roll) {}
     inline explicit Rotator(const DirectX::XMFLOAT3A& rot) noexcept : Data(rot.x, rot.y, rot.z) {}
     inline explicit Rotator(const DirectX::XMFLOAT3& rot) noexcept : Data(rot.x, rot.y, rot.z) {}
-    inline explicit Rotator(DirectX::FXMVECTOR rot) noexcept { DirectX::XMStoreFloat3A(&Data, rot);}
+    inline explicit Rotator(DirectX::FXMVECTOR rot) noexcept { DirectX::XMStoreFloat3A(&Data, rot); }
 
-     // standart members
+    // standart members
     Rotator& operator=(const Rotator& rhs) noexcept
     {
         if (this != &rhs)
@@ -40,7 +41,8 @@ public:
     inline Rotator(const Rotator& rhs) noexcept : Data(rhs.Data.x, rhs.Data.y, rhs.Data.z) {}
     inline Rotator(Rotator&& rhs) noexcept
         : Data(std::exchange(rhs.Data.x, 0.0f), std::exchange(rhs.Data.y, 0.0f), std::exchange(rhs.Data.z, 0.0f))
-    {}
+    {
+    }
 
     // Seters
     inline void SetPitch(const float& Pitch) noexcept { Data.x = Pitch; }
@@ -70,18 +72,21 @@ public:
     [[nodiscard]] inline DirectX::XMVECTOR ToSIMD() const noexcept { return DirectX::XMLoadFloat3A(&Data); }
     [[nodiscard]] Rotator Normalize180() const noexcept;
     [[nodiscard]] Rotator Normalize360() const noexcept;
-    
+
     [[nodiscard]] DirectX::XMVECTOR ToQuaternion() const noexcept;
-    static Rotator FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept;
+    [[nodiscard]] static Rotator FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept;
+    [[nodiscard]] DirectX::XMMATRIX ToMatrix() const noexcept;
     [[nodiscard]] Vector GetForwardVector() const noexcept;
     [[nodiscard]] Vector GetRightVector() const noexcept;
     [[nodiscard]] Vector GetUpVector() const noexcept;
     [[nodiscard]] Rotator Clamp(const Rotator& min, const Rotator& max) const noexcept;
-    
 
     // Statics
     [[nodiscard]] static Rotator Zero() noexcept { return Rotator(0.0f, 0.0f, 0.0f); }
     [[nodiscard]] static Rotator Lerp(const Rotator& start, const Rotator& end, float alpha) noexcept;
     [[nodiscard]] static float NormalizeAxis(float Angle);
     [[nodiscard]] static float ClampAxis(float Angle);
+    [[nodiscard]] static DirectX::XMVECTOR MatrixToQuat(DirectX::FXMMATRIX matrix);
+    [[nodiscard]] static bool QuatsIsEqual(DirectX::FXMVECTOR quat1, DirectX::FXMVECTOR quat2);
+    static bool QuaternionsAreEqual(DirectX::XMVECTOR quat1, DirectX::XMVECTOR quat2, float epsilon = 1e-4f);
 };

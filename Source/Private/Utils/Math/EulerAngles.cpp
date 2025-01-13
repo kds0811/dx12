@@ -197,3 +197,4 @@ EulerAngles Eul_FromQuat(Quat q, int order)
     M[W][X] = M[W][Y] = M[W][Z] = M[X][W] = M[Y][W] = M[Z][W] = 0.f;
     M[W][W] = 1.f;
     return (Eul_FromHMatrix(M, order));
+}
