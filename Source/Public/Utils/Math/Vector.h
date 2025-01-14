@@ -13,8 +13,8 @@ public:
     // constructors
     inline Vector() noexcept : Data(0.0f, 0.0f, 0.0f) {}
     inline Vector(float x, float y, float z) noexcept : Data(x, y, z) {}
-    inline explicit Vector(const DirectX::XMFLOAT3A& vec) noexcept : Data(vec.x, vec.y, vec.z) {}
-    inline explicit Vector(const DirectX::XMFLOAT3& vec) noexcept : Data(vec.x, vec.y, vec.z) {}
+    inline explicit Vector(const DirectX::XMFLOAT3A vec) noexcept : Data(vec.x, vec.y, vec.z) {}
+    inline explicit Vector(const DirectX::XMFLOAT3 vec) noexcept : Data(vec.x, vec.y, vec.z) {}
     inline explicit Vector(DirectX::FXMVECTOR vec) noexcept { DirectX::XMStoreFloat3A(&Data, vec); }
 
     // standart members

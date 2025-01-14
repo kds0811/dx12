@@ -3,7 +3,12 @@
 #include <cmath>
 #include "Vector.h"
 #include <algorithm>
-#include "EulerAngles.h"
+#include "Quat.h"
+
+Rotator::Rotator(Quat quat) 
+{
+    *this = Quat::QuatToRotator(quat);
+}
 
 Rotator& Rotator::operator+=(const Rotator& other) noexcept
 {
@@ -120,29 +125,6 @@ Rotator Rotator::Normalize360() const noexcept
     return Rotator(angles);
 }
 
-DirectX::XMVECTOR Rotator::ToQuaternion() const noexcept
-{
-    return DirectX::XMQuaternionRotationRollPitchYaw(
-        DirectX::XMConvertToRadians(Data.x), DirectX::XMConvertToRadians(Data.y), DirectX::XMConvertToRadians(Data.z));
-}
-
-Rotator Rotator::FromQuaternion(DirectX::FXMVECTOR quaternion) noexcept
-{
-    using namespace DirectX;
-
-    auto NormQuat = XMQuaternionNormalize(quaternion);
-    Quat qt;
-    qt.w = XMVectorGetW(quaternion);
-    qt.x = XMVectorGetX(quaternion);
-    qt.y = XMVectorGetY(quaternion);
-    qt.z = XMVectorGetZ(quaternion); 
-    
-    const float RAD_TO_DEG = 180.0f / XM_PI;
-
-    auto eul = Eul_FromQuat(qt, EulOrdYXZr);
-    
-    return Rotator(eul.y * RAD_TO_DEG, eul.x * RAD_TO_DEG, eul.z * RAD_TO_DEG);
-}
 
 DirectX::XMMATRIX Rotator::ToMatrix() const noexcept
 {
@@ -152,7 +134,7 @@ DirectX::XMMATRIX Rotator::ToMatrix() const noexcept
 
 Vector Rotator::GetForwardVector() const noexcept
 {
-    auto quat = ToQuaternion();
+    auto quat = ToQuatSIMD();
     // Forward = +Z
     auto forward = DirectX::XMVector3Rotate(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), quat);
     return Vector(DirectX::XMVector3Normalize(forward));
@@ -160,7 +142,7 @@ Vector Rotator::GetForwardVector() const noexcept
 
 Vector Rotator::GetRightVector() const noexcept
 {
-    auto quat = ToQuaternion();
+    auto quat = ToQuatSIMD();
     // Right = +X
     auto right = DirectX::XMVector3Rotate(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), quat);
     return Vector(DirectX::XMVector3Normalize(right));
@@ -168,7 +150,7 @@ Vector Rotator::GetRightVector() const noexcept
 
 Vector Rotator::GetUpVector() const noexcept
 {
-    auto quat = ToQuaternion();
+    auto quat = ToQuatSIMD();
     // Up = +Y
     auto up = DirectX::XMVector3Rotate(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), quat);
     return Vector(DirectX::XMVector3Normalize(up));
@@ -188,6 +170,26 @@ Rotator Rotator::Clamp(const Rotator& min, const Rotator& max) const noexcept
 {
     return Rotator(
         std::clamp(Data.x, min.Data.x, max.Data.x), std::clamp(Data.y, min.Data.y, max.Data.y), std::clamp(Data.z, min.Data.z, max.Data.z));
+}
+
+DirectX::XMVECTOR Rotator::ToQuatSIMD() const noexcept
+{
+    return Quat::RotatorToQuatSIMD(*this);
+}
+
+Quat Rotator::ToQuat() const noexcept
+{
+    return Quat::RotatorToQuat(*this);
+}
+
+Rotator Rotator::FromQuat(DirectX::FXMVECTOR quat) noexcept
+{
+    return Quat::QuatToRotator(quat);
+}
+
+Rotator Rotator::FromQuat(const Quat& quat) noexcept
+{
+    return Quat::QuatToRotator(quat);
 }
 
 float Rotator::NormalizeAxis(float Angle)
@@ -214,22 +216,3 @@ float Rotator::ClampAxis(float Angle)
     return Angle;
 }
 
-DirectX::XMVECTOR Rotator::MatrixToQuat(DirectX::FXMMATRIX matrix)
-{
-    return DirectX::XMQuaternionRotationMatrix(matrix);
-}
-
-bool Rotator::QuatsIsEqual(DirectX::FXMVECTOR quat1, DirectX::FXMVECTOR quat2)
-{
-    return DirectX::XMQuaternionEqual(quat1, quat2);
-}
-
-bool Rotator::QuaternionsAreEqual(DirectX::XMVECTOR quat1, DirectX::XMVECTOR quat2, float epsilon)
-{
-    DirectX::XMVECTOR normQuat1 = DirectX::XMQuaternionNormalize(quat1);
-    DirectX::XMVECTOR normQuat2 = DirectX::XMQuaternionNormalize(quat2);
-
-    float dot = DirectX::XMVectorGetX(DirectX::XMQuaternionDot(normQuat1, normQuat2));
-
-    return (std::abs(dot) >= 1.0f - epsilon);
-}

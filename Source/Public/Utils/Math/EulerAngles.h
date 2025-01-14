@@ -4,9 +4,9 @@
 typedef struct
 {
     float x, y, z, w;
-} Quat; /* Quaternion */
+} Quat1; /* Quat1ernion */
 
-enum QuatPart
+enum Quat1Part
 {
     X,
     Y,
@@ -14,7 +14,7 @@ enum QuatPart
     W
 };
 typedef float HMatrix[4][4]; /* Right-handed, for column vectors */
-typedef Quat EulerAngles;    /* (x,y,z)=ang 1,2,3, w=order code  */
+typedef Quat1 EulerAngles;    /* (x,y,z)=ang 1,2,3, w=order code  */
 
 
 
@@ -91,10 +91,10 @@ typedef Quat EulerAngles;    /* (x,y,z)=ang 1,2,3, w=order code  */
 #define EulOrdZYZr EulOrd(Z, EulParOdd, EulRepYes, EulFrmR)
 
 static EulerAngles Eul_(float ai, float aj, float ah, int order);
-static Quat Eul_ToQuat(EulerAngles ea);
+static Quat1 Eul_ToQuat1(EulerAngles ea);
 static void Eul_ToHMatrix(EulerAngles ea, HMatrix M);
 static EulerAngles Eul_FromHMatrix(HMatrix M, int order);
-static EulerAngles Eul_FromQuat(Quat q, int order);
+static EulerAngles Eul_FromQuat1(Quat1 q, int order);
 
 /**** EulerAngles.c - Convert Euler angles to/from matrix or quat ****/
 /* Ken Shoemake, 1993 */
@@ -111,9 +111,9 @@ EulerAngles Eul_(float ai, float aj, float ah, int order)
     return (ea);
 }
 /* Construct quaternion from Euler angles (in radians). */
-Quat Eul_ToQuat(EulerAngles ea)
+Quat1 Eul_ToQuat1(EulerAngles ea)
 {
-    Quat qu;
+    Quat1 qu;
     float a[3], ti, tj, th, ci, cj, ch, si, sj, sh, cc, cs, sc, ss;
     int i, j, k, h, n, s, f;
     EulGetOrd(ea.w, i, j, k, h, n, s, f);
@@ -272,7 +272,7 @@ EulerAngles Eul_FromHMatrix(HMatrix M, int order)
 }
 
 /* Convert quaternion to Euler angles (in radians). */
-EulerAngles Eul_FromQuat(Quat q, int order)
+EulerAngles Eul_FromQuat1(Quat1 q, int order)
 {
     HMatrix M;
     float Nq = q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
