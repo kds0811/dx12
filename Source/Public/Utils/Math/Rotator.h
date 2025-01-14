@@ -42,7 +42,9 @@ public:
     }
     inline Rotator(const Rotator& rhs) noexcept : Data(rhs.Data.x, rhs.Data.y, rhs.Data.z) {}
     inline Rotator(Rotator&& rhs) noexcept
-        : Data(std::exchange(rhs.Data.x, 0.0f), std::exchange(rhs.Data.y, 0.0f), std::exchange(rhs.Data.z, 0.0f)) {}
+        : Data(std::exchange(rhs.Data.x, 0.0f), std::exchange(rhs.Data.y, 0.0f), std::exchange(rhs.Data.z, 0.0f))
+    {
+    }
 
     // Seters
     inline void SetPitch(const float& Pitch) noexcept { Data.x = Pitch; }
@@ -54,6 +56,12 @@ public:
     inline float GetYaw() const noexcept { return Data.y; }
     inline float GetRoll() const noexcept { return Data.z; }
     inline DirectX::XMFLOAT3A GetData() const noexcept { return Data; }
+    inline void SetData(float pitch, float yaw, float roll)
+    {
+        Data.x = pitch;
+        Data.y = yaw;
+        Data.z = roll;
+    }
 
     // operators
     Rotator& operator+=(const Rotator& other) noexcept;
@@ -78,11 +86,10 @@ public:
     [[nodiscard]] Quat ToQuat() const noexcept;
     [[nodiscard]] DirectX::XMMATRIX ToMatrix() const noexcept;
 
-    //Direction Vectors
+    // Direction Vectors
     [[nodiscard]] Vector GetForwardVector() const noexcept;
     [[nodiscard]] Vector GetRightVector() const noexcept;
     [[nodiscard]] Vector GetUpVector() const noexcept;
-    
 
     // Statics
     [[nodiscard]] static Rotator FromQuat(DirectX::FXMVECTOR quat) noexcept;

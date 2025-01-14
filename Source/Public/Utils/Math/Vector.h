@@ -2,7 +2,8 @@
 #include <DirectXMath.h>
 #include <utility>
 
-
+struct Rotator;
+struct Quat;
 
 struct alignas(16) Vector final
 {
@@ -80,6 +81,8 @@ public:
     [[nodiscard]] float Angle(const Vector& other) const noexcept;
     [[nodiscard]] Vector Clamp(const Vector& min, const Vector& max) const noexcept;
     [[nodiscard]] Vector Rotate(DirectX::FXMVECTOR quat) const noexcept;
+    [[nodiscard]] Vector Rotate(const Quat& quat) const noexcept;
+    [[nodiscard]] Vector Rotate(const Rotator& rot) const noexcept;
     [[nodiscard]] Vector RotateInverse(DirectX::FXMVECTOR quat) const noexcept;
 
     // Static methods

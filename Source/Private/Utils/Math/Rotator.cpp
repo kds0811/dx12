@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "Quat.h"
 
-Rotator::Rotator(Quat quat) 
+Rotator::Rotator(Quat quat)
 {
     *this = Quat::QuatToRotator(quat);
 }
@@ -125,7 +125,6 @@ Rotator Rotator::Normalize360() const noexcept
     return Rotator(angles);
 }
 
-
 DirectX::XMMATRIX Rotator::ToMatrix() const noexcept
 {
     return DirectX::XMMatrixRotationRollPitchYaw(
@@ -174,12 +173,16 @@ Rotator Rotator::Clamp(const Rotator& min, const Rotator& max) const noexcept
 
 DirectX::XMVECTOR Rotator::ToQuatSIMD() const noexcept
 {
-    return Quat::RotatorToQuatSIMD(*this);
+    return DirectX::XMQuaternionRotationRollPitchYaw(
+        DirectX::XMConvertToRadians(GetPitch()), DirectX::XMConvertToRadians(GetYaw()), DirectX::XMConvertToRadians(GetRoll()));
 }
 
 Quat Rotator::ToQuat() const noexcept
 {
-    return Quat::RotatorToQuat(*this);
+    return Quat(DirectX::XMQuaternionRotationRollPitchYaw(  
+            DirectX::XMConvertToRadians(GetPitch()),  
+            DirectX::XMConvertToRadians(GetYaw()),  
+            DirectX::XMConvertToRadians(GetRoll())));
 }
 
 Rotator Rotator::FromQuat(DirectX::FXMVECTOR quat) noexcept
@@ -215,4 +218,3 @@ float Rotator::ClampAxis(float Angle)
     }
     return Angle;
 }
-

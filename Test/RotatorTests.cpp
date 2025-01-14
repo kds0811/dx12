@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include "Vector.h"
+#include "Quat.h"
 
 class RotatorTest : public ::testing::Test
 {
@@ -57,10 +58,10 @@ TEST_F(RotatorTest, QuaternionConversion)
 
     for (const auto& tc : testCases)
     {
-        DirectX::XMVECTOR quat = tc.input.ToQuaternion();
-        Rotator result = Rotator::FromQuaternion(quat);
+        DirectX::XMVECTOR quat = tc.input.ToQuatSIMD();
+        Rotator result = Rotator::FromQuat(quat);
         bool isEqual = tc.input.Normalize360() == result.Normalize360();
-        //if (!isEqual)
+        if (!isEqual)
         {
             printf("\nTest case: %s\n", tc.description);
             printf("Input  (P,Y,R): %.1f, %.1f, %.1f\n", tc.input.GetPitch(), tc.input.GetYaw(), tc.input.GetRoll());
@@ -101,15 +102,15 @@ TEST_F(RotatorTest, EulerAnglesConversionTest)
         std::cout << "\nTest Case: Pitch=" << pitch << ", Yaw=" << yaw << ", Roll=" << roll << std::endl;
 
         // Установим углы
-        rotator.Data = {pitch, yaw, roll};
+        rotator.SetData(pitch, yaw, roll);
 
         // Преобразование напрямую в кватернион
-        XMVECTOR directQuat = rotator.ToQuaternion();
+        XMVECTOR directQuat = rotator.ToQuatSIMD();
         directQuat = XMQuaternionNormalize(directQuat);
 
         // Преобразование через матрицу
         XMMATRIX matrix = rotator.ToMatrix();
-        XMVECTOR matrixQuat = rotator.MatrixToQuat(matrix);
+        XMVECTOR matrixQuat = Quat::MatrixToQuatSIMD(matrix);
         matrixQuat = XMQuaternionNormalize(matrixQuat);
 
         // Вывод значений
@@ -117,7 +118,7 @@ TEST_F(RotatorTest, EulerAnglesConversionTest)
         PrintQuaternion("Matrix Quat", matrixQuat);
 
         // Сравнение кватернионов с учетом двойственности и погрешности
-        bool areEqual = Rotator::QuaternionsAreEqual(matrixQuat, directQuat, 1e-3f);
+        bool areEqual = Quat::QuatsIsNearEqual(matrixQuat, directQuat, 1e-3f);
         EXPECT_TRUE(areEqual) << "Quaternions do not match for angles: Pitch=" << pitch << ", Yaw=" << yaw << ", Roll=" << roll
                               << "\nMatrix Quat: " << matrixQuat.m128_f32[0] << " " << matrixQuat.m128_f32[1] << " "
                               << matrixQuat.m128_f32[2] << " " << matrixQuat.m128_f32[3] << "\nDirect Quat: " << directQuat.m128_f32[0]
@@ -136,19 +137,19 @@ TEST_F(RotatorTest, ExtendedQuaternionEqualityTest)
     {
         std::cout << "\nExtended Test Case: Pitch=" << pitch << ", Yaw=" << yaw << ", Roll=" << roll << std::endl;
 
-        rotator.Data = {pitch, yaw, roll};
+        rotator.SetData(pitch, yaw, roll);
 
-        XMVECTOR directQuat = rotator.ToQuaternion();
+        XMVECTOR directQuat = rotator.ToQuatSIMD();
         directQuat = XMQuaternionNormalize(directQuat);
 
         XMMATRIX matrix = rotator.ToMatrix();
-        XMVECTOR matrixQuat = rotator.MatrixToQuat(matrix);
+        XMVECTOR matrixQuat = Quat::MatrixToQuatSIMD(matrix);
         matrixQuat = XMQuaternionNormalize(matrixQuat);
 
         PrintQuaternion("Direct Quat", directQuat);
         PrintQuaternion("Matrix Quat", matrixQuat);
 
-        bool areEqual = Rotator::QuaternionsAreEqual(matrixQuat, directQuat, 1e-3f);
+        bool areEqual = Quat::QuatsIsNearEqual(matrixQuat, directQuat, 1e-3f);
         EXPECT_TRUE(areEqual) << "Quaternions do not match for extended angles: Pitch=" << pitch << ", Yaw=" << yaw << ", Roll=" << roll
                               << "\nMatrix Quat: " << matrixQuat.m128_f32[0] << " " << matrixQuat.m128_f32[1] << " "
                               << matrixQuat.m128_f32[2] << " " << matrixQuat.m128_f32[3] << "\nDirect Quat: " << directQuat.m128_f32[0]
@@ -167,19 +168,19 @@ TEST_F(RotatorTest, PrecisionQuaternionEqualityTest)
     {
         std::cout << "\nPrecision Test Case: Pitch=" << pitch << ", Yaw=" << yaw << ", Roll=" << roll << std::endl;
 
-        rotator.Data = {pitch, yaw, roll};
+        rotator.SetData(pitch, yaw, roll);
 
-        XMVECTOR directQuat = rotator.ToQuaternion();
+        XMVECTOR directQuat = rotator.ToQuatSIMD();
         directQuat = XMQuaternionNormalize(directQuat);
 
         XMMATRIX matrix = rotator.ToMatrix();
-        XMVECTOR matrixQuat = rotator.MatrixToQuat(matrix);
+        XMVECTOR matrixQuat = Quat::MatrixToQuatSIMD(matrix);
         matrixQuat = XMQuaternionNormalize(matrixQuat);
 
         PrintQuaternion("Direct Quat", directQuat);
         PrintQuaternion("Matrix Quat", matrixQuat);
 
-        bool areEqual = Rotator::QuaternionsAreEqual(matrixQuat, directQuat, 1e-6f);
+        bool areEqual = Quat::QuatsIsNearEqual(matrixQuat, directQuat, 1e-6f);
         EXPECT_TRUE(areEqual) << "Quaternions do not match for very small angle changes: Pitch=" << pitch << ", Yaw=" << yaw
                               << ", Roll=" << roll << "\nMatrix Quat: " << matrixQuat.m128_f32[0] << " " << matrixQuat.m128_f32[1] << " "
                               << matrixQuat.m128_f32[2] << " " << matrixQuat.m128_f32[3] << "\nDirect Quat: " << directQuat.m128_f32[0]

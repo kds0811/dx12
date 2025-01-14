@@ -1,5 +1,7 @@
 #include "Vector.h"
 #include <cstdlib>
+#include "Rotator.h"
+#include "Quat.h"
 
 Vector& Vector::operator+=(const Vector& other) noexcept
 {
@@ -144,7 +146,17 @@ Vector Vector::Clamp(const Vector& min, const Vector& max) const noexcept
 
 Vector Vector::Rotate(DirectX::FXMVECTOR quat) const noexcept
 {
-    return Vector(DirectX::XMVector3Rotate(ToSIMD(), quat));
+    return Quat::RotateVector(*this, quat);
+}
+
+Vector Vector::Rotate(const Quat& quat) const noexcept
+{
+    return Quat::RotateVector(*this, quat);
+}
+
+Vector Vector::Rotate(const Rotator& rot) const noexcept
+{
+    return Quat::RotateVector(*this, rot.ToQuat());
 }
 
 Vector Vector::RotateInverse(DirectX::FXMVECTOR quat) const noexcept

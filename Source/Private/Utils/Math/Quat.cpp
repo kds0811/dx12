@@ -17,7 +17,7 @@ bool Quat::operator!=(const Quat& other) const noexcept
 
 bool Quat::IsNearEqual(const Quat& other, float epsilon) const noexcept
 {
-    return QuaternionsAreEqualSIMD(ToSIMD(), other.ToSIMD(), epsilon);
+    return QuatsIsNearEqual(ToSIMD(), other.ToSIMD(), epsilon);
 }
 
 Rotator Quat::ToRotator() const noexcept
@@ -130,9 +130,14 @@ Quat Quat::RotatorToQuat(const Rotator& rot) noexcept
     return Quat(RotatorToQuatSIMD(rot));
 }
 
-DirectX::XMVECTOR Quat::MatrixToQuat(DirectX::FXMMATRIX matrix) noexcept
+DirectX::XMVECTOR Quat::MatrixToQuatSIMD(DirectX::FXMMATRIX matrix) noexcept
 {
     return DirectX::XMQuaternionRotationMatrix(matrix);
+}
+
+Quat Quat::MatrixToQuat(DirectX::FXMMATRIX matrix) noexcept
+{
+    return Quat(DirectX::XMQuaternionRotationMatrix(matrix));
 }
 
 DirectX::XMMATRIX Quat::QuatToMatrix(DirectX::FXMVECTOR quat) noexcept
@@ -169,3 +174,14 @@ bool Quat::QuatsIsNearEqual(const Quat& quat1, const Quat& quat2, float epsilon)
 {
     return QuatsIsNearEqual(quat1.ToSIMD(), quat2.ToSIMD(), epsilon);
 }
+
+Vector Quat::RotateVector(const Vector& Vec, DirectX::FXMVECTOR quat) noexcept
+{
+    return Vector(DirectX::XMVector3Rotate(Vec.ToSIMD(), quat));
+}
+
+Vector Quat::RotateVector(const Vector& Vec, const Quat& quat) noexcept
+{
+    return Vector(RotateVector(Vec, quat.ToSIMD()));
+}
+

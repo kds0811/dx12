@@ -109,10 +109,12 @@ add_executable(Tests
     Test/GameTimerTests.cpp
     Test/VectorTests.cpp
     Test/RotatorTests.cpp
+    Test/QuatTests.cpp
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
     Source/Private/Utils/Math/Vector.cpp
     Source/Private/Utils/Math/Rotator.cpp
+    Source/Private/Utils/Math/Quat.cpp
     )   
 auto_include_directories(Tests ${CMAKE_SOURCE_DIR}/Source)  
 
@@ -122,6 +124,8 @@ add_executable(Benchmark
     Source/Private/Utils/GameTimerW.cpp
     Source/Private/Utils/GameTimerCr.cpp
     Source/Private/Utils/Math/Vector.cpp
+    Source/Private/Utils/Math/Rotator.cpp
+    Source/Private/Utils/Math/Quat.cpp
 )
 auto_include_directories(Benchmark ${CMAKE_SOURCE_DIR}/Source)  
 

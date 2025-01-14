@@ -16,11 +16,11 @@ public:
     inline explicit Quat(DirectX::FXMVECTOR quat) noexcept { DirectX::XMStoreFloat4A(&Data, quat); }
     inline explicit Quat(float pitch, float yaw, float roll) noexcept
     {
-        DirectX::XMStoreFloat4A(&Data, XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
+        DirectX::XMStoreFloat4A(&Data, DirectX::XMQuaternionRotationRollPitchYaw(pitch, yaw, roll));
     }
     inline explicit Quat(DirectX::XMMATRIX RotationMatrix) noexcept
     {
-        DirectX::XMStoreFloat4A(&Data, XMQuaternionRotationMatrix(RotationMatrix));
+        DirectX::XMStoreFloat4A(&Data, DirectX::XMQuaternionRotationMatrix(RotationMatrix));
     }
 
     // standart members
@@ -92,7 +92,8 @@ public:
     [[nodiscard]] static DirectX::FXMVECTOR RotatorToQuatSIMD(const Rotator& rot) noexcept;
     [[nodiscard]] static Quat RotatorToQuat(const Rotator& rot) noexcept;
 
-    [[nodiscard]] static DirectX::XMVECTOR MatrixToQuat(DirectX::FXMMATRIX matrix) noexcept;
+    [[nodiscard]] static DirectX::XMVECTOR MatrixToQuatSIMD(DirectX::FXMMATRIX matrix) noexcept;
+    [[nodiscard]] static Quat MatrixToQuat(DirectX::FXMMATRIX matrix) noexcept;
 
     [[nodiscard]] static DirectX::XMMATRIX QuatToMatrix(DirectX::FXMVECTOR quat) noexcept;
     [[nodiscard]] static DirectX::XMMATRIX QuatToMatrix(const Quat& quat) noexcept;
@@ -102,4 +103,7 @@ public:
 
     [[nodiscard]] static bool QuatsIsNearEqual(DirectX::FXMVECTOR quat1, DirectX::FXMVECTOR quat2, float epsilon = 1e-4f) noexcept;
     [[nodiscard]] static bool QuatsIsNearEqual(const Quat& quat1, const Quat& quat2, float epsilon = 1e-4f) noexcept;
+
+    [[nodiscard]] static Vector RotateVector(const Vector& Vec, DirectX::FXMVECTOR quat) noexcept;
+    [[nodiscard]] static Vector RotateVector(const Vector& Vec, const Quat& quat) noexcept;
 };
