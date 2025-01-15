@@ -32,6 +32,9 @@ public:
     [[nodiscard]] inline Vector GetLocation() const noexcept { return Location; }
     [[nodiscard]] inline Rotator GetRotation() const noexcept { return Rotation; }
     [[nodiscard]] inline Vector GetScale() const noexcept { return Scale; }
+    [[nodiscard]] inline Vector GetForwardVector() const noexcept { return Rotation.GetForwardVector(); }
+    [[nodiscard]] inline Vector GetRightVector() const noexcept { return Rotation.GetRightVector(); }
+    [[nodiscard]] inline Vector GetUpVector() const noexcept { return Rotation.GetUpVector(); }
 
     // Look at matrix
     [[nodiscard]] inline DirectX::XMMATRIX GetLookAtMatrix() const noexcept
