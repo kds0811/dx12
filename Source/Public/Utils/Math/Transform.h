@@ -2,16 +2,41 @@
 #include <DirectXMath.h>
 #include "Vector.h"
 #include "Rotator.h"
+#include "Quat.h"
 
-struct alignas(16) Transform final
+struct alignas(16) Transform
 {
 private:
-    DirectX::XMFLOAT4A Translation;
-    DirectX::XMFLOAT4A Rotation; // as a quaternion
-    DirectX::XMFLOAT4A Scale3D;
+    Vector Location;
+    Rotator Rotation; 
+    Vector Scale;
 
 public:
-    inline Transform() noexcept : Translation(0.0f, 0.0f, 0.0f, 0.0f), Rotation(0.0f, 0.0f, 0.0f, 1.0f), Scale3D(1.0f, 1.0f, 1.0f, 0.0f) {}
+    inline Transform() noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(0.0f, 0.0f, 0.0f), Scale(1.0f, 1.0f, 1.0f) {}
+    inline Transform(Vector location) noexcept : Location(location), Rotation(0.0f, 0.0f, 0.0f), Scale(1.0f, 1.0f, 1.0f) {}
+    inline Transform(Vector location, Rotator rotation) noexcept : Location(location), Rotation(rotation), Scale(1.0f, 1.0f, 1.0f) {}
+    inline Transform(Vector location, Rotator rotation, Vector scale) noexcept : Location(location), Rotation(rotation), Scale(scale) {}
+    inline Transform(Rotator rotation) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(rotation), Scale(1.0f, 1.0f, 1.0f) {}
+    inline Transform(Vector scale) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(0.0f, 0.0f, 0.0f), Scale(scale) {}
+    inline Transform(Rotator rotation, Vector scale) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(rotation), Scale(scale) {}
 
+    // Setters
+    inline void SetLocation(Vector location) noexcept{ Location = location;}
+    inline void SetRotation(Rotator rotation) noexcept { Rotation = rotation; }
+    inline void SetScale(Vector scale) noexcept { Scale = scale; }
+    inline void AddLocation(Vector location) noexcept { Location += location; }
+    inline void AddRotation(Rotator rotation) noexcept { Rotation += rotation; }
+    inline void AddScale(Vector scale) noexcept { Scale += scale; }
+
+    // Getters
+    [[nodiscard]] inline Vector GetLocation() const noexcept { return Location; }
+    [[nodiscard]] inline Rotator GetRotation() const noexcept { return Rotation; }
+    [[nodiscard]] inline Vector GetScale() const noexcept { return Scale; }
+
+    // Look at matrix
+    [[nodiscard]] inline DirectX::XMMATRIX GetLookAtMatrix() const noexcept
+    {
+        return DirectX::XMMatrixLookAtLH(Location.ToSIMD(), Rotation.GetForwardVector().ToSIMD(), Rotation.GetUpVector().ToSIMD());
+    }
 
 };

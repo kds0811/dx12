@@ -6,7 +6,7 @@
 struct Vector;
 struct Quat;
 
-struct alignas(16) Rotator final
+struct alignas(16) Rotator
 {
 private:
     DirectX::XMFLOAT3A Data;
