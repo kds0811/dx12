@@ -36,6 +36,32 @@ protected:
         return IsNearEqual(v1.GetX(), v2.GetX(), epsilon) && IsNearEqual(v1.GetY(), v2.GetY(), epsilon) &&
                IsNearEqual(v1.GetZ(), v2.GetZ(), epsilon);
     }
+
+    void PrintVectorDebugInfo(const char* name, const Vector& expected, const Vector& actual, const Rotator& rot)
+    {
+        std::cout << "Test for Rotator: Pitch=" << rot.GetPitch() << ", Yaw=" << rot.GetYaw() << ", Roll=" << rot.GetRoll() << std::endl;
+        std::cout << name << " Vector:" << std::endl;
+        std::cout << "  Expected: (" << expected.GetX() << ", " << expected.GetY() << ", " << expected.GetZ() << ")" << std::endl;
+        std::cout << "  Actual:   (" << actual.GetX() << ", " << actual.GetY() << ", " << actual.GetZ() << ")" << std::endl;
+
+        // Вычисление разницы
+        Vector diff = expected - actual;
+        std::cout << "  Difference: (" << diff.GetX() << ", " << diff.GetY() << ", " << diff.GetZ() << ")" << std::endl;
+        std::cout << "  Magnitude of Difference: " << diff.Length() << std::endl;
+        std::cout << "  Dot Product: " << expected.Dot(actual) << std::endl;
+        std::cout << "  Angle between vectors: " << expected.Angle(actual) << " radians" << std::endl;
+    }
+
+    // Вспомогательная функция для сравнения векторов с расширенной отладкой
+    bool VectorNearEqualWithDebug(const Vector& v1, const Vector& v2, const Rotator& rot, const char* vectorName, float epsilon = 0.001f)
+    {
+        bool isNearEqual = VectorNearEqual(v1, v2, epsilon);
+        if (!isNearEqual)
+        {
+            PrintVectorDebugInfo(vectorName, v1, v2, rot);
+        }
+        return isNearEqual;
+    }
 };
 
 TEST_F(RotatorTest, QuaternionConversion)
@@ -356,21 +382,93 @@ TEST_F(RotatorTest, AngleNormalization)
 // Векторы направления
 TEST_F(RotatorTest, DirectionVectors)
 {
-    // Проверка базовых векторов без поворота
     Rotator zeroRot;
 
     auto forward = zeroRot.GetForwardVector();
     auto right = zeroRot.GetRightVector();
     auto up = zeroRot.GetUpVector();
 
-    EXPECT_TRUE(VectorNearEqual(forward, Vector(0.0f, 0.0f, 1.0f)));
-    EXPECT_TRUE(VectorNearEqual(right, Vector(1.0f, 0.0f, 0.0f)));
-    EXPECT_TRUE(VectorNearEqual(up, Vector(0.0f, 1.0f, 0.0f)));
+    EXPECT_TRUE(VectorNearEqualWithDebug(forward, Vector(0.0f, 0.0f, 1.0f), zeroRot, "Forward"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(right, Vector(1.0f, 0.0f, 0.0f), zeroRot, "Right"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(up, Vector(0.0f, 1.0f, 0.0f), zeroRot, "Up"));
 
     // Проверка с поворотом на 90 градусов вокруг Y
     Rotator yaw90(0.0f, 90.0f, 0.0f);
-    auto rotatedForward = yaw90.GetForwardVector();
-    EXPECT_TRUE(VectorNearEqual(rotatedForward, Vector(1.0f, 0.0f, 0.0f)));
+    auto rotatedForward1 = yaw90.GetForwardVector();
+    auto rotatedRight1 = yaw90.GetRightVector();
+    auto rotatedUp1 = yaw90.GetUpVector();
+
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedForward1, Vector(1.0f, 0.0f, 0.0f), yaw90, "Forward at Yaw 90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedRight1, Vector(0.0f, 0.0f, -1.0f), yaw90, "Right at Yaw 90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedUp1, Vector(0.0f, 1.0f, 0.0f), yaw90, "Up at Yaw 90"));
+
+    // Поворот на -90 градусов вокруг Y
+    Rotator yawm90(0.0f, -90.0f, 0.0f);
+    auto rotatedForward2 = yawm90.GetForwardVector();
+    auto rotatedRight2 = yawm90.GetRightVector();
+    auto rotatedUp2 = yawm90.GetUpVector();
+
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedForward2, Vector(-1.0f, 0.0f, 0.0f), yawm90, "Forward at Yaw -90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedRight2, Vector(0.0f, 0.0f, 1.0f), yawm90, "Right at Yaw -90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedUp2, Vector(0.0f, 1.0f, 0.0f), yawm90, "Up at Yaw -90"));
+
+    // Поворот на 180 градусов вокруг Y
+    Rotator yaw180(0.0f, 180.0f, 0.0f);
+    auto rotatedForward3 = yaw180.GetForwardVector();
+    auto rotatedRight3 = yaw180.GetRightVector();
+    auto rotatedUp3 = yaw180.GetUpVector();
+
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedForward3, Vector(0.0f, 0.0f, -1.0f), yaw180, "Forward at Yaw 180"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedRight3, Vector(-1.0f, 0.0f, 0.0f), yaw180, "Right at Yaw 180"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedUp3, Vector(0.0f, 1.0f, 0.0f), yaw180, "Up at Yaw 180"));
+
+    // Поворот на 90 градусов вокруг X
+    Rotator pitch90(90.0f, 0.0f, 0.0f);
+    auto rotatedForward4 = pitch90.GetForwardVector();
+    auto rotatedRight4 = pitch90.GetRightVector();
+    auto rotatedUp4 = pitch90.GetUpVector();
+
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedForward4, Vector(0.0f, -1.0f, 0.0f), pitch90, "Forward at Pitch 90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedRight4, Vector(1.0f, 0.0f, 0.0f), pitch90, "Right at Pitch 90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedUp4, Vector(0.0f, 0.0f, 1.0f), pitch90, "Up at Pitch 90"));
+
+    // Поворот на -90 градусов вокруг X
+    Rotator pitchm90(-90.0f, 0.0f, 0.0f);
+    auto rotatedForward5 = pitchm90.GetForwardVector();
+    auto rotatedRight5 = pitchm90.GetRightVector();
+    auto rotatedUp5 = pitchm90.GetUpVector();
+
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedForward5, Vector(0.0f, 1.0f, 0.0f), pitchm90, "Forward at Pitch -90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedRight5, Vector(1.0f, 0.0f, 0.0f), pitchm90, "Right at Pitch -90"));
+    EXPECT_TRUE(VectorNearEqualWithDebug(rotatedUp5, Vector(0.0f, 0.0f, -1.0f), pitchm90, "Up at Pitch -90"));
+
+    // Комбинированный поворот
+    Rotator combinedRot(45.0f, 45.0f, 0.0f);
+    auto combinedForward = combinedRot.GetForwardVector();
+    auto combinedRight = combinedRot.GetRightVector();
+    auto combinedUp = combinedRot.GetUpVector();
+
+    // Добавьте здесь проверки для комбинированного поворота с использованием VectorNearEqualWithDebug
+
+    // Дополнительная проверка ортогональности векторов
+    std::vector<Rotator> rotations = {zeroRot, yaw90, yawm90, yaw180, pitch90, pitchm90, combinedRot};
+
+    for (const auto& rot : rotations)
+    {
+        auto f = rot.GetForwardVector();
+        auto r = rot.GetRightVector();
+        auto u = rot.GetUpVector();
+
+        // Проверка ортогональности (скалярное произведение должно быть близко к 0)
+        EXPECT_NEAR(f.Dot(r), 0.0f, 0.001f) << "Forward and Right vectors are not orthogonal for rotation: "
+                                            << "Pitch=" << rot.GetPitch() << ", Yaw=" << rot.GetYaw() << ", Roll=" << rot.GetRoll();
+
+        EXPECT_NEAR(f.Dot(u), 0.0f, 0.001f) << "Forward and Up vectors are not orthogonal for rotation: "
+                                            << "Pitch=" << rot.GetPitch() << ", Yaw=" << rot.GetYaw() << ", Roll=" << rot.GetRoll();
+
+        EXPECT_NEAR(r.Dot(u), 0.0f, 0.001f) << "Right and Up vectors are not orthogonal for rotation: "
+                                            << "Pitch=" << rot.GetPitch() << ", Yaw=" << rot.GetYaw() << ", Roll=" << rot.GetRoll();
+    }
 }
 
 // Клампинг
