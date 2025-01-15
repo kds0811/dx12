@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include "Rotator.h"
 #include "Quat.h"
+#include "MathDK.h"
+#include <cmath>
 
 Vector& Vector::operator+=(const Vector& other) noexcept
 {
@@ -82,6 +84,15 @@ bool Vector::IsNearEqual(const Vector& other, float epsilon) const noexcept
 {
     return (std::abs(Data.x - other.Data.x) < epsilon) && (std::abs(Data.y - other.Data.y) < epsilon) &&
            (std::abs(Data.z - other.Data.z) < epsilon);
+}
+
+Rotator Vector::ToRotator() const noexcept
+{
+    Rotator R;
+    R.SetYaw(Math::RadiansToDegrees(Math::Atan2(Data.x, Data.z)));
+    R.SetPitch(Math::RadiansToDegrees(Math::Atan2(Data.y, std::sqrt(Data.z * Data.z + Data.x * Data.x))));
+    R.SetRoll(0.f);
+    return R;
 }
 
 Vector Vector::Abs() const noexcept
@@ -173,6 +184,3 @@ Vector Vector::Lerp(const Vector& start, const Vector& end, float t) noexcept
 {
     return Vector(DirectX::XMVectorLerp(start.ToSIMD(), end.ToSIMD(), t));
 }
-
-
-

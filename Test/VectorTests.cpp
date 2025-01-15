@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 #include <cmath>
 #include "Vector.h"
+#include "Rotator.h"
+#include "Quat.h"
 
-   class VectorTest : public ::testing::Test
+class VectorTest : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -12,11 +14,134 @@ protected:
         v2 = Vector(4.0f, 5.0f, 6.0f);
         zero = Vector::Zero();
         one = Vector::One();
+      
     }
 
     const float epsilon = 1e-4f;
     Vector v1, v2, zero, one;
 };
+
+TEST_F(VectorTest, ToRotatoTest) 
+{
+    // Вектор по оси Z (вперед)
+    Vector vForward(0.0f, 0.0f, 1.0f);
+    Rotator rForward = vForward.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rForward.GetPitch(), 0.0f);
+    EXPECT_FLOAT_EQ(rForward.GetYaw(), 0.0f);
+
+    // Вектор по оси Z (назад)
+    Vector vBack(0.0f, 0.0f, -1.0f);
+    Rotator rBack = vBack.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rBack.GetPitch(), 0.0f);
+    EXPECT_FLOAT_EQ(rBack.GetYaw(), 180.0f);
+
+    // Вектор по оси X (вправо)
+    Vector vRight(1.0f, 0.0f, 0.0f);
+    Rotator rRight = vRight.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rRight.GetPitch(), 0.0f);
+    EXPECT_FLOAT_EQ(rRight.GetYaw(), 90.0f);
+
+    // Вектор по оси X (влево)
+    Vector vLeft(-1.0f, 0.0f, 0.0f);
+    Rotator rLeft = vLeft.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rLeft.GetPitch(), 0.0f);
+    EXPECT_FLOAT_EQ(rLeft.GetYaw(), 270.0f);
+
+    // Вектор по оси Y (вверх)
+    Vector vUp(0.0f, 1.0f, 0.0f);
+    Rotator rUp = vUp.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rUp.GetPitch(), 90.0f);
+    EXPECT_FLOAT_EQ(rUp.GetYaw(), 0.0f);
+
+    // Вектор по оси Y (вниз)
+    Vector vDown(0.0f, -1.0f, 0.0f);
+    Rotator rDown = vDown.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rDown.GetPitch(), 270.0f);
+    EXPECT_FLOAT_EQ(rDown.GetYaw(), 0.0f);
+
+    // Диагональный вектор с отрицательными координатами
+    Vector vDiagonal(-1.0f, -1.0f, -1.0f);
+    Rotator rDiagonal = vDiagonal.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal.GetPitch(), 324.736f, 0.1f);
+    EXPECT_NEAR(rDiagonal.GetYaw(), 225.0f, 0.1f);
+
+    // Нулевой вектор (особый случай)
+    Vector vZero(0.0f, 0.0f, 0.0f);
+    Rotator rZero = vZero.ToRotator().Normalize360();
+    EXPECT_FLOAT_EQ(rZero.GetPitch(), 0.0f);
+    EXPECT_FLOAT_EQ(rZero.GetYaw(), 0.0f);
+
+    // Диагональные векторы в разных октантах
+    // Октант 1 (все координаты положительные)
+    Vector vDiagonal1(1.0f, 1.0f, 1.0f);
+    Rotator rDiagonal1 = vDiagonal1.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal1.GetPitch(), 35.264f, 0.1f);
+    EXPECT_NEAR(rDiagonal1.GetYaw(), 45.0f, 0.1f);
+
+    // Октант 2 (x отрицательный)
+    Vector vDiagonal2(-1.0f, 1.0f, 1.0f);
+    Rotator rDiagonal2 = vDiagonal2.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal2.GetPitch(), 35.264f, 0.1f);
+    EXPECT_NEAR(rDiagonal2.GetYaw(), 315.0f, 0.1f);
+
+    // Октант 3 (x и z отрицательные)
+    Vector vDiagonal3(-1.0f, 1.0f, -1.0f);
+    Rotator rDiagonal3 = vDiagonal3.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal3.GetPitch(), 35.264f, 0.1f);
+    EXPECT_NEAR(rDiagonal3.GetYaw(), 225.0f, 0.1f);
+
+    // Октант 4 (z отрицательный)
+    Vector vDiagonal4(1.0f, 1.0f, -1.0f);
+    Rotator rDiagonal4 = vDiagonal4.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal4.GetPitch(), 35.264f, 0.1f);
+    EXPECT_NEAR(rDiagonal4.GetYaw(), 135.0f, 0.1f);
+
+    // Октант 5 (y отрицательный)
+    Vector vDiagonal5(1.0f, -1.0f, 1.0f);
+    Rotator rDiagonal5 = vDiagonal5.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal5.GetPitch(), 324.736f, 0.1f);
+    EXPECT_NEAR(rDiagonal5.GetYaw(), 45.0f, 0.1f);
+
+    // Октант 6 (x и y отрицательные)
+    Vector vDiagonal6(-1.0f, -1.0f, 1.0f);
+    Rotator rDiagonal6 = vDiagonal6.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal6.GetPitch(), 324.736f, 0.1f);
+    EXPECT_NEAR(rDiagonal6.GetYaw(), 315.0f, 0.1f);
+
+    // Октант 7 (x, y, z отрицательные)
+    Vector vDiagonal7(-1.0f, -1.0f, -1.0f);
+    Rotator rDiagonal7 = vDiagonal7.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal7.GetPitch(), 324.736f, 0.1f);
+    EXPECT_NEAR(rDiagonal7.GetYaw(), 225.0f, 0.1f);
+
+    // Октант 8 (y и z отрицательные)
+    Vector vDiagonal8(1.0f, -1.0f, -1.0f);
+    Rotator rDiagonal8 = vDiagonal8.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonal8.GetPitch(), 324.736f, 0.1f);
+    EXPECT_NEAR(rDiagonal8.GetYaw(), 135.0f, 0.1f);
+
+    // Тесты с разными масштабами
+    Vector vDiagonalScaled1(2.0f, 2.0f, 2.0f);
+    Rotator rDiagonalScaled1 = vDiagonalScaled1.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonalScaled1.GetPitch(), 35.264f, 0.1f);
+    EXPECT_NEAR(rDiagonalScaled1.GetYaw(), 45.0f, 0.1f);
+
+    Vector vDiagonalScaled2(0.5f, 0.5f, 0.5f);
+    Rotator rDiagonalScaled2 = vDiagonalScaled2.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonalScaled2.GetPitch(), 35.264f, 0.1f);
+    EXPECT_NEAR(rDiagonalScaled2.GetYaw(), 45.0f, 0.1f);
+
+    // Асимметричные диагональные векторы
+    Vector vDiagonalAsym1(2.0f, 1.0f, 3.0f);
+    Rotator rDiagonalAsym1 = vDiagonalAsym1.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonalAsym1.GetPitch(), 15.501f, 0.1f);
+    EXPECT_NEAR(rDiagonalAsym1.GetYaw(), 33.69f, 0.1f);
+
+    Vector vDiagonalAsym2(-3.0f, 2.0f, 1.0f);
+    Rotator rDiagonalAsym2 = vDiagonalAsym2.ToRotator().Normalize360();
+    EXPECT_NEAR(rDiagonalAsym2.GetPitch(), 32.311f, 0.1f);
+    EXPECT_NEAR(rDiagonalAsym2.GetYaw(), 288.435f, 0.1f);
+}
 
 // Тесты конструкторов
 TEST_F(VectorTest, Constructors)
@@ -218,7 +343,6 @@ TEST_F(VectorTest, EdgeCases)
     // Нормализация нулевого вектора
     Vector normalizedZero = zero.Normalize();
     EXPECT_TRUE(normalizedZero == Vector::Zero());
-
 }
 
 // Тест производительности (опционально)
@@ -241,7 +365,6 @@ TEST_F(VectorTest, Performance)
 
     EXPECT_NE(result, Vector::Zero());  // Предотвращаем оптимизацию
 }
-
 
 // Тест конструкторов копирования и перемещения
 TEST_F(VectorTest, CopyAndMoveConstructors)
@@ -312,7 +435,6 @@ TEST_F(VectorTest, DotAndCrossProduct)
     Vector crossYX = y.Cross(x);
     EXPECT_TRUE(crossXY == crossYX * -1.0f);
 }
-
 
 // Тест на инварианты операций
 TEST_F(VectorTest, Invariants)

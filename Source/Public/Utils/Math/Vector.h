@@ -70,6 +70,7 @@ public:
 
     // Base methods
     [[nodiscard]] inline DirectX::XMVECTOR ToSIMD() const noexcept { return DirectX::XMLoadFloat3A(&Data); }
+    [[nodiscard]] Rotator ToRotator() const noexcept;
     [[nodiscard]] Vector Abs() const noexcept;
     [[nodiscard]] float Length() const noexcept;
     [[nodiscard]] float LengthSq() const noexcept;
