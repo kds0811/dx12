@@ -9,6 +9,10 @@ using namespace Kds::App;
 Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), ClientHeight(Height), WindowHandle(hwnd)
 {
     InitPipeline();
+
+    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
+    XMStoreFloat4x4(&mProj, P);
+
 }
 
 Graphic::~Graphic()
@@ -211,6 +215,22 @@ void Graphic::Draw()
     // done for simplicity.  Later we will show how to organize our rendering code
     // so we do not have to wait per frame.
     FlushCommandQueue();
+}
+
+void Graphic::Update(DirectX::FXMMATRIX ViewMat)
+{
+    XMMATRIX view = ViewMat;
+    XMStoreFloat4x4(&mView, ViewMat);
+
+     XMMATRIX world = XMLoadFloat4x4(&mWorld);
+     XMMATRIX proj = XMLoadFloat4x4(&mProj);
+     XMMATRIX worldViewProj = world * view * proj;
+
+    // Update the constant buffer with the latest worldViewProj matrix.
+     ObjectConstants objConstants;
+     XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+     mObjectCB->CopyData(0, objConstants);
+    
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept

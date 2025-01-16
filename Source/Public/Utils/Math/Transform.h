@@ -17,7 +17,6 @@ public:
     inline Transform(Vector location, Rotator rotation) noexcept : Location(location), Rotation(rotation), Scale(1.0f, 1.0f, 1.0f) {}
     inline Transform(Vector location, Rotator rotation, Vector scale) noexcept : Location(location), Rotation(rotation), Scale(scale) {}
     inline Transform(Rotator rotation) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(rotation), Scale(1.0f, 1.0f, 1.0f) {}
-    inline Transform(Vector scale) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(0.0f, 0.0f, 0.0f), Scale(scale) {}
     inline Transform(Rotator rotation, Vector scale) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(rotation), Scale(scale) {}
 
     // Setters

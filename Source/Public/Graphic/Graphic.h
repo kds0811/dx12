@@ -29,6 +29,7 @@ public:
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
     void Draw();
+    void Update(DirectX::FXMMATRIX ViewMat);
 
 
 private:
@@ -84,11 +85,6 @@ private:
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-    float mTheta = 1.5f * DirectX::XM_PI;
-    float mPhi = DirectX::XM_PIDIV4;
-    float mRadius = 5.0f;
-
-    POINT mLastMousePos;
 
 private:
     inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;

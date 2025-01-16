@@ -18,19 +18,21 @@ public:
     void OnResize(UINT nWidth, UINT nHeight);
     void OnStop();
     void OnStart();
-    void Update(const GameTimerW& gt);
+    void Update();
     void Draw();
 
 private:
     UINT Width = 1600;
     UINT Height = 1000;
 
-    Window mWindow;
-    Graphic mGraphics;
-    GameTimerW mTimer;
-    Camera mCamera;
+    Window Wnd;
+    Graphic Gfx;
+    GameTimerW Timer;
+    Camera Cam;
     
     bool bAppPaused = false;
 
     void CalculateFrameStats();
+    void UpdateInput();
+    void UpdateCameraMatrix();
 };
