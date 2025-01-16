@@ -459,7 +459,7 @@ void Graphic::CreateAndSetViewport()
 
 void Graphic::CreateScissorRect()
 {
-    ScissorRect = {0, 0, static_cast<long>(ClientWidth / 2), static_cast<long>(ClientHeight / 2)};
+    ScissorRect = {0, 0, static_cast<long>(ClientWidth), static_cast<long>(ClientHeight)};
 
     CommandList->RSSetScissorRects(1, &ScissorRect);
 }

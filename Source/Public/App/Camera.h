@@ -14,11 +14,17 @@ public:
     void RotateYaw(float direction, float dt);
 
     [[nodiscard]] inline DirectX::XMMATRIX GetViewMatrix() const noexcept
-    { 
-        return DirectX::XMMatrixLookAtLH(Trans.GetLocation().ToSIMD(), Trans.GetForwardVector().ToSIMD(), Trans.GetUpVector().ToSIMD());
+    {
+        Vector Position = Trans.GetLocation();
+        Vector ForwardDir = Trans.GetForwardVector();
+        Vector UpDir = Trans.GetUpVector();
+
+        DirectX::XMVECTOR Target = DirectX::XMVectorAdd(Position.ToSIMD(), ForwardDir.ToSIMD());
+        
+        return DirectX::XMMatrixLookAtLH(Position.ToSIMD(), Target, UpDir.ToSIMD());
     }
 
 private:
-    static constexpr float SpeedCamera = 100.0f;
-    static constexpr float SpeedRotateCamera = 100.0f;
+    static constexpr float SpeedCamera = 20.0f;
+    static constexpr float SpeedRotateCamera = 50.0f;
 };

@@ -4,7 +4,6 @@ void Camera::MoveRight(float direction, float dt)
 {
     Vector VecOffset = Trans.GetRightVector() * direction * dt * SpeedCamera;
     Trans.AddLocation(VecOffset);
-    
 }
 
 void Camera::MoveForward(float direction, float dt) 
