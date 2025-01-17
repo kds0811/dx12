@@ -12,7 +12,7 @@ public:
     void MoveRight(float direction, float dt);
     void MoveForward(float direction, float dt);
     void MoveAbsoluteUp(float direction, float dt);
-    void RotateYaw(float direction, float dt);
+    void RotateCamera(float xOffset, float yOffset, float dt);
 
     [[nodiscard]] inline DirectX::XMMATRIX GetViewMatrix() const noexcept
     {
@@ -27,5 +27,5 @@ public:
 
 private:
     static constexpr float SpeedCamera = 20.0f;
-    static constexpr float SpeedRotateCamera = 50.0f;
+    static constexpr float SpeedRotateCamera = 20.0f;
 };

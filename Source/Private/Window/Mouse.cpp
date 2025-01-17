@@ -1,7 +1,7 @@
 #include "Window/Mouse.h"
 #include "Window/WindowDK.h"
 
-Mouse::Mouse() : x(0), y(0), lPressed(false), rPressed(false) {}
+Mouse::Mouse() : x(0), y(0) {}
 
 DirectX::XMFLOAT2 Mouse::GetPosVec()
 {
@@ -25,12 +25,12 @@ bool Mouse::IsInWindow() const
 
 bool Mouse::LIsPressed() const
 {
-    return lPressed;
+    return bLPressed;
 }
 
 bool Mouse::RIsPressed() const
 {
-    return rPressed;
+    return bRPressed;
 }
 
 Mouse::EventM Mouse::Read()
@@ -67,28 +67,28 @@ void Mouse::OnMouseMove(int x_in, int y_in)
 
 void Mouse::OnLeftIsPressed()
 {
-    lPressed = true;
+    bLPressed = true;
     buffer.push(Mouse::EventM(EventM::Type::LPress, *this));
     TrimBuffer();
 }
 
 void Mouse::OnLeftIsReleased()
 {
-    lPressed = false;
+    bLPressed = false;
     buffer.push(Mouse::EventM(EventM::Type::LRelease, *this));
     TrimBuffer();
 }
 
 void Mouse::OnRightIsPressed()
 {
-    rPressed = true;
+    bRPressed = true;
     buffer.push(Mouse::EventM(EventM::Type::RPress, *this));
     TrimBuffer();
 }
 
 void Mouse::OnRightIsReleased()
 {
-    rPressed = false;
+    bRPressed = false;
     buffer.push(Mouse::EventM(EventM::Type::RRelease, *this));
     TrimBuffer();
 }

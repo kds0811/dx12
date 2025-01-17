@@ -18,8 +18,10 @@ void Camera::MoveAbsoluteUp(float direction, float dt)
     Trans.AddLocation(VecOffset);
 }
 
-void Camera::RotateYaw(float direction, float dt) 
+void Camera::RotateCamera(float xOffset, float yOffset, float dt)
 {
-    Rotator RotOffset(0.0f, direction * dt * SpeedRotateCamera, 0.0f);
+    float NewPitch = yOffset * dt * SpeedRotateCamera;
+    float NewYaw = xOffset * dt * SpeedRotateCamera;
+    Rotator RotOffset(NewPitch, NewYaw, 0.0f);
     Trans.AddRotation(RotOffset);
 }

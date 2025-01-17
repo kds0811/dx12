@@ -33,7 +33,7 @@ public:
 
     public:
         EventM() : type(Type::Invalid), x(0), y(0), lPressed(false), rPressed(false) {}
-        EventM(Type type, Mouse parent) : type(type), x(parent.x), y(parent.y), lPressed(parent.lPressed), rPressed(parent.rPressed) {}
+        EventM(Type type, Mouse parent) : type(type), x(parent.x), y(parent.y), lPressed(parent.bLPressed), rPressed(parent.bRPressed) {}
         Type GetType() const { return type; }
         DirectX::XMFLOAT2 GetPosVec() const { return DirectX::XMFLOAT2{static_cast<float>(x), static_cast<float>(y)}; };
         int GetPosX() const { return x; }
@@ -72,8 +72,8 @@ private:
     static constexpr unsigned int bufferSize = 16u;
     int x = 0;
     int y = 0;
-    bool lPressed = false;
-    bool rPressed = false;
+    bool bLPressed = false;
+    bool bRPressed = false;
     bool isInWindow = false;
     int wheelDeltaCarry = 0;
     std::queue<EventM> buffer;

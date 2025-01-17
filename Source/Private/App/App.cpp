@@ -54,7 +54,7 @@ void App::OnStart()
 
 void App::Update()
 {
-    CamController.UpdateKeyboardInput();
+    CamController.UpdateInput();
     UpdateCameraMatrix();
     
 }
@@ -75,9 +75,6 @@ void App::CalculateFrameStats()
     {
         double fps = static_cast<double>(frameCnt);
         double mspf = 1000.0 / fps;
-        int xMouse = Wnd.mouse.GetPosX();
-        int yMouse = Wnd.mouse.GetPosX();
-
 
         std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f} ",
             Wnd.GetTitle(), fps, mspf, Timer.GetTotalTime());
