@@ -11,6 +11,7 @@ public:
 
     void MoveRight(float direction, float dt);
     void MoveForward(float direction, float dt);
+    void MoveAbsoluteUp(float direction, float dt);
     void RotateYaw(float direction, float dt);
 
     [[nodiscard]] inline DirectX::XMMATRIX GetViewMatrix() const noexcept

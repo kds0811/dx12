@@ -3,6 +3,7 @@
 #include "Graphic.h"
 #include "GameTimerW.h"
 #include "Camera.h"
+#include "CameraController.h"
 
 class App
 {
@@ -29,10 +30,10 @@ private:
     Graphic Gfx;
     GameTimerW Timer;
     Camera Cam;
+    CameraController CamController;
     
     bool bAppPaused = false;
 
     void CalculateFrameStats();
-    void UpdateInput();
     void UpdateCameraMatrix();
 };

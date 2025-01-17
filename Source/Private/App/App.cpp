@@ -7,8 +7,7 @@
 
 
 
-App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()) 
-{}
+App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()), CamController(&Wnd, &Cam, &Timer) {}
 
 std::optional<int> App::Go()
 {
@@ -55,7 +54,7 @@ void App::OnStart()
 
 void App::Update()
 {
-    UpdateInput();
+    CamController.UpdateKeyboardInput();
     UpdateCameraMatrix();
     
 }
@@ -90,35 +89,6 @@ void App::CalculateFrameStats()
     }
 }
 
-void App::UpdateInput()
-{
-    const float dt = Timer.GetDeltaTime();
-    if (Wnd.kbd.KeyIsPressed('W'))
-    {
-        Cam.MoveForward(1.0f, dt);
-    }
-    if (Wnd.kbd.KeyIsPressed('S'))
-    {
-        Cam.MoveForward(-1.0f, dt);
-    }
-    if (Wnd.kbd.KeyIsPressed('D'))
-    {
-        Cam.MoveRight(1.0f, dt);
-    }
-    if (Wnd.kbd.KeyIsPressed('A'))
-    {
-        Cam.MoveRight(-1.0f, dt);
-    }
-    if (Wnd.kbd.KeyIsPressed('E'))
-    {
-        Cam.RotateYaw(1.f, dt);
-    }
-    if (Wnd.kbd.KeyIsPressed('Q'))
-    {
-        Cam.RotateYaw(-1.f, dt);
-    }
-
-}
 
 void App::UpdateCameraMatrix()
 {
