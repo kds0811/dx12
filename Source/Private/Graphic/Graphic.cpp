@@ -69,8 +69,8 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     depthStencilDesc.DepthOrArraySize = 1;
     depthStencilDesc.MipLevels = 1;
     depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-    depthStencilDesc.SampleDesc.Count = 1;
-    depthStencilDesc.SampleDesc.Quality = 0;
+    depthStencilDesc.SampleDesc.Count = 4;
+    depthStencilDesc.SampleDesc.Quality = 1;
     depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -121,38 +121,6 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
 
 void Graphic::Draw()
 {
-
-    // CommandList->Reset(CommandAlloc.Get(), nullptr) >> Check;
-
-    // auto ResBar =
-    //     CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    // CommandList->ResourceBarrier(1, &ResBar);
-    // CommandList->RSSetViewports(1, &ScreenViewport);
-    // CommandList->RSSetScissorRects(1, &ScissorRect);
-    // CommandList->ClearRenderTargetView(GetCurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
-    // CommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-    ////	Specify	the	buffers	we	are	going	to	render	to.
-    // auto CBV = GetCurrentBackBufferView();
-    // auto DSV = GetDepthStencilView();
-    // CommandList->OMSetRenderTargets(1, &CBV, true, &DSV);
-
-    ////	Indicate	a	state	transition	on	the	resource usage
-    // auto ResBar1 =
-    //     CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    // CommandList->ResourceBarrier(1, &ResBar1);
-    ////	Done	recording	commands.
-    // CommandList->Close() >> Check;
-
-    ////	Add	the	command	list	to	the	queue	for	execution.
-    // ID3D12CommandList* cmdsLists[] = {CommandList.Get()};
-    // CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-    ////	swap	the	back	and	front	buffers
-    // SwapChain->Present(0, 0) >> Check;
-    // CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
-    // FlushCommandQueue();
-
     // Reuse the memory associated with command recording.
     // We can only reset when the associated command lists have finished execution on the GPU.
     CommandAlloc->Reset() >> Check;
@@ -208,7 +176,7 @@ void Graphic::Draw()
     CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     // swap the back and front buffers
-    SwapChain->Present(0, 0) >> Check;
+    SwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check;
     CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
 
     // Wait until frame commands are complete.  This waiting is inefficient and is

@@ -26,6 +26,6 @@ public:
     }
 
 private:
-    static constexpr float SpeedCamera = 20.0f;
-    static constexpr float SpeedRotateCamera = 20.0f;
+    static constexpr float SpeedCamera = 50.0f;
+    static constexpr float SpeedRotateCamera = 250.0f;
 };
