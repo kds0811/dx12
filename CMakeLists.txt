@@ -89,6 +89,28 @@ add_executable(dx12 WIN32
   ${PUBLIC_HEADERS}
   ${SHADER_SOURCES}
   )  
+ 
+  function(add_non_compiled_sources target)  
+      foreach(FILE ${ARGN})  
+          # Устанавливаем файл как не участвующий в компиляции  
+          set_source_files_properties(${FILE}   
+              PROPERTIES   
+              HEADER_FILE_ONLY TRUE  
+              EXCLUDE_FROM_ALL TRUE  
+          )  
+          
+          # Опционально: группируем файлы  
+          get_filename_component(FILE_PATH "${FILE}" DIRECTORY)  
+          file(RELATIVE_PATH REL_PATH "${SHADERS_DIR}" "${FILE_PATH}")  
+          source_group("Shaders\\${REL_PATH}" FILES "${FILE}")  
+      endforeach()  
+  endfunction()  
+  
+  # Заменяем существующую строку группировки шейдеров  
+  add_non_compiled_sources(dx12 ${SHADER_SOURCES})  
+
+
+
 
 # Автоматическое включение директорий  
 auto_include_directories(dx12 "${CMAKE_SOURCE_DIR}/Source")  
