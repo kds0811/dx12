@@ -20,6 +20,7 @@ struct VertexCol
 struct ObjectConstants
 {
     DirectX::XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+    float time = 0.0f;
 };
 
 
@@ -33,7 +34,7 @@ public:
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
     void Draw();
-    void Update(DirectX::FXMMATRIX ViewMat);
+    void Update(DirectX::FXMMATRIX ViewMat, float TotalTime);
 
 
 private:

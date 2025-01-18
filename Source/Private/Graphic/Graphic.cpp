@@ -189,7 +189,7 @@ void Graphic::Draw()
     FlushCommandQueue();
 }
 
-void Graphic::Update(DirectX::FXMMATRIX ViewMat)
+void Graphic::Update(DirectX::FXMMATRIX ViewMat, float TotalTime)
 {
     XMMATRIX view = ViewMat;
     XMStoreFloat4x4(&mView, ViewMat);
@@ -201,6 +201,7 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat)
     // Update the constant buffer with the latest worldViewProj matrix.
      ObjectConstants objConstants;
      XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+     objConstants.time = TotalTime;
      mObjectCB->CopyData(0, objConstants);
     
 }

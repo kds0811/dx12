@@ -35,5 +35,4 @@ private:
     bool bAppPaused = false;
 
     void CalculateFrameStats();
-    void UpdateCameraMatrix();
 };

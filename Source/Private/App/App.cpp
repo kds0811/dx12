@@ -56,8 +56,7 @@ void App::OnStart()
 void App::Update()
 {
     CamController.UpdateInput();
-    UpdateCameraMatrix();
-    
+    Gfx.Update(Cam.GetViewMatrix(), Timer.GetTotalTime());
 }
 
 void App::Draw()
@@ -85,10 +84,4 @@ void App::CalculateFrameStats()
         frameCnt = 0;
         timeElapsed += 1.0;
     }
-}
-
-
-void App::UpdateCameraMatrix()
-{
-    Gfx.Update(Cam.GetViewMatrix());
 }
