@@ -7,9 +7,13 @@
 using namespace Microsoft::WRL;
 
 
-struct Vertex
+struct VertexPos
 {
     DirectX::XMFLOAT3 Pos;
+};
+
+struct VertexCol
+{
     DirectX::XMFLOAT4 Color;
 };
 
