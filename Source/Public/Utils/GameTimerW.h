@@ -19,5 +19,6 @@ private:
     __int64 StopTime;
     __int64 PrevTime;
     __int64 CurrTime;
+
     bool Stopped;
 };

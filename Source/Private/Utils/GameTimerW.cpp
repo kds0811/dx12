@@ -20,7 +20,6 @@ float GameTimerW::GetTotalTime() const noexcept
     }
 }
 
-
 void GameTimerW::Reset() noexcept
 {
     __int64 currTime;

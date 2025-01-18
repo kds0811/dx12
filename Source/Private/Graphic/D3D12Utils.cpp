@@ -2,10 +2,10 @@
 #include <fstream>
 
 using namespace Microsoft::WRL;
+using namespace Kds::App;
 
 ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
-    ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
-    const void* initData, UINT64 byteSize, ComPtr<ID3D12Resource>& uploadBuffer)
+    ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const void* initData, UINT64 byteSize, ComPtr<ID3D12Resource>& uploadBuffer)
 {
     ComPtr<ID3D12Resource> defaultBuffer;
     const auto ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
@@ -14,15 +14,13 @@ ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
     const auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
     device->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON, nullptr,
-        IID_PPV_ARGS(defaultBuffer.GetAddressOf())) >>
-        Kds::App::Check;
+        IID_PPV_ARGS(defaultBuffer.GetAddressOf())) >> Check;
 
     // In order to copy CPU memory data into our default buffer, we need to create
     // an intermediate upload heap.
     const auto HeapPropUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     device->CreateCommittedResource(&HeapPropUpload, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-        IID_PPV_ARGS(uploadBuffer.GetAddressOf())) >>
-        Kds::App::Check;
+        IID_PPV_ARGS(uploadBuffer.GetAddressOf())) >> Check;
 
     // Describe the data we want to copy into the default buffer.
     D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -39,7 +37,7 @@ ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
 
     cmdList->ResourceBarrier(1, &ResBarStateToCopy);
     UpdateSubresources<1>(cmdList, defaultBuffer.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
-    
+
     const auto ResBarCopyToState =
         CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
     cmdList->ResourceBarrier(1, &ResBarCopyToState);
@@ -51,8 +49,7 @@ ComPtr<ID3D12Resource> D3D12Utils::CreateDefaultBuffer(
     return defaultBuffer;
 }
 
-
-ComPtr<ID3DBlob>D3D12Utils::LoadBinary(const std::string& filename)
+ComPtr<ID3DBlob> D3D12Utils::LoadBinary(const std::string& filename)
 {
     std::ifstream fin(filename, std::ios::binary);
 
@@ -60,8 +57,8 @@ ComPtr<ID3DBlob>D3D12Utils::LoadBinary(const std::string& filename)
     std::ifstream::pos_type size = static_cast<size_t>(fin.tellg());
     fin.seekg(0, std::ios_base::beg);
 
-   ComPtr<ID3DBlob> blob;
-    D3DCreateBlob(size, blob.GetAddressOf()) >> Kds::App::Check;
+    ComPtr<ID3DBlob> blob;
+    D3DCreateBlob(size, blob.GetAddressOf()) >> Check;
 
     fin.read(static_cast<char*>(blob->GetBufferPointer()), size);
     fin.close();
@@ -86,7 +83,7 @@ ComPtr<ID3DBlob> D3D12Utils::CompileShader(
 
     if (errors != nullptr) OutputDebugStringA((char*)errors->GetBufferPointer());
 
-    hr >> Kds::App::Check;
+    hr >> Check;
 
     return byteCode;
 }

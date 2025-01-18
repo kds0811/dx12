@@ -69,8 +69,8 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     depthStencilDesc.DepthOrArraySize = 1;
     depthStencilDesc.MipLevels = 1;
     depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-    depthStencilDesc.SampleDesc.Count = 4;
-    depthStencilDesc.SampleDesc.Quality = 1;
+    depthStencilDesc.SampleDesc.Count = 1;
+    depthStencilDesc.SampleDesc.Quality = 0;
     depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -176,7 +176,7 @@ void Graphic::Draw()
     CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     // swap the back and front buffers
-    SwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check;
+    SwapChain->Present(0, 0) >> Check;
     CurrBackBuffer = (CurrBackBuffer + 1) % SwapChainBufferCount;
 
     // Wait until frame commands are complete.  This waiting is inefficient and is
@@ -494,14 +494,14 @@ void Graphic::BuildRootSignature()
     ComPtr<ID3DBlob> errorBlob = nullptr;
     HRESULT hr =
         D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
+    hr >> Check;
     if (errorBlob != nullptr)
     {
         ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
     }
 
     Device->CreateRootSignature(
-        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&mRootSignature)) >>
+        0,  serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&mRootSignature)) >>
         Check;
 }
 
