@@ -86,7 +86,8 @@ private:
 
     ComPtr<ID3D12PipelineState> mPSO = nullptr;
 
-    DirectX::XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mWorldBox = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mWorldPyramid = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
@@ -119,6 +120,7 @@ private:
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildBoxGeometry();
+    void BuildPyramidGeometry();
     void BuildPSO();
     
 };

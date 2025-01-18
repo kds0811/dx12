@@ -50,7 +50,7 @@ public:
 private:
     UINT Width = 0;
     UINT Height = 0;
-    std::string titleName = "HZ PROJECT";
+    std::string titleName = "DX 12";
     HWND hWnd;
     App* pApp = nullptr;
     

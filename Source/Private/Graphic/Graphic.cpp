@@ -13,6 +13,12 @@ Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : ClientWidth(Width), Clien
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 
+    XMMATRIX PTrans = XMMatrixTranslation(1.0f, 0.0f, 0.0f);
+    XMMATRIX PyrRot = XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
+    XMMATRIX PyrScale = XMMatrixScaling(1.0f, 1.0f, 1.0f);
+    
+    XMMATRIX pyramidWorld = PTrans * PyrRot * PyrScale;
+    XMStoreFloat4x4(&mWorldPyramid, pyramidWorld); 
 }
 
 Graphic::~Graphic()
@@ -158,14 +164,27 @@ void Graphic::Draw()
     auto BoxVCB = mBoxGeo->ColorBufferView();
     CommandList->IASetVertexBuffers(1, 1, &BoxVCB);
 
-
     auto BoxIBV = mBoxGeo->IndexBufferView();
     CommandList->IASetIndexBuffer(&BoxIBV);
+
     CommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    CommandList->SetGraphicsRootDescriptorTable(0, CbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-    CommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
+    auto handle = CbvHeap->GetGPUDescriptorHandleForHeapStart();
+
+    // Рисуем куб
+    CommandList->SetGraphicsRootDescriptorTable(0, handle);
+    CommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, mBoxGeo->DrawArgs["box"].StartIndexLocation,
+        mBoxGeo->DrawArgs["box"].BaseVertexLocation, 0);
+
+    // Смещаем дескриптор для пирамиды
+    handle.ptr += Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+    // Рисуем пирамиду
+    CommandList->SetGraphicsRootDescriptorTable(0, handle);
+    CommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["pyramid"].IndexCount, 1, mBoxGeo->DrawArgs["pyramid"].StartIndexLocation,
+        mBoxGeo->DrawArgs["pyramid"].BaseVertexLocation, 0);  
+
 
     // Indicate a state transition on the resource usage.
     auto ResBarRTtoPresent =
@@ -194,15 +213,24 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, float TotalTime)
     XMMATRIX view = ViewMat;
     XMStoreFloat4x4(&mView, ViewMat);
 
-     XMMATRIX world = XMLoadFloat4x4(&mWorld);
+     XMMATRIX worldBox = XMLoadFloat4x4(&mWorldBox);
      XMMATRIX proj = XMLoadFloat4x4(&mProj);
-     XMMATRIX worldViewProj = world * view * proj;
+     XMMATRIX worldViewProjBox = worldBox * view * proj;
 
     // Update the constant buffer with the latest worldViewProj matrix.
-     ObjectConstants objConstants;
-     XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
-     objConstants.time = TotalTime;
-     mObjectCB->CopyData(0, objConstants);
+     ObjectConstants objConstantsBox;
+     XMStoreFloat4x4(&objConstantsBox.WorldViewProj, XMMatrixTranspose(worldViewProjBox));
+     objConstantsBox.time = TotalTime;
+     mObjectCB->CopyData(0, objConstantsBox);
+
+
+     XMMATRIX worldPyr = XMLoadFloat4x4(&mWorldPyramid);
+     XMMATRIX worldViewProjPyr = worldPyr * view * proj;
+     ObjectConstants objConstantsPyramid;
+
+     XMStoreFloat4x4(&objConstantsPyramid.WorldViewProj, XMMatrixTranspose(worldViewProjPyr));
+     objConstantsPyramid.time = TotalTime;
+     mObjectCB->CopyData(1, objConstantsPyramid);
     
 }
 
@@ -245,6 +273,7 @@ void Graphic::InitPipeline()
     BuildRootSignature();
     BuildShadersAndInputLayout();
     BuildBoxGeometry();
+    BuildPyramidGeometry();
     BuildPSO();
 
     // Execute the initialization commands.
@@ -456,7 +485,7 @@ void Graphic::FlushCommandQueue()
 void Graphic::BuildDescriptorHeaps()
 {
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc{};
-    cbvHeapDesc.NumDescriptors = 1;
+    cbvHeapDesc.NumDescriptors = 2;
     cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     cbvHeapDesc.NodeMask = 0;
@@ -465,7 +494,7 @@ void Graphic::BuildDescriptorHeaps()
 
 void Graphic::BuildConstantBuffers()
 {
-    mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(Device.Get(), 1, true);
+    mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(Device.Get(), 2, true);
 
     UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
@@ -478,7 +507,18 @@ void Graphic::BuildConstantBuffers()
     cbvDesc.BufferLocation = cbAddress;
     cbvDesc.SizeInBytes = objCBByteSize;
 
-    Device->CreateConstantBufferView(&cbvDesc, CbvHeap->GetCPUDescriptorHandleForHeapStart());
+   // Получаем начальный CPU дескриптор
+    auto cpuHandle = CbvHeap->GetCPUDescriptorHandleForHeapStart();
+    Device->CreateConstantBufferView(&cbvDesc, cpuHandle);  
+
+    // Второй CBV (для пирамиды)
+    // Смещаем CPU дескриптор
+    cpuHandle.ptr += Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+    // Смещаем адрес буфера
+    cbvDesc.BufferLocation = cbAddress + objCBByteSize;
+
+    Device->CreateConstantBufferView(&cbvDesc, cpuHandle);
 }
 
 void Graphic::BuildRootSignature()
@@ -488,7 +528,7 @@ void Graphic::BuildRootSignature()
 
     // Create a single descriptor table of CBVs.
     CD3DX12_DESCRIPTOR_RANGE cbvTable{};
-    cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+    cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0);
     slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
 
     // A root signature is an array of root parameters.
@@ -523,36 +563,40 @@ void Graphic::BuildShadersAndInputLayout()
 
 void Graphic::BuildBoxGeometry()
 {
-    std::array<VertexPos, 8> verticesPos = {VertexPos({XMFLOAT3(-1.0f, -1.0f, -1.0f)}),
-        VertexPos({XMFLOAT3(-1.0f, +1.0f, -1.0f)}), VertexPos({XMFLOAT3(+1.0f, +1.0f, -1.0f)}),
-        VertexPos({XMFLOAT3(+1.0f, -1.0f, -1.0f)}), VertexPos({XMFLOAT3(-1.0f, -1.0f, +1.0f)}),
+    std::array<VertexPos, 13> verticesPos = {VertexPos({XMFLOAT3(-1.0f, -1.0f, -1.0f)}), VertexPos({XMFLOAT3(-1.0f, +1.0f, -1.0f)}),
+        VertexPos({XMFLOAT3(+1.0f, +1.0f, -1.0f)}), VertexPos({XMFLOAT3(+1.0f, -1.0f, -1.0f)}), VertexPos({XMFLOAT3(-1.0f, -1.0f, +1.0f)}),
         VertexPos({XMFLOAT3(-1.0f, +1.0f, +1.0f)}), VertexPos({XMFLOAT3(+1.0f, +1.0f, +1.0f)}),
-        VertexPos({XMFLOAT3(+1.0f, -1.0f, +1.0f)})};
+        VertexPos({XMFLOAT3(+1.0f, -1.0f, +1.0f)}),  // BOX 8
+        VertexPos({XMFLOAT3(-0.5f, -0.5f, -0.5f)}),  // 8: передний левый
+        VertexPos({XMFLOAT3(0.5f, -0.5f, -0.5f)}),   // 9: передний правый
+        VertexPos({XMFLOAT3(0.5f, -0.5f, 0.5f)}),    // 10: задний правый
+        VertexPos({XMFLOAT3(-0.5f, -0.5f, 0.5f)}),   // 11: задний левый
+        VertexPos({XMFLOAT3(0.0f, 0.5f, 0.0f)})};    // 12: вершина 
 
-    std::array<VertexCol, 8> verticesCol = {VertexCol({XMFLOAT4(Colors::White)}),
-        VertexCol({XMFLOAT4(Colors::Black)}),  VertexCol({XMFLOAT4(Colors::Red)}),
-        VertexCol({XMFLOAT4(Colors::Green)}),  VertexCol({XMFLOAT4(Colors::Blue)}),
-        VertexCol({XMFLOAT4(Colors::Yellow)}), VertexCol({XMFLOAT4(Colors::Cyan)}),
-        VertexCol({XMFLOAT4(Colors::Magenta)})};
+    std::array<VertexCol, 13> verticesCol = {VertexCol({XMFLOAT4(Colors::White)}), VertexCol({XMFLOAT4(Colors::Black)}),
+        VertexCol({XMFLOAT4(Colors::Red)}), VertexCol({XMFLOAT4(Colors::Green)}), VertexCol({XMFLOAT4(Colors::Blue)}),
+        VertexCol({XMFLOAT4(Colors::Yellow)}), VertexCol({XMFLOAT4(Colors::Cyan)}), VertexCol({XMFLOAT4(Colors::Magenta)}),  // Box 8 
+        VertexCol({XMFLOAT4(Colors::Red)}), VertexCol({XMFLOAT4(Colors::Green)}), VertexCol({XMFLOAT4(Colors::Blue)}),
+        VertexCol({XMFLOAT4(Colors::Yellow)}), VertexCol({XMFLOAT4(Colors::White)})}; // Pyramid 5
 
+    std::array<std::uint16_t, 54> indices = {
+        // Куб (36 индексов) - оставляем как есть
+        0, 1, 2, 0, 2, 3,  // front
+        4, 6, 5, 4, 7, 6,  // back
+        4, 5, 1, 4, 1, 0,  // left
+        3, 2, 6, 3, 6, 7,  // right
+        1, 5, 6, 1, 6, 2,  // top
+        4, 0, 3, 4, 3, 7,  // bottom
 
-    std::array<std::uint16_t, 36> indices = {// front face
-        0, 1, 2, 0, 2, 3,
+        // Пирамида (18 индексов)
+        8 + 0, 8 + 2, 8 + 1,  // основание треугольник 1
+        8 + 0, 8 + 3, 8 + 2,  // основание треугольник 2
+        8 + 0, 8 + 1, 8 + 4,  // передняя грань
+        8 + 1, 8 + 2, 8 + 4,  // правая грань
+        8 + 2, 8 + 3, 8 + 4,  // задняя грань
+        8 + 3, 8 + 0, 8 + 4   // левая грань
+    };  
 
-        // back face
-        4, 6, 5, 4, 7, 6,
-
-        // left face
-        4, 5, 1, 4, 1, 0,
-
-        // right face
-        3, 2, 6, 3, 6, 7,
-
-        // top face
-        1, 5, 6, 1, 6, 2,
-
-        // bottom face
-        4, 0, 3, 4, 3, 7};
 
     const UINT vbPosByteSize = (UINT)verticesPos.size() * sizeof(VertexPos);
     const UINT vbColByteSize = (UINT)verticesCol.size() * sizeof(VertexCol);
@@ -586,12 +630,28 @@ void Graphic::BuildBoxGeometry()
     mBoxGeo->IndexFormat = DXGI_FORMAT_R16_UINT;
     mBoxGeo->IndexBufferByteSize = ibByteSize;
 
-    SubmeshGeometry submesh;
-    submesh.IndexCount = (UINT)indices.size();
-    submesh.StartIndexLocation = 0;
-    submesh.BaseVertexLocation = 0;
+    SubmeshGeometry submeshBox;
+    submeshBox.IndexCount = 36u;
+    submeshBox.StartIndexLocation = 0;
+    submeshBox.BaseVertexLocation = 0;
+    mBoxGeo->DrawArgs["box"] = submeshBox;
 
-    mBoxGeo->DrawArgs["box"] = submesh;
+    SubmeshGeometry submeshPyramid;
+    submeshPyramid.IndexCount = 18u;
+    submeshPyramid.StartIndexLocation = 36u;
+    submeshPyramid.BaseVertexLocation = 8;
+    mBoxGeo->DrawArgs["pyramid"] = submeshPyramid;
+
+}
+
+void Graphic::BuildPyramidGeometry()
+{
+
+
+
+
+
+
 }
 
 void Graphic::BuildPSO()
