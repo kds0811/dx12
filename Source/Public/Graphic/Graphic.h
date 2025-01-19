@@ -6,7 +6,6 @@
 
 using namespace Microsoft::WRL;
 
-
 struct VertexPos
 {
     DirectX::XMFLOAT3 Pos;
@@ -23,10 +22,54 @@ struct ObjectConstants
     float time = 0.0f;
 };
 
-
-
 class Graphic
 {
+private:
+    // Main Fields
+    ComPtr<ID3D12Debug3> mDebugController;
+    ComPtr<IDXGIFactory7> mFactory;
+    ComPtr<ID3D12Device8> mDevice;
+
+    // Command Stuff
+    ComPtr<ID3D12Fence1> mFence;
+    UINT64 mCurrentFence = 0;
+    ComPtr<ID3D12CommandQueue> mCommandQueue;
+    ComPtr<ID3D12CommandAllocator> mCommandAlloc;
+    ComPtr<ID3D12GraphicsCommandList6> mCommandList;
+
+    // SwapChain and Backbuffer Fields
+    static constexpr UINT mSwapChainBufferCount = 2;
+    ComPtr<IDXGISwapChain4> mSwapChain;
+    ComPtr<ID3D12Resource> mSwapChainBuffer[mSwapChainBufferCount];
+    DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    int mCurrBackBuffer = 0;
+
+    // Depth Stencil Fields
+    ComPtr<ID3D12Resource> mDepthStencilBuffer;
+    DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+    // Decriptor Heaps
+    ComPtr<ID3D12DescriptorHeap> mRtvHeap;
+    ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+    ComPtr<ID3D12DescriptorHeap> mCbvHeap;
+
+    // Decriptor Sizes
+    UINT mRtvDescriptorSize = 0u;
+    UINT mDsvDescriptorSize = 0u;
+    UINT mCbvSrvDescriptorSize = 0u;
+
+    // Viewport and window fields
+    D3D12_VIEWPORT mScreenViewport;
+    UINT mClientWidth = 0u;
+    UINT mClientHeight = 0u;
+    D3D12_RECT mScissorRect;
+    HWND mWindowHandle = nullptr;
+
+    //Driver Type
+    D3D_DRIVER_TYPE mD3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
+
+    
+
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
     ~Graphic();
@@ -36,42 +79,7 @@ public:
     void Draw();
     void Update(DirectX::FXMMATRIX ViewMat, float TotalTime);
 
-
 private:
-    static constexpr UINT SwapChainBufferCount = 2;
-    DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    int CurrBackBuffer = 0;
-    UINT RtvDescriptorSize = 0u;
-    UINT DsvDescriptorSize = 0u;
-    UINT CbvSrvDescriptorSize = 0u;
-    UINT ClientWidth = 0u;
-    UINT ClientHeight = 0u;
-    UINT MsaaQuality4x = 0u;
-    bool MsaaState4x = false;
-    HWND WindowHandle = nullptr;
-    D3D_DRIVER_TYPE D3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
-    DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    D3D12_RECT ScissorRect;
-    D3D12_VIEWPORT ScreenViewport; 
-
-    ComPtr<ID3D12Debug3> DebugController;
-    ComPtr<IDXGIFactory7> Factory;
-    ComPtr<ID3D12Device8> Device;
-
-    ComPtr<ID3D12Fence1> Fence;
-    UINT64 CurrentFence = 0;
-
-    ComPtr<ID3D12CommandQueue> CommandQueue;
-    ComPtr<ID3D12CommandAllocator> CommandAlloc;
-    ComPtr<ID3D12GraphicsCommandList6> CommandList;
-    ComPtr<IDXGISwapChain4> SwapChain;
-    ComPtr<ID3D12DescriptorHeap> RtvHeap;
-    ComPtr<ID3D12DescriptorHeap> DsvHeap;
-    ComPtr<ID3D12DescriptorHeap> CbvHeap;
-    ComPtr<ID3D12Resource> SwapChainBuffer[SwapChainBufferCount];
-    ComPtr<ID3D12Resource> DepthStencilBuffer;
-
-
     // New
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 
@@ -91,28 +99,15 @@ private:
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-
 private:
     inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
     inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
     inline ID3D12Resource* CurrentBackBuffer() const noexcept;
 
     void InitPipeline();
-    void EnableDebugLayer();
-    void CreateFactory();
-    void CreateDevice();
-    void CreateFence();
-    void SetDescriptorSizes();
-    void CheckMSAASupport();
-    void CreateCommandObjects();
-    void CreateSwapChain();
-    void CreateRtvAndDsvDescriptorHeaps();
-    void CreateRtvforSwapChain();
-    void CreateDsvForSwapChain();
-    void CreateAndSetViewport();
-    void CreateScissorRect();
-    void FlushCommandQueue();
+    void InitResources();
 
+    void FlushCommandQueue();
 
     // new
     void BuildDescriptorHeaps();
@@ -122,5 +117,4 @@ private:
     void BuildBoxGeometry();
     void BuildPyramidGeometry();
     void BuildPSO();
-    
 };
