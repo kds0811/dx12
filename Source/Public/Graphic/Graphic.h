@@ -100,13 +100,12 @@ private:
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
 private:
-    inline D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
-    inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
-    inline ID3D12Resource* CurrentBackBuffer() const noexcept;
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
+    D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
+    ID3D12Resource* CurrentBackBuffer() const noexcept;
 
     void InitPipeline();
     void InitResources();
-
     void FlushCommandQueue();
 
     // new
@@ -115,6 +114,5 @@ private:
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildBoxGeometry();
-    void BuildPyramidGeometry();
     void BuildPSO();
 };

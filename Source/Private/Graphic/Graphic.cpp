@@ -420,7 +420,6 @@ void Graphic::InitResources() {
     BuildRootSignature();
     BuildShadersAndInputLayout();
     BuildBoxGeometry();
-    BuildPyramidGeometry();
     BuildPSO();
 
     // Execute the initialization commands.
@@ -431,7 +430,6 @@ void Graphic::InitResources() {
     // Wait until initialization is complete.
     FlushCommandQueue();
 }
-
 
 void Graphic::FlushCommandQueue()
 {
@@ -609,7 +607,6 @@ void Graphic::BuildBoxGeometry()
     mBoxGeo->DrawArgs["pyramid"] = submeshPyramid;
 }
 
-void Graphic::BuildPyramidGeometry() {}
 
 void Graphic::BuildPSO()
 {
