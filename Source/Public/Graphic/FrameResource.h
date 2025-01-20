@@ -4,7 +4,6 @@
 #include "MathHelper.h"
 #include "UploadBuffer.h"
 
-
 struct ObjectConstants
 {
     DirectX::XMFLOAT4X4 World = MathHelper::Identity4x4();
@@ -38,7 +37,7 @@ struct Vertex
 // for a frame.
 struct FrameResource
 {
-private:
+public:
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc;
     std::unique_ptr<UploadBuffer<PassConstants>> PassCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
@@ -51,5 +50,5 @@ public:
     FrameResource(const FrameResource&& rhs) = delete;
     FrameResource& operator=(const FrameResource&& rhs) = delete;
     ~FrameResource();
-    
+
 };

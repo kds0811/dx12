@@ -9,6 +9,11 @@ class alignas(16) Camera
 public:
     inline Camera() noexcept : Trans(Vector{0.f, 0.f, -10.f}, Rotator::Zero(), Vector(1.f, 1.f, 1.f)) {}
 
+    [[nodiscard]] inline DirectX::XMFLOAT3 GetCameraPos() const noexcept
+    {
+        const Vector pos = Trans.GetLocation();
+        return DirectX::XMFLOAT3(pos.GetX(), pos.GetY(), pos.GetZ());
+    }
     void MoveRight(float direction, float dt);
     void MoveForward(float direction, float dt);
     void MoveAbsoluteUp(float direction, float dt);
