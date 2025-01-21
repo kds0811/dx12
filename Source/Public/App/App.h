@@ -21,6 +21,7 @@ public:
     void OnStart();
     void Update();
     void Draw();
+    void SetWireframe(bool wireframeIsEnabled);
 
 private:
     UINT Width = 1600;

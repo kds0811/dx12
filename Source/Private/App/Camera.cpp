@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "App.h"
 
 void Camera::MoveRight(float direction, float dt) 
 {
@@ -24,4 +25,9 @@ void Camera::RotateCamera(float xOffset, float yOffset, float dt)
     float NewYaw = xOffset * dt * SpeedRotateCamera;
     Rotator RotOffset(NewPitch, NewYaw, 0.0f);
     Trans.AddRotation(RotOffset);
+}
+
+void Camera::SetWireframeMode(bool wireframeIsEnabled) 
+{
+    pOwner->SetWireframe(wireframeIsEnabled);
 }

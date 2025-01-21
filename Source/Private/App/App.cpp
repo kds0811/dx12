@@ -8,7 +8,7 @@
 
 
 
-App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()), CamController(&Wnd, &Cam, &Timer) {}
+App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()), Cam(this), CamController(&Wnd, &Cam, &Timer) {}
 
 std::optional<int> App::Go()
 {
@@ -62,6 +62,11 @@ void App::Update()
 void App::Draw()
 {
     Gfx.Draw();
+}
+
+void App::SetWireframe(bool wireframeIsEnabled) 
+{
+    Gfx.SetWireframe(wireframeIsEnabled);
 }
 
 void App::CalculateFrameStats()

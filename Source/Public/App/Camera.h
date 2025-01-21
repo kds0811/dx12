@@ -2,12 +2,15 @@
 #include <DirectXMath.h>
 #include "Transform.h"
 
+class App;
+
 class alignas(16) Camera
 {
     Transform Trans;
+    App* pOwner = nullptr;
 
 public:
-    inline Camera() noexcept : Trans(Vector{0.f, 0.f, -10.f}, Rotator::Zero(), Vector(1.f, 1.f, 1.f)) {}
+    inline Camera(App* owner) noexcept : Trans(Vector{0.f, 0.f, -10.f}, Rotator::Zero(), Vector(1.f, 1.f, 1.f)), pOwner(owner)  {}
 
     [[nodiscard]] inline DirectX::XMFLOAT3 GetCameraPos() const noexcept
     {
@@ -18,6 +21,7 @@ public:
     void MoveForward(float direction, float dt);
     void MoveAbsoluteUp(float direction, float dt);
     void RotateCamera(float xOffset, float yOffset, float dt);
+    void SetWireframeMode(bool wireframeIsEnabled);
 
     [[nodiscard]] inline DirectX::XMMATRIX GetViewMatrix() const noexcept
     {
@@ -32,5 +36,5 @@ public:
 
 private:
     static constexpr float SpeedCamera = 40.0f;
-    static constexpr float SpeedRotateCamera = 15.0f;
+    static constexpr float SpeedRotateCamera = 20.0f;
 };

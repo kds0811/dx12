@@ -42,6 +42,15 @@ void CameraController::UpdateKeyboardInput()
     {
         pCam->MoveAbsoluteUp(-1.f, dt);
     }
+    if (pWnd->kbd.KeyIsPressed('1'))
+    {
+        pCam->SetWireframeMode(false);
+    }
+    if (pWnd->kbd.KeyIsPressed('2'))
+    {
+        pCam->SetWireframeMode(true);
+    }
+
 }
 
 void CameraController::UpdateMouseInput()
