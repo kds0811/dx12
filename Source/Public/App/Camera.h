@@ -10,7 +10,7 @@ class alignas(16) Camera
     App* pOwner = nullptr;
 
 public:
-    inline Camera(App* owner) noexcept : Trans(Vector{0.f, 0.f, -10.f}, Rotator::Zero(), Vector(1.f, 1.f, 1.f)), pOwner(owner)  {}
+    inline Camera(App* owner) noexcept : Trans(Vector{0.f, 5.f, -20.f}, Rotator::Zero(), Vector(1.f, 1.f, 1.f)), pOwner(owner)  {}
 
     [[nodiscard]] inline DirectX::XMFLOAT3 GetCameraPos() const noexcept
     {
