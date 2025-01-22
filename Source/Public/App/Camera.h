@@ -8,6 +8,8 @@ class alignas(16) Camera
 {
     Transform Trans;
     App* pOwner = nullptr;
+    static constexpr float SpeedCamera = 40.0f;
+    static constexpr float SpeedRotateCamera = 20.0f;
 
 public:
     inline Camera(App* owner) noexcept : Trans(Vector{0.f, 5.f, -20.f}, Rotator::Zero(), Vector(1.f, 1.f, 1.f)), pOwner(owner)  {}
@@ -33,8 +35,4 @@ public:
         
         return DirectX::XMMatrixLookAtLH(Position.ToSIMD(), Target, UpDir.ToSIMD());
     }
-
-private:
-    static constexpr float SpeedCamera = 40.0f;
-    static constexpr float SpeedRotateCamera = 20.0f;
 };
