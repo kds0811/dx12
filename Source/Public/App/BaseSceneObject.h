@@ -3,18 +3,18 @@
 #include "RenderItem.h"
 #include "MovementComponent.h"
 
-
 class BaseSceneObject
 {
-    SceneComponent mSceneComponent;
-    MovementComponent mMovementComponent;
-
-    RenderItem mRenderItem;
 
 public:
     BaseSceneObject();
     void Update(float dt);
     RenderItem* GetRenderItem() { return &mRenderItem; }
+
+protected:
+    SceneComponent mSceneComponent;
+    MovementComponent mMovementComponent;
+    RenderItem mRenderItem;
 
 
 };
