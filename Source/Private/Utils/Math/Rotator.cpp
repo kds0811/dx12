@@ -173,8 +173,9 @@ Rotator Rotator::Clamp(const Rotator& min, const Rotator& max) const noexcept
 
 DirectX::XMVECTOR Rotator::ToQuatSIMD() const noexcept
 {
-    return DirectX::XMQuaternionRotationRollPitchYaw(
+    auto quat = DirectX::XMQuaternionRotationRollPitchYaw(
         DirectX::XMConvertToRadians(GetPitch()), DirectX::XMConvertToRadians(GetYaw()), DirectX::XMConvertToRadians(GetRoll()));
+    return DirectX::XMQuaternionNormalize(quat);
 }
 
 Quat Rotator::ToQuat() const noexcept

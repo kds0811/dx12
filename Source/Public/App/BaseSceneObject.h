@@ -1,12 +1,16 @@
 #pragma once
-#include "Transform.h"
+#include "SceneComponent.h"
+#include "RenderItem.h"
+
 
 class BaseSceneObject
 {
+    SceneComponent mSceneComponent;
+    RenderItem mRenderItem;
 
 public:
-    virtual void Update() = 0;
+    void Update();
+    RenderItem* GetRenderItem() { return &mRenderItem; }
 
-protected:
-    Transform mTransform;
+
 };

@@ -41,4 +41,12 @@ public:
         return DirectX::XMMatrixLookAtLH(Location.ToSIMD(), Rotation.GetForwardVector().ToSIMD(), Rotation.GetUpVector().ToSIMD());
     }
 
+    [[nodiscard]] inline DirectX::XMMATRIX GetWorldMatrix() const noexcept
+    {
+        DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(GetScale().ToSIMD());
+        DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationQuaternion(GetRotation().ToQuatSIMD());
+        DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(GetLocation().ToSIMD());
+
+        return scale * rotation * translation;  
+    }
 };
