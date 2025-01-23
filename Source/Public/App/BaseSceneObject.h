@@ -6,6 +6,7 @@
 class BaseSceneObject
 {
     SceneComponent mSceneComponent;
+
     RenderItem mRenderItem;
 
 public:
