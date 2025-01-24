@@ -2,7 +2,7 @@
 
 BaseSceneObject::BaseSceneObject() : mMovementComponent(mSceneComponent)
 {
-
+    CreateRenderItem();
 }
 
 void BaseSceneObject::Update(float dt)

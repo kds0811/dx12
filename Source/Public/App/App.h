@@ -4,6 +4,7 @@
 #include "GameTimerW.h"
 #include "Camera.h"
 #include "CameraController.h"
+#include "Scene.h"
 
 class App
 {
@@ -27,11 +28,13 @@ private:
     UINT Width = 1600;
     UINT Height = 1000;
 
-    Window Wnd;
-    Graphic Gfx;
-    GameTimerW Timer;
-    Camera Cam;
-    CameraController CamController;
+    Window mWnd;
+    Graphic mGfx;
+    GameTimerW mTimer;
+    Camera mCamera;
+    CameraController mCameraController;
+    Scene mScene;
+
     
     bool bAppPaused = false;
 

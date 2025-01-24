@@ -8,6 +8,8 @@ class BaseSceneObject
 
 public:
     BaseSceneObject();
+    virtual ~BaseSceneObject() {}
+
     void Update(float dt);
     RenderItem* GetRenderItem() { return &mRenderItem; }
 
@@ -16,5 +18,6 @@ protected:
     MovementComponent mMovementComponent;
     RenderItem mRenderItem;
 
-
+private:
+    virtual void CreateRenderItem() = 0;
 };

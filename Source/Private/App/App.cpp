@@ -8,15 +8,15 @@
 
 
 
-App::App() : Wnd(Width, Height, this), Gfx(Width, Height, Wnd.GetHwnd()), Cam(this), CamController(&Wnd, &Cam, &Timer) {}
+App::App() : mWnd(Width, Height, this), mGfx(Width, Height, mWnd.GetHwnd()), mCamera(this), mCameraController(&mWnd, &mCamera, &mTimer), mScene(mTimer) {}
 
 std::optional<int> App::Go()
 {
-    Timer.Reset();
+    mTimer.Reset();
 
     while (true)
     {
-        Timer.Tick();
+        mTimer.Tick();
         CalculateFrameStats();
         Update();
         Draw();
@@ -32,7 +32,7 @@ void App::OnResize(UINT nWidth, UINT nHeight)
 {
     Width = nWidth;
     Height = nHeight;
-    Gfx.OnResize(nWidth, nHeight);
+    mGfx.OnResize(nWidth, nHeight);
 }
 
 void App::OnStop()
@@ -40,7 +40,7 @@ void App::OnStop()
     if (!bAppPaused)
     {
         bAppPaused = true;
-        Timer.Stop();
+        mTimer.Stop();
     }
 }
 
@@ -49,24 +49,24 @@ void App::OnStart()
     if (bAppPaused)
     {
         bAppPaused = false;
-        Timer.Start();
+        mTimer.Start();
     }
 }
 
 void App::Update()
 {
-    CamController.UpdateInput();
-    Gfx.Update(Cam.GetViewMatrix(), Cam.GetCameraPos(), Timer);
+    mCameraController.UpdateInput();
+    mGfx.Update(mCamera.GetViewMatrix(), mCamera.GetCameraPos(), mTimer);
 }
 
 void App::Draw()
 {
-    Gfx.Draw();
+    mGfx.Draw();
 }
 
 void App::SetWireframe(bool wireframeIsEnabled) 
 {
-    Gfx.SetWireframe(wireframeIsEnabled);
+    mGfx.SetWireframe(wireframeIsEnabled);
 }
 
 void App::CalculateFrameStats()
@@ -76,15 +76,15 @@ void App::CalculateFrameStats()
 
     frameCnt++;
 
-    if ((Timer.GetTotalTime() - timeElapsed) >= 1.0)
+    if ((mTimer.GetTotalTime() - timeElapsed) >= 1.0)
     {
         double fps = static_cast<double>(frameCnt);
         double mspf = 1000.0 / fps;
 
         std::string windowText = std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f} ",
-            Wnd.GetTitle(), fps, mspf, Timer.GetTotalTime());
+            mWnd.GetTitle(), fps, mspf, mTimer.GetTotalTime());
 
-        SetWindowText(Wnd.GetHwnd(), windowText.c_str());
+        SetWindowText(mWnd.GetHwnd(), windowText.c_str());
 
         frameCnt = 0;
         timeElapsed += 1.0;

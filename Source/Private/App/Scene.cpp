@@ -7,4 +7,10 @@ void Scene::AddObject(std::unique_ptr<BaseSceneObject>&& object)
 
 
 
-void Scene::Update() {}
+void Scene::Update() 
+{
+    for (const auto& object : mSceneObjects)
+    {
+        object->Update(mTimer.GetDeltaTime());
+    }
+}

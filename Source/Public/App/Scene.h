@@ -2,8 +2,8 @@
 #include <vector>
 #include <memory>
 #include "BaseSceneObject.h"
+#include "GameTimerW.h"
 
-class GameTimerW;
 
 class Scene
 {
