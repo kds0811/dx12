@@ -17,6 +17,7 @@ public:
     Scene(const Scene&&) = delete;
     Scene& operator=(const Scene&&) = delete;
 
-    void AddObject(std::unique_ptr<BaseSceneObject>&& object);
+    void InitScene();
+
     void Update();
 };

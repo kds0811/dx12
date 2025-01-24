@@ -7,7 +7,7 @@ class BaseSceneObject
 {
 
 public:
-    BaseSceneObject();
+    BaseSceneObject() = default;
     virtual ~BaseSceneObject() {}
 
     void Update(float dt);

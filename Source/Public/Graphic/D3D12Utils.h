@@ -6,7 +6,13 @@
 #include <directx/d3dx12.h>
 #include "GraphicError.h"
 #include <unordered_map>
+#include <DirectXMath.h>
 
+struct Vertex
+{
+    DirectX::XMFLOAT3 Pos;
+    DirectX::XMFLOAT4 Color;
+};
 
 class D3D12Utils
 {

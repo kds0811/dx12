@@ -820,9 +820,9 @@ void Graphic::BuildRenderItems()
 
 void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
-    UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    //UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-    auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+    //auto objectCB = mCurrFrameResource->ObjectCB->Resource();
 
     // For each render item...
     for (size_t i = 0; i < ritems.size(); ++i)
@@ -830,8 +830,8 @@ void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vec
         auto ri = ritems[i];
         auto VBView = ri->Geo->VertexBufferView();
         cmdList->IASetVertexBuffers(0, 1, &VBView);
-        auto IBCiew = ri->Geo->IndexBufferView();
-        cmdList->IASetIndexBuffer(&IBCiew);
+        auto IBView = ri->Geo->IndexBufferView();
+        cmdList->IASetIndexBuffer(&IBView);
         cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
         // Offset to the CBV in the descriptor heap for this object and for this frame resource.
