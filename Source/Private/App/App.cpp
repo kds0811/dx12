@@ -15,7 +15,9 @@ App::App() :
     mCameraController(&mWnd, &mCamera, &mTimer),
     mScene(mTimer, &mGfx)
 {
-    
+    mGfx.InitPipeline();
+    mGfx.InitResources(22);
+    mScene.InitScene();
 }
 
 std::optional<int> App::Go()
@@ -64,14 +66,13 @@ void App::OnStart()
 void App::Update()
 {
     mCameraController.UpdateInput();
-    mGfx.Update(mCamera.GetViewMatrix(), mCamera.GetCameraPos(), mTimer);
+    mGfx.Update(mCamera.GetViewMatrix(), mCamera.GetCameraPos(), mTimer, mScene.GetSceneRenderItems());
     mScene.Update();
 }
 
 void App::Draw()
 {
-    mGfx.Draw();
-
+    mGfx.Draw(mScene.GetSceneRenderItems());
 }
 
 void App::SetWireframe(bool wireframeIsEnabled) 

@@ -5,6 +5,7 @@
 #include "MathHelper.h"
 #include "FrameResource.h"
 #include "RenderItem.h"
+#include "ShapeGeometryBuilder.h"
 
 
 class GameTimerW;
@@ -74,10 +75,10 @@ private:
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
     // List of all the render items.
-    std::vector<std::unique_ptr<RenderItem>> mAllRitems;
+    //std::vector<std::unique_ptr<RenderItem>> mAllRitems;
 
     // Render items divided by PSO.
-    std::vector<RenderItem*> mOpaqueRitems;
+    //std::vector<RenderItem*> mOpaqueRitems;
 
     PassConstants mMainPassCB;
 
@@ -89,8 +90,10 @@ private:
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-    
+    size_t mSceneObjectCount = 0;
 
+    ShapeGeometryBuilder mShapeGeometryBuilder;
+    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
@@ -98,32 +101,30 @@ public:
 
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
-    void Draw();
-    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt);
+    void Draw(const std::vector<RenderItem*>& sceneRenderItems);
+    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt, const std::vector<RenderItem*>& ritems);
     void SetWireframe(bool state);
     ComPtr<ID3D12Device8> GetDevice() { return mDevice; }
     ComPtr<ID3D12GraphicsCommandList6> GetCommandList() { return mCommandList; }
+
+    void InitPipeline();
+    void InitResources(size_t sceneObjectCount);
+    void UpdateObjectCBs(const std::vector<RenderItem*>& ritems);
+    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
 
 private:
     D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
     D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
     ID3D12Resource* CurrentBackBuffer() const noexcept;
-
-    void InitPipeline();
-    void InitResources();
     void FlushCommandQueue();
-
-    void UpdateObjectCBs();
     void UpdateMainPassCB(const GameTimerW& gt);
-    
     void BuildDescriptorHeaps();
     void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
-    //void BuildShapeGeometry();
+    void BuildStandartShapeGeometry();
     void BuildPSOs();
     void BuildFrameResources();
-    void BuildRenderItems();
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
     

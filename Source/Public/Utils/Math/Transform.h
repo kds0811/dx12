@@ -30,16 +30,6 @@ public:
         }
         return *this;
     }
-    Transform& operator=(Transform&& rhs) noexcept
-    {
-        if (this != &rhs)
-        {
-            Location = std::exchange(rhs.Location, 0.0f);
-            Rotation = std::exchange(rhs.Rotation, 0.0f);
-            Scale = std::exchange(rhs.Scale, 0.0f);
-        }
-        return *this;
-    }
     inline Transform(const Transform& rhs) noexcept
         : Location(rhs.Location), Rotation(rhs.Rotation), Scale(rhs.Scale)
     {}

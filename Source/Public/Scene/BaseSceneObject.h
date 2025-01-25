@@ -19,6 +19,4 @@ protected:
     SceneComponent mSceneComponent;
     MovementComponent mMovementComponent;
     std::unique_ptr<RenderItem> mRenderItem;
-    
-
 };

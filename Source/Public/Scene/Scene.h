@@ -8,13 +8,23 @@
 
 class Graphic;
 
+struct DataPrimitiveBuild
+{
+    DataPrimitiveBuild(ePrimitiveType objectType, Transform objectTransformation)
+        : ObjectType(objectType), ObjectTransformation(objectTransformation)
+    {}
+    ePrimitiveType ObjectType;
+    Transform ObjectTransformation;
+};
+
+
 class Scene
 {
     std::vector<std::unique_ptr<BaseSceneObject>> mSceneObjects;
     GameTimerW& mTimer;
     Graphic* pGfx = nullptr;
-    ShapeGeometryBuilder mShapeGeometryBuilder;
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+    
+    std::vector<RenderItem*> mSceneRenderItems;
 
 public:
     Scene(GameTimerW& timer, Graphic* pgfx);
@@ -25,9 +35,10 @@ public:
 
     void InitScene();
     void Update();
+    std::vector<RenderItem*>& GetSceneRenderItems() { return mSceneRenderItems; }
 
 private:
     void BuildStandartShapeGeometry();
-
+    void BuildScenePrimitives();
     int SceneObjectsCounter = 0;
 };

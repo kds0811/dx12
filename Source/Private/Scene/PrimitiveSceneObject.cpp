@@ -1,16 +1,16 @@
 #include "PrimitiveSceneObject.h"
 
-PrimitiveSceneObject::PrimitiveSceneObject(ePrimitiveType objectType, Transform objectTransformation, DirectX::XMFLOAT4 color,
+PrimitiveSceneObject::PrimitiveSceneObject(ePrimitiveType objectType, Transform objectTransformation,
     int scneneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
     : mObjectPrimitiveType(objectType)
 {
     mSceneComponent.SetTransformation(objectTransformation);
-    CreateRenderItem(color, scneneCounter, geometries);
+    CreateRenderItem(scneneCounter, geometries);
 }
 
 
 void PrimitiveSceneObject::CreateRenderItem(
-    DirectX::XMFLOAT4 color, int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
+     int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
 {
     mRenderItem = std::make_unique<RenderItem>();
     XMStoreFloat4x4(&mRenderItem->World, mSceneComponent.GetWorldMatrix());
