@@ -5,7 +5,7 @@
 #include "MathHelper.h"
 #include "FrameResource.h"
 #include "RenderItem.h"
-#include "ShapeGeometryBuilder.h"
+
 
 class GameTimerW;
 
@@ -67,7 +67,7 @@ private:
     ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 
 
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+    
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
     std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 
@@ -89,7 +89,7 @@ private:
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-    ShapeGeometryBuilder mShapeGeometryBuilder;
+    
 
 
 public:
@@ -101,6 +101,8 @@ public:
     void Draw();
     void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt);
     void SetWireframe(bool state);
+    ComPtr<ID3D12Device8> GetDevice() { return mDevice; }
+    ComPtr<ID3D12GraphicsCommandList6> GetCommandList() { return mCommandList; }
 
 private:
     D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
@@ -118,7 +120,7 @@ private:
     void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
-    void BuildShapeGeometry();
+    //void BuildShapeGeometry();
     void BuildPSOs();
     void BuildFrameResources();
     void BuildRenderItems();

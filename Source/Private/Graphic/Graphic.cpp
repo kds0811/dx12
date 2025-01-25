@@ -580,10 +580,10 @@ void Graphic::BuildShadersAndInputLayout()
     };
 }
 
-void Graphic::BuildShapeGeometry()
-{
-    mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(mDevice.Get(), mCommandList.Get());
-}
+//void Graphic::BuildShapeGeometry()
+//{
+//    mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(mDevice.Get(), mCommandList.Get());
+//}
 
 void Graphic::BuildPSOs()
 {
@@ -702,7 +702,9 @@ void Graphic::BuildRenderItems()
 
     // All the render items are opaque.
     for (auto& e : mAllRitems)
+    {
         mOpaqueRitems.push_back(e.get());
+    }
 }
 
 void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)

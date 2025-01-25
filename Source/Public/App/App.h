@@ -25,8 +25,8 @@ public:
     void SetWireframe(bool wireframeIsEnabled);
 
 private:
-    UINT Width = 1600;
-    UINT Height = 1000;
+    UINT mWidth = 1600;
+    UINT mHeight = 1000;
 
     Window mWnd;
     Graphic mGfx;

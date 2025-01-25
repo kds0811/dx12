@@ -8,7 +8,12 @@
 
 
 
-App::App() : mWnd(Width, Height, this), mGfx(Width, Height, mWnd.GetHwnd()), mCamera(this), mCameraController(&mWnd, &mCamera, &mTimer), mScene(mTimer)
+App::App() :
+    mWnd(mWidth, mHeight, this),
+    mGfx(mWidth, mHeight, mWnd.GetHwnd()),
+    mCamera(this),
+    mCameraController(&mWnd, &mCamera, &mTimer),
+    mScene(mTimer, &mGfx)
 {
     mScene.InitScene();
 }
@@ -31,11 +36,11 @@ std::optional<int> App::Go()
     return std::nullopt;
 }
 
-void App::OnResize(UINT nWidth, UINT nHeight)
+void App::OnResize(UINT width, UINT height)
 {
-    Width = nWidth;
-    Height = nHeight;
-    mGfx.OnResize(nWidth, nHeight);
+    mWidth = width;
+    mHeight = height;
+    mGfx.OnResize(width, height);
 }
 
 void App::OnStop()
