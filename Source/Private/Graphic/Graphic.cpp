@@ -582,7 +582,7 @@ void Graphic::BuildShadersAndInputLayout()
 
 void Graphic::BuildShapeGeometry()
 {
-    mGeometries["shapeGeo"] = ShapeGeometryBuilder::BuildShapeGeometry(mDevice.Get(), mCommandList.Get());
+    mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(mDevice.Get(), mCommandList.Get());
 }
 
 void Graphic::BuildPSOs()

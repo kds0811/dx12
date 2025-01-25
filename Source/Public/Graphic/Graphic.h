@@ -5,6 +5,7 @@
 #include "MathHelper.h"
 #include "FrameResource.h"
 #include "RenderItem.h"
+#include "ShapeGeometryBuilder.h"
 
 class GameTimerW;
 
@@ -87,6 +88,9 @@ private:
     DirectX::XMFLOAT3 mEyePos = {0.0f, 0.0f, 0.0f};
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+
+    ShapeGeometryBuilder mShapeGeometryBuilder;
+
 
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
