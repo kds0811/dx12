@@ -29,6 +29,13 @@ public:
         const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target);
 };
 
+enum class ePrimitiveType
+{
+    BOX,
+    GRID,
+    CYLINDER,
+    SPHERE
+};
 
 struct SubmeshGeometry
 {
@@ -67,7 +74,7 @@ struct MeshGeometry
     // A MeshGeometry may store multiple geometries in one vertex/index buffer.
     // Use this container to define the Submesh geometries so we can draw
     // the Submeshes individually.
-    std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
+    std::unordered_map<ePrimitiveType, SubmeshGeometry> DrawArgs;
 
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
     {

@@ -6,10 +6,10 @@ using namespace DirectX;
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // Add geometries
-    AddGeometry(mGeometryGenerator.CreateBox(1.5f, 5.0f, 1.5f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), "box");
-    AddGeometry(mGeometryGenerator.CreateGrid(100.0f, 100.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), "grid");
-    AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), "sphere");
-    AddGeometry(mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), "cylinder");
+    AddGeometry(mGeometryGenerator.CreateBox(1.5f, 5.0f, 1.5f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), ePrimitiveType::BOX);
+    AddGeometry(mGeometryGenerator.CreateGrid(100.0f, 100.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), ePrimitiveType::GRID);
+    AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), ePrimitiveType::SPHERE);
+    AddGeometry(mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
 
     CalculateOffsets();
 
@@ -24,12 +24,12 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     return std::move(result);
 }
 
-void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, const std::string& name)
+void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, ePrimitiveType type)
 {
     GeometryData data;
     data.mesh = mesh;
     data.color = color;
-    data.name = name;
+    data.type = type;
     mGeometries.push_back(data);
 }
 
@@ -111,7 +111,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::CreateMeshGeometry(ID3D12Dev
     // Add DrawArgs
     for (const auto& geometry : mGeometries)
     {
-        geo->DrawArgs[geometry.name] = geometry.submesh;
+        geo->DrawArgs[geometry.type] = geometry.submesh;
     }
 
     return geo;

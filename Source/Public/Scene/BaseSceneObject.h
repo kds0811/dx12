@@ -2,22 +2,23 @@
 #include "SceneComponent.h"
 #include "RenderItem.h"
 #include "MovementComponent.h"
+#include <memory>
 
 class alignas (16) BaseSceneObject
 {
 
 public:
-    BaseSceneObject() : mMovementComponent(mSceneComponent){}
+    BaseSceneObject() : mMovementComponent(mSceneComponent)
+    {  }
     virtual ~BaseSceneObject() {}
 
     void Update(float dt);
-    RenderItem* GetRenderItem() { return &mRenderItem; }
+    RenderItem* GetRenderItem() { return mRenderItem.get(); }
 
 protected:
     SceneComponent mSceneComponent;
     MovementComponent mMovementComponent;
-    RenderItem mRenderItem;
+    std::unique_ptr<RenderItem> mRenderItem;
+    
 
-private:
-    virtual void CreateRenderItem() = 0;
 };

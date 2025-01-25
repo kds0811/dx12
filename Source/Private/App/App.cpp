@@ -15,7 +15,7 @@ App::App() :
     mCameraController(&mWnd, &mCamera, &mTimer),
     mScene(mTimer, &mGfx)
 {
-    mScene.InitScene();
+    
 }
 
 std::optional<int> App::Go()

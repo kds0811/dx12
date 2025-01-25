@@ -1,7 +1,9 @@
 #include "Scene.h"
 #include "Graphic.h"
 
-Scene::Scene(GameTimerW& timer, Graphic* pgfx) : mTimer(timer), pGfx(pgfx) {
+Scene::Scene(GameTimerW& timer, Graphic* pgfx) : mTimer(timer), pGfx(pgfx) 
+{
+    InitScene();
 }
 
 void Scene::InitScene()

@@ -24,10 +24,10 @@ public:
     Scene& operator=(const Scene&&) = delete;
 
     void InitScene();
-
     void Update();
 
 private:
     void BuildStandartShapeGeometry();
 
+    int SceneObjectsCounter = 0;
 };
