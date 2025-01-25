@@ -8,6 +8,6 @@ class ShapeGeometryBuilder
 public:
     ShapeGeometryBuilder() = default;
 
-    static void BuildShapeGeometry();
+    static std::unique_ptr<MeshGeometry> BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
 };

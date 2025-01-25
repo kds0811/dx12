@@ -1,8 +1,11 @@
 #include "ShapeGeometryBuilder.h"
 #include "DirectXMath.h"
+#include "DirectXColors.h"
+#include "GraphicError.h"
 
+using namespace DirectX;
 
-void ShapeGeometryBuilder::BuildShapeGeometry()
+std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     GeometryGenerator geoGen;
     GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 5.0f, 1.5f, 3);
@@ -96,17 +99,16 @@ void ShapeGeometryBuilder::BuildShapeGeometry()
     auto geo = std::make_unique<MeshGeometry>();
     geo->Name = "shapeGeo";
 
-    D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Check;
+    D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Kds::App::Check;
     CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
-    D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU) >> Check;
+    D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU) >> Kds::App::Check;
     CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
     geo->VertexBufferGPU =
-        D3D12Utils::CreateDefaultBuffer(mDevice.Get(), mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+        D3D12Utils::CreateDefaultBuffer(device, cmdList, vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
-    geo->IndexBufferGPU =
-        D3D12Utils::CreateDefaultBuffer(mDevice.Get(), mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+    geo->IndexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, indices.data(), ibByteSize, geo->IndexBufferUploader);
 
     geo->VertexByteStride = sizeof(Vertex);
     geo->VertexBufferByteSize = vbByteSize;
@@ -118,5 +120,5 @@ void ShapeGeometryBuilder::BuildShapeGeometry()
     geo->DrawArgs["sphere"] = sphereSubmesh;
     geo->DrawArgs["cylinder"] = cylinderSubmesh;
 
-    mGeometries[geo->Name] = std::move(geo);
+    return std::move(geo);
 }
