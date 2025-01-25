@@ -14,12 +14,14 @@ public:
     SceneComponent(Vector loc, Rotator rot) : mTrans(loc, rot) {}
 
     // Setters
+    inline void SetTransformation(Transform trans) noexcept { mTrans = trans; }
     inline void SetLocation(Vector location) noexcept { mTrans.SetLocation(location); }
     inline void SetRotation(Rotator rotation) noexcept { mTrans.SetRotation(rotation); }
     inline void SetScale(Vector scale) noexcept { mTrans.SetScale(scale); }
     inline void AddLocation(Vector location) noexcept { mTrans.AddLocation(location); }
     inline void AddRotation(Rotator rotation) noexcept { mTrans.AddRotation(rotation); }
     inline void AddScale(Vector scale) noexcept { mTrans.AddScale(scale); }
+
     // Getters
     [[nodiscard]] inline Vector GetLocation() const noexcept { return mTrans.GetLocation(); }
     [[nodiscard]] inline Rotator GetRotation() const noexcept { return mTrans.GetRotation(); }

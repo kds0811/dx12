@@ -19,6 +19,31 @@ public:
     inline Transform(Rotator rotation) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(rotation), Scale(1.0f, 1.0f, 1.0f) {}
     inline Transform(Rotator rotation, Vector scale) noexcept : Location(0.0f, 0.0f, 0.0f), Rotation(rotation), Scale(scale) {}
 
+    // standart members
+    Transform& operator=(const Transform& rhs) noexcept
+    {
+        if (this != &rhs)
+        {
+            Location = rhs.Location;
+            Rotation = rhs.Rotation;
+            Scale = Scale;
+        }
+        return *this;
+    }
+    Transform& operator=(Transform&& rhs) noexcept
+    {
+        if (this != &rhs)
+        {
+            Location = std::exchange(rhs.Location, 0.0f);
+            Rotation = std::exchange(rhs.Rotation, 0.0f);
+            Scale = std::exchange(rhs.Scale, 0.0f);
+        }
+        return *this;
+    }
+    inline Transform(const Transform& rhs) noexcept
+        : Location(rhs.Location), Rotation(rhs.Rotation), Scale(rhs.Scale)
+    {}
+
     // Setters
     inline void SetLocation(Vector location) noexcept{ Location = location;}
     inline void SetRotation(Rotator rotation) noexcept { Rotation = rotation; }
@@ -34,6 +59,40 @@ public:
     [[nodiscard]] inline Vector GetForwardVector() const noexcept { return Rotation.GetForwardVector(); }
     [[nodiscard]] inline Vector GetRightVector() const noexcept { return Rotation.GetRightVector(); }
     [[nodiscard]] inline Vector GetUpVector() const noexcept { return Rotation.GetUpVector(); }
+
+    //  operators
+    inline Transform& operator+=(const Transform& other) noexcept
+    {
+        Location += other.Location;
+        Rotation += other.Rotation;
+        Scale += other.Scale;
+        return *this;
+    }
+    inline Transform operator+(const Transform& other) const noexcept
+    { 
+        Transform result;
+        result.Location = Location + other.Location;
+        result.Rotation = Rotation + other.Rotation;
+        result.Scale = Scale + other.Scale;
+        return result;
+    }
+    inline Transform& operator-=(const Transform& other) noexcept
+    {
+        Location -= other.Location;
+        Rotation -= other.Rotation;
+        Scale -= other.Scale;
+        return *this;
+    }
+    inline Transform operator-(const Transform& other) const noexcept
+    {
+        Transform result;
+        result.Location = Location - other.Location;
+        result.Rotation = Rotation - other.Rotation;
+        result.Scale = Scale - other.Scale;
+        return result;
+    }
+
+
 
     // Look at matrix
     [[nodiscard]] inline DirectX::XMMATRIX GetLookAtMatrix() const noexcept

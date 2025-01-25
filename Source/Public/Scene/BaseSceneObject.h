@@ -3,11 +3,11 @@
 #include "RenderItem.h"
 #include "MovementComponent.h"
 
-class BaseSceneObject
+class alignas (16) BaseSceneObject
 {
 
 public:
-    BaseSceneObject() = default;
+    BaseSceneObject() : mMovementComponent(mSceneComponent){}
     virtual ~BaseSceneObject() {}
 
     void Update(float dt);
