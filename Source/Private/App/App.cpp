@@ -19,7 +19,6 @@ App::App() :
     mGfx.BuildStandartShapeGeometry();
     mScene.InitScene();
     mGfx.InitResources(mScene.GetSceneRenderItems().size());
-   
 }
 
 std::optional<int> App::Go()
@@ -68,13 +67,13 @@ void App::OnStart()
 void App::Update()
 {
     mCameraController.UpdateInput();
-    mGfx.Update(mCamera.GetViewMatrix(), mCamera.GetCameraPos(), mTimer, mScene.GetSceneRenderItems());
     mScene.Update();
+    mGfx.Update(mCamera.GetViewMatrix(), mCamera.GetCameraPos(), mTimer, mScene.GetSceneObjects());
 }
 
 void App::Draw()
 {
-    mGfx.Draw(mScene.GetSceneRenderItems());
+    mGfx.Draw(mScene.GetSceneObjects());
 }
 
 void App::SetWireframe(bool wireframeIsEnabled) 

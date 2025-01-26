@@ -36,6 +36,7 @@ public:
     void InitScene();
     void Update();
     std::vector<RenderItem*>& GetSceneRenderItems() { return mSceneRenderItems; }
+    std::vector<std::unique_ptr<BaseSceneObject>>& GetSceneObjects() { return mSceneObjects; }
 
 private:
     void BuildScenePrimitives();

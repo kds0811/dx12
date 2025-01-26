@@ -115,7 +115,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Graphic::Draw(const std::vector<RenderItem*>& sceneRenderItems)
+void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
     auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -161,7 +161,7 @@ void Graphic::Draw(const std::vector<RenderItem*>& sceneRenderItems)
     passCbvHandle.Offset(passCbvIndex, mCbvSrvUavDescriptorSize);
     mCommandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
-    DrawRenderItems(mCommandList.Get(), sceneRenderItems);
+    DrawRenderItems(mCommandList.Get(), sceneObjects);
 
     // Indicate a state transition on the resource usage.
     const auto ResBarrRenderTargetToPresent =
@@ -188,7 +188,8 @@ void Graphic::Draw(const std::vector<RenderItem*>& sceneRenderItems)
     mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
-void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt, const std::vector<RenderItem*>& ritems)
+void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt,
+    const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
     // Update Camera
     DirectX::XMStoreFloat4x4(&mView, ViewMat);
@@ -208,7 +209,7 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
         CloseHandle(eventHandle);
     }
     UpdateMainPassCB(gt);
-    UpdateObjectCBs(ritems);
+    UpdateObjectCBs(sceneObjects);
 }
 
 void Graphic::SetWireframe(bool state)
@@ -404,24 +405,19 @@ void Graphic::FlushCommandQueue()
     }
 }
 
-void Graphic::UpdateObjectCBs(const std::vector<RenderItem*>& ritems)
+void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
     auto currObjectCB = mCurrFrameResource->ObjectCB.get();
-    for (auto& e : ritems)
+    for (auto& scObj : sceneObjects)
     {
         // Only update the cbuffer data if the constants have changed.
         // This needs to be tracked per frame resource.
-        if (e->NumFramesDirty > 0)
+        if (scObj->GetNumFramesDirty() > 0)
         {
-            XMMATRIX world = XMLoadFloat4x4(&e->World);
-
             ObjectConstants objConstants;
-            XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-
-            currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-
-            // Next FrameResource need to be updated too.
-            e->NumFramesDirty--;
+            XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(scObj->GetWorldMatrix()));
+            currObjectCB->CopyData(scObj->GetObjCBIndex(), objConstants);
+            scObj->DecrementNumFrameDirty();
         }
     }
 }
@@ -621,16 +617,14 @@ void Graphic::BuildFrameResources()
     }
 }
 
-void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
     // UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-
     // auto objectCB = mCurrFrameResource->ObjectCB->Resource();
-
     // For each render item...
-    for (size_t i = 0; i < ritems.size(); ++i)
+    for (size_t i = 0; i < sceneObjects.size(); ++i)
     {
-        auto ri = ritems[i];
+        auto ri = sceneObjects[i]->GetRenderItem();
         auto VBView = ri->Geo->VertexBufferView();
         cmdList->IASetVertexBuffers(0, 1, &VBView);
         auto IBView = ri->Geo->IndexBufferView();
@@ -638,7 +632,7 @@ void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vec
         cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
         // Offset to the CBV in the descriptor heap for this object and for this frame resource.
-        UINT cbvIndex = mCurrFrameResourceIndex * (UINT)ritems.size() + ri->ObjCBIndex;
+        UINT cbvIndex = mCurrFrameResourceIndex * (UINT)sceneObjects.size() + sceneObjects[i]->GetObjCBIndex();
         auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
         cbvHandle.Offset(cbvIndex, mCbvSrvUavDescriptorSize);
 

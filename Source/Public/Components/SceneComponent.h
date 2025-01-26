@@ -2,10 +2,16 @@
 #include "Transform.h"
 #include <DirectXMath.h>
 
+static constexpr int gNumFrameResources = 3;
+
 
 class alignas(16) SceneComponent
 {
     Transform mTrans;
+    // Dirty flag indicating the object data has changed and we need to update the constant buffer.
+    // Because we have an object cbuffer for each FrameResource, we have to apply the
+    // update to each FrameResource.
+    int NumFramesDirty = gNumFrameResources;
 
 public:
     SceneComponent() : mTrans(Vector::Zero(), Rotator::Zero(), Vector::One()) {}
@@ -14,13 +20,40 @@ public:
     SceneComponent(Vector loc, Rotator rot) : mTrans(loc, rot) {}
 
     // Setters
-    inline void SetTransformation(Transform trans) noexcept { mTrans = trans; }
-    inline void SetLocation(Vector location) noexcept { mTrans.SetLocation(location); }
-    inline void SetRotation(Rotator rotation) noexcept { mTrans.SetRotation(rotation); }
+    inline void SetTransformation(Transform trans) noexcept
+    {
+        mTrans = trans;
+        NumFramesDirty++;
+    }
+    inline void SetLocation(Vector location) noexcept
+    {
+        mTrans.SetLocation(location);
+        NumFramesDirty++;
+    }
+    inline void SetRotation(Rotator rotation) noexcept
+    {
+        mTrans.SetRotation(rotation);
+        NumFramesDirty++;
+    }
     inline void SetScale(Vector scale) noexcept { mTrans.SetScale(scale); }
-    inline void AddLocation(Vector location) noexcept { mTrans.AddLocation(location); }
-    inline void AddRotation(Rotator rotation) noexcept { mTrans.AddRotation(rotation); }
-    inline void AddScale(Vector scale) noexcept { mTrans.AddScale(scale); }
+    inline void AddLocation(Vector location) noexcept
+    {
+        mTrans.AddLocation(location);
+        NumFramesDirty++;
+    }
+    inline void AddRotation(Rotator rotation) noexcept
+    {
+        mTrans.AddRotation(rotation);
+        NumFramesDirty++;
+    }
+    inline void AddScale(Vector scale) noexcept
+    {
+        mTrans.AddScale(scale);
+        NumFramesDirty++;
+    }
+
+    inline int GetNumFramesDirty() const noexcept { return NumFramesDirty; }
+    inline void DecrementNumFrameDirty() noexcept { --NumFramesDirty; }
 
     // Getters
     [[nodiscard]] inline Vector GetLocation() const noexcept { return mTrans.GetLocation(); }

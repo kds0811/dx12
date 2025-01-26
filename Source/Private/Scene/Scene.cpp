@@ -8,6 +8,9 @@ void Scene::InitScene()
 {
     // BuildStandartShapeGeometry();
     BuildScenePrimitives();
+
+    mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
+    mSceneObjects[3]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
 }
 
 void Scene::Update()
@@ -21,16 +24,12 @@ void Scene::Update()
 void Scene::BuildScenePrimitives()
 {
     std::vector<DataPrimitiveBuild> primitiveData{};
-
-    
     primitiveData.emplace_back(ePrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)));
     primitiveData.emplace_back(ePrimitiveType::GRID, Transform(Vector::Zero(), Rotator::Zero(), Vector::One()));
     primitiveData.emplace_back(
         ePrimitiveType::BOX, Transform(Vector(20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)));
     primitiveData.emplace_back(
         ePrimitiveType::BOX, Transform(Vector(-20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)));
-
-
 
     for (int i = 0; i < 5; ++i)
     {
@@ -39,6 +38,7 @@ void Scene::BuildScenePrimitives()
         primitiveData.emplace_back(ePrimitiveType::SPHERE, Transform(Vector(-5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
         primitiveData.emplace_back(ePrimitiveType::SPHERE, Transform(Vector(5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
     }
+
 
     for (const auto& prim : primitiveData)
     {

@@ -6,7 +6,7 @@
 #include "FrameResource.h"
 #include "RenderItem.h"
 #include "ShapeGeometryBuilder.h"
-
+#include "PrimitiveSceneObject.h"
 
 class GameTimerW;
 
@@ -101,8 +101,9 @@ public:
 
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
-    void Draw(const std::vector<RenderItem*>& sceneRenderItems);
-    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt, const std::vector<RenderItem*>& ritems);
+    void Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt,
+       const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void SetWireframe(bool state);
     ComPtr<ID3D12Device8> GetDevice() { return mDevice; }
     ComPtr<ID3D12GraphicsCommandList6> GetCommandList() { return mCommandList; }
@@ -110,7 +111,7 @@ public:
     void InitPipeline();
     void InitResources(size_t sceneObjectCount);
     void BuildStandartShapeGeometry();
-    void UpdateObjectCBs(const std::vector<RenderItem*>& ritems);
+    void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
 
 private:
@@ -126,7 +127,7 @@ private:
     
     void BuildPSOs();
     void BuildFrameResources();
-    void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+    void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
 
     
 };

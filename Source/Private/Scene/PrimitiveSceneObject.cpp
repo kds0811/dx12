@@ -13,8 +13,7 @@ void PrimitiveSceneObject::CreateRenderItem(
      int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
 {
     mRenderItem = std::make_unique<RenderItem>();
-    XMStoreFloat4x4(&mRenderItem->World, mSceneComponent.GetWorldMatrix());
-    mRenderItem->ObjCBIndex = sceneCounter;
+    ObjCBIndex = sceneCounter;
     mRenderItem->Geo = geometries["shapeGeo"].get();
     mRenderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     mRenderItem->IndexCount = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].IndexCount;
