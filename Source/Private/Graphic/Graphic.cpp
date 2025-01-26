@@ -9,9 +9,7 @@
 using namespace DirectX;
 using namespace Kds::App;
 
-Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mClientHeight(Height), mWindowHandle(hwnd)
-{
-}
+Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mClientHeight(Height), mWindowHandle(hwnd) {}
 
 Graphic::~Graphic()
 {
@@ -221,8 +219,6 @@ void Graphic::SetWireframe(bool state)
     }
 }
 
-
-
 D3D12_CPU_DESCRIPTOR_HANDLE Graphic::GetCurrentBackBufferView() const noexcept
 {
     return CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mCurrBackBuffer, mRtvDescriptorSize);
@@ -370,19 +366,14 @@ void Graphic::InitPipeline()
     // Init Projection matrix
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
-
 }
 
 void Graphic::InitResources(size_t sceneObjectCount)
 {
     mSceneObjectCount = sceneObjectCount;
-    
-    // Reset the command list to prep for initialization commands.
-    mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
 
     BuildRootSignature();
     BuildShadersAndInputLayout();
-    BuildStandartShapeGeometry();
     BuildFrameResources();
     BuildDescriptorHeaps();
     BuildConstantBufferViews();
@@ -581,8 +572,11 @@ void Graphic::BuildShadersAndInputLayout()
     };
 }
 
-void Graphic::BuildStandartShapeGeometry() 
+void Graphic::BuildStandartShapeGeometry()
 {
+    // Reset the command list to prep for initialization commands.
+    mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
+
     mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(mDevice.Get(), mCommandList.Get());
 }
 
@@ -606,8 +600,8 @@ void Graphic::BuildPSOs()
     opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     opaquePsoDesc.NumRenderTargets = 1;
     opaquePsoDesc.RTVFormats[0] = mBackBufferFormat;
-    opaquePsoDesc.SampleDesc.Count =  1;
-    opaquePsoDesc.SampleDesc.Quality =  0;
+    opaquePsoDesc.SampleDesc.Count = 1;
+    opaquePsoDesc.SampleDesc.Quality = 0;
     opaquePsoDesc.DSVFormat = mDepthStencilFormat;
     mDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])) >> Check;
 
@@ -629,9 +623,9 @@ void Graphic::BuildFrameResources()
 
 void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
-    //UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    // UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-    //auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+    // auto objectCB = mCurrFrameResource->ObjectCB->Resource();
 
     // For each render item...
     for (size_t i = 0; i < ritems.size(); ++i)

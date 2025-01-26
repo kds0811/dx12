@@ -16,8 +16,10 @@ App::App() :
     mScene(mTimer, &mGfx)
 {
     mGfx.InitPipeline();
-    mGfx.InitResources(22);
+    mGfx.BuildStandartShapeGeometry();
     mScene.InitScene();
+    mGfx.InitResources(mScene.GetSceneRenderItems().size());
+   
 }
 
 std::optional<int> App::Go()

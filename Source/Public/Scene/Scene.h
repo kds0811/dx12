@@ -38,7 +38,6 @@ public:
     std::vector<RenderItem*>& GetSceneRenderItems() { return mSceneRenderItems; }
 
 private:
-    void BuildStandartShapeGeometry();
     void BuildScenePrimitives();
     int SceneObjectsCounter = 0;
 };

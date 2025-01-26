@@ -109,6 +109,7 @@ public:
 
     void InitPipeline();
     void InitResources(size_t sceneObjectCount);
+    void BuildStandartShapeGeometry();
     void UpdateObjectCBs(const std::vector<RenderItem*>& ritems);
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
 
@@ -122,7 +123,7 @@ private:
     void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
-    void BuildStandartShapeGeometry();
+    
     void BuildPSOs();
     void BuildFrameResources();
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
