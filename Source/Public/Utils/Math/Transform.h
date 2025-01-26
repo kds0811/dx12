@@ -26,7 +26,7 @@ public:
         {
             Location = rhs.Location;
             Rotation = rhs.Rotation;
-            Scale = Scale;
+            Scale = rhs.Scale;
         }
         return *this;
     }
