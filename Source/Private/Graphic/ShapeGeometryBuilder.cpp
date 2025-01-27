@@ -148,19 +148,16 @@ float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
 {
     const float gridSize = 160.0f;
     const float halfSize = gridSize * 0.5f;
-    const float borderSize = gridSize * 0.05f;  // Размер краевой зоны
+    const float borderSize = gridSize * 0.05f;  
 
-    // Расстояние от центра
     float dx = abs(x);
     float dz = abs(z);
 
-    // Если точка в краевой зоне, возвращаем 0
     if (dx > halfSize - borderSize || dz > halfSize - borderSize)
     {
         return 0.0f;
     }
 
-    // Создаем плавный переход к краевой зоне
     float borderFalloff = 1.0f;
     if (dx > halfSize - borderSize * 2)
     {
