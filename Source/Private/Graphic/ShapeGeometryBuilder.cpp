@@ -1,15 +1,16 @@
 #include "ShapeGeometryBuilder.h"
 
-
 using namespace DirectX;
 
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // Add geometries
     AddGeometry(mGeometryGenerator.CreateBox(1.5f, 5.0f, 1.5f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), ePrimitiveType::BOX);
-    AddGeometry(mGeometryGenerator.CreateGrid(100.0f, 100.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), ePrimitiveType::GRID);
+    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), ePrimitiveType::GRID);
     AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), ePrimitiveType::SPHERE);
-    AddGeometry(mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
+    AddGeometry(
+        mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
+    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 50, 50), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
 
     CalculateOffsets();
 
@@ -52,7 +53,6 @@ void ShapeGeometryBuilder::CalculateOffsets()
     }
     mVertexBufferSize = currentVertexOffset;
     mIndexBufferSize = currentIndexOffset;
-
 }
 
 std::vector<Vertex> ShapeGeometryBuilder::CreateVertexBuffer()
@@ -117,3 +117,47 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::CreateMeshGeometry(ID3D12Dev
     return geo;
 }
 
+std::vector<GeometryGenerator::Vertex> ShapeGeometryBuilder::CreateLandGeometry(GeometryGenerator::MeshData& meshData)
+{
+
+    std::vector<GeometryGenerator::Vertex> vertices(meshData.Vertices.size());
+    for (size_t i = 0; i < meshData.Vertices.size(); ++i)
+    {
+        auto& p = meshData.Vertices[i].Position;
+        vertices[i].Pos = p;
+        vertices[i].Pos.y = GetHillsHeight(p.x, p.z);
+
+        // Color the vertex based on its height.
+        if (vertices[i].Pos.y < -10.0f)
+        {
+            // Sandy beach color.
+            vertices[i].Color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
+        }
+        else if (vertices[i].Pos.y < 5.0f)
+        {
+            // Light yellow-green.
+            vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
+        }
+        else if (vertices[i].Pos.y < 12.0f)
+        {
+            // Dark yellow-green.
+            vertices[i].Color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
+        }
+        else if (vertices[i].Pos.y < 20.0f)
+        {
+            // Dark brown.
+            vertices[i].Color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
+        }
+        else
+        {
+            // White snow.
+            vertices[i].Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+    }
+    return vertices;
+}
+
+float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
+{
+    return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
+}

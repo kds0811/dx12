@@ -34,9 +34,9 @@ void Scene::BuildScenePrimitives()
     for (int i = 0; i < 5; ++i)
     {
         primitiveData.emplace_back(ePrimitiveType::CYLINDER, Transform(Vector(-5.0f, 1.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
-        primitiveData.emplace_back(ePrimitiveType::CYLINDER, Transform(Vector(5.0f, 1.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
-        primitiveData.emplace_back(ePrimitiveType::SPHERE, Transform(Vector(-5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
-        primitiveData.emplace_back(ePrimitiveType::SPHERE, Transform(Vector(5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
+        primitiveData.emplace_back(ePrimitiveType::CYLINDER, Transform(Vector(5.0f, 1.5f, i * 5.0f),  Rotator::Zero(), Vector::One()));
+        primitiveData.emplace_back(ePrimitiveType::SPHERE,   Transform(Vector(-5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
+        primitiveData.emplace_back(ePrimitiveType::SPHERE,   Transform(Vector(5.0f, 3.5f, i * 5.0f),  Rotator::Zero(), Vector::One()));
     }
 
 

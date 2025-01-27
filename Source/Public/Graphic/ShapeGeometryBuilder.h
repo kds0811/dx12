@@ -35,4 +35,7 @@ private:
     std::vector<std::uint16_t> CreateIndexBuffer();
     std::unique_ptr<MeshGeometry> CreateMeshGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
         const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
+
+    std::vector<GeometryGenerator::Vertex> CreateLandGeometry(GeometryGenerator::MeshData& meshData);
+    float GetHillsHeight(float x, float z) const;
 };

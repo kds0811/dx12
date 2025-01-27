@@ -391,7 +391,7 @@ void Graphic::InitResources(size_t sceneObjectCount)
 
 void Graphic::FlushCommandQueue()
 {
-    mCurrentFence++;
+    ++mCurrentFence;
     mCommandQueue->Signal(mFence.Get(), mCurrentFence) >> Check;
 
     if (mFence->GetCompletedValue() < mCurrentFence)
