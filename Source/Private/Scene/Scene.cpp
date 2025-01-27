@@ -30,6 +30,8 @@ void Scene::BuildScenePrimitives()
         ePrimitiveType::BOX, Transform(Vector(20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)));
     primitiveData.emplace_back(
         ePrimitiveType::BOX, Transform(Vector(-20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)));
+    primitiveData.emplace_back(
+        ePrimitiveType::LAND, Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)));
 
     for (int i = 0; i < 5; ++i)
     {

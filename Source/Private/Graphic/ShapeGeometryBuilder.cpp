@@ -1,4 +1,6 @@
 #include "ShapeGeometryBuilder.h"
+#include <algorithm>
+
 
 using namespace DirectX;
 
@@ -10,7 +12,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), ePrimitiveType::SPHERE);
     AddGeometry(
         mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
-    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 50, 50), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
+    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
 
     CalculateOffsets();
 
@@ -26,8 +28,8 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
             {
                 vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
 
-                if (vertices[i].Pos.y < -10.0f)
-                    vertices[i].Color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
+                if (vertices[i].Pos.y < 0.1f)
+                    vertices[i].Color = XMFLOAT4(0.78f, 0.96f, 0.62f, 1.0f);
                 else if (vertices[i].Pos.y < 5.0f)
                     vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
                 else if (vertices[i].Pos.y < 12.0f)
@@ -144,5 +146,31 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::CreateMeshGeometry(ID3D12Dev
 
 float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
 {
-    return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
+    const float gridSize = 160.0f;
+    const float halfSize = gridSize * 0.5f;
+    const float borderSize = gridSize * 0.05f;  // Размер краевой зоны
+
+    // Расстояние от центра
+    float dx = abs(x);
+    float dz = abs(z);
+
+    // Если точка в краевой зоне, возвращаем 0
+    if (dx > halfSize - borderSize || dz > halfSize - borderSize)
+    {
+        return 0.0f;
+    }
+
+    // Создаем плавный переход к краевой зоне
+    float borderFalloff = 1.0f;
+    if (dx > halfSize - borderSize * 2)
+    {
+        borderFalloff *= (halfSize - borderSize - dx) / borderSize;
+    }
+    if (dz > halfSize - borderSize * 2)
+    {
+        borderFalloff *= (halfSize - borderSize - dz) / borderSize;
+    }
+
+    float height = 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
+    return std::max<float>(-5.0f, height * borderFalloff);
 }
