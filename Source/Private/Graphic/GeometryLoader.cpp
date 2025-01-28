@@ -2,7 +2,7 @@
 #include <fstream>
 #include <Windows.h>
 
-GeometryGenerator::MeshData GeometryLoader::LoadGeometryFromFile(std::string filePath)
+GeometryGenerator::MeshData GeometryLoader::LoadGeometryFromTXTFile(std::string filePath)
 {
     std::ifstream fin(filePath);
     if (!fin)

@@ -8,5 +8,5 @@ class GeometryLoader : public GeometryGenerator
 public:
     GeometryLoader() = default;
 
-    GeometryGenerator::MeshData LoadGeometryFromFile(std::string filePath);
+    GeometryGenerator::MeshData LoadGeometryFromTXTFile(std::string filePath);
 };

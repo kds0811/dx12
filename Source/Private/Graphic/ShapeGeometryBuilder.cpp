@@ -13,7 +13,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(
         mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
     AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
-    AddGeometry(mGeometryLoader.LoadGeometryFromFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), ePrimitiveType::MESH);
+    AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), ePrimitiveType::MESH);
 
     CalculateOffsets();
 
