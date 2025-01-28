@@ -6,6 +6,7 @@
 #include "DirectXColors.h"
 #include "GraphicError.h"
 #include <vector>
+#include "GeometryLoader.h"
 
 class ShapeGeometryBuilder
 {
@@ -21,6 +22,8 @@ class ShapeGeometryBuilder
 
     std::vector<GeometryData> mGeometries;
     GeometryGenerator mGeometryGenerator;
+    GeometryLoader mGeometryLoader;
+
     UINT mVertexBufferSize = 0;
     UINT mIndexBufferSize = 0;
 
@@ -35,6 +38,6 @@ private:
     std::vector<std::uint16_t> CreateIndexBuffer();
     std::unique_ptr<MeshGeometry> CreateMeshGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
         const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
-
+    void ModifyHeightLandVertices(std::vector<Vertex>& vertices);
     float GetHillsHeight(float x, float z) const;
 };

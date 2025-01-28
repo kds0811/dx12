@@ -13,6 +13,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(
         mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
     AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
+    AddGeometry(mGeometryLoader.LoadGeometryFromFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), ePrimitiveType::MESH);
 
     CalculateOffsets();
 
@@ -20,29 +21,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     auto indices = CreateIndexBuffer();
 
    // modify height land vertices
-    for (auto& geom : mGeometries)
-    {
-        if (geom.type == ePrimitiveType::LAND)
-        {
-            for (size_t i = geom.vertexOffset; i < geom.vertexOffset + geom.mesh.Vertices.size(); ++i)
-            {
-                vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
-
-                if (vertices[i].Pos.y < 0.1f)
-                    vertices[i].Color = XMFLOAT4(0.78f, 0.96f, 0.62f, 1.0f);
-                else if (vertices[i].Pos.y < 5.0f)
-                    vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-                else if (vertices[i].Pos.y < 12.0f)
-                    vertices[i].Color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-                else if (vertices[i].Pos.y < 20.0f)
-                    vertices[i].Color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
-                else
-                    vertices[i].Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-            }
-        }
-    }  
-
-
+    ModifyHeightLandVertices(vertices);
 
     auto result = CreateMeshGeometry(device, cmdList, vertices, indices);
 
@@ -142,6 +121,31 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::CreateMeshGeometry(ID3D12Dev
     }
 
     return geo;
+}
+
+void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertices)
+{
+    for (auto& geom : mGeometries)
+    {
+        if (geom.type == ePrimitiveType::LAND)
+        {
+            for (size_t i = geom.vertexOffset; i < geom.vertexOffset + geom.mesh.Vertices.size(); ++i)
+            {
+                vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
+
+                if (vertices[i].Pos.y < 0.1f)
+                    vertices[i].Color = XMFLOAT4(0.78f, 0.96f, 0.62f, 1.0f);
+                else if (vertices[i].Pos.y < 5.0f)
+                    vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
+                else if (vertices[i].Pos.y < 12.0f)
+                    vertices[i].Color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
+                else if (vertices[i].Pos.y < 20.0f)
+                    vertices[i].Color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
+                else
+                    vertices[i].Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+            }
+        }
+    }
 }
 
 float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const

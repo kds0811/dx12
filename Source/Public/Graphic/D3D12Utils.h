@@ -35,7 +35,8 @@ enum class ePrimitiveType
     GRID,
     CYLINDER,
     SPHERE,
-    LAND
+    LAND,
+    MESH
 };
 
 struct SubmeshGeometry
