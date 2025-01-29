@@ -4,7 +4,7 @@
 
 class PrimitiveSceneObject : public BaseSceneObject
 {
-    ePrimitiveType mObjectPrimitiveType;
+    
 
 public:
     PrimitiveSceneObject(ePrimitiveType objectType, Transform objectTransformation, int scneneCounter,

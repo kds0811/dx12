@@ -8,6 +8,7 @@
 
 class Graphic;
 
+
 struct DataPrimitiveBuild
 {
     DataPrimitiveBuild(ePrimitiveType objectType, Transform objectTransformation)
@@ -40,5 +41,6 @@ public:
 
 private:
     void BuildScenePrimitives();
+    void BuildWaves();
     int SceneObjectsCounter = 0;
 };

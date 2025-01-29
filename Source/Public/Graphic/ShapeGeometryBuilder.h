@@ -30,6 +30,7 @@ class ShapeGeometryBuilder
 public:
     ShapeGeometryBuilder() = default;
     std::unique_ptr<MeshGeometry> BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
+    std::unique_ptr<MeshGeometry> BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
 private:
     void AddGeometry(const GeometryGenerator::MeshData& mesh, const DirectX::XMFLOAT4& color, ePrimitiveType type);
@@ -40,4 +41,6 @@ private:
         const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
     void ModifyHeightLandVertices(std::vector<Vertex>& vertices);
     float GetHillsHeight(float x, float z) const;
+
+
 };

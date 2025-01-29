@@ -2,8 +2,8 @@
 
 PrimitiveSceneObject::PrimitiveSceneObject(ePrimitiveType objectType, Transform objectTransformation,
     int scneneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
-    : mObjectPrimitiveType(objectType)
 {
+    mObjectPrimitiveType = objectType;
     mSceneComponent.SetTransformation(objectTransformation);
     CreateRenderItem(scneneCounter, geometries);
 }

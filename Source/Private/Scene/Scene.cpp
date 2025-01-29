@@ -1,13 +1,14 @@
 #include "Scene.h"
 #include "Graphic.h"
 #include "PrimitiveSceneObject.h"
+#include "WavesSceneObject.h"
 
 Scene::Scene(GameTimerW& timer, Graphic* pgfx) : mTimer(timer), pGfx(pgfx) {}
 
 void Scene::InitScene()
 {
-    // BuildStandartShapeGeometry();
     BuildScenePrimitives();
+    BuildWaves();
     mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
     mSceneObjects[1]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
     mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
@@ -62,4 +63,10 @@ void Scene::BuildScenePrimitives()
     {
         mSceneRenderItems.push_back(obj->GetRenderItem());
     }
+}
+
+void Scene::BuildWaves() 
+{
+    
+
 }

@@ -31,6 +31,12 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     return std::move(result);
 }
 
+std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
+{
+
+    return std::unique_ptr<MeshGeometry>();
+}
+
 void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, ePrimitiveType type)
 {
     GeometryData data;
