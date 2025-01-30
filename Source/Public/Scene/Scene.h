@@ -22,13 +22,13 @@ struct DataPrimitiveBuild
 class Scene
 {
     std::vector<std::unique_ptr<BaseSceneObject>> mSceneObjects;
-    GameTimerW& mTimer;
+    GameTimerW* mTimer = nullptr;
     Graphic* pGfx = nullptr;
     
     std::vector<RenderItem*> mSceneRenderItems;
 
 public:
-    Scene(GameTimerW& timer, Graphic* pgfx);
+    Scene(GameTimerW* timer, Graphic* pgfx);
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
     Scene(const Scene&&) = delete;

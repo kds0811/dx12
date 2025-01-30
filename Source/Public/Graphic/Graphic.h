@@ -22,7 +22,7 @@ private:
 
     // Command Stuff
     ComPtr<ID3D12Fence1> mFence;
-    UINT64 mCurrentFence = 0;
+    UINT64 mCurrentFenceValue = 0;
     ComPtr<ID3D12CommandQueue> mCommandQueue;
     ComPtr<ID3D12CommandAllocator> mCommandAlloc;
     ComPtr<ID3D12GraphicsCommandList6> mCommandList;
@@ -92,6 +92,8 @@ private:
 
     size_t mSceneObjectCount = 0;
 
+
+    // need delete on Resource manager will implemented
     ShapeGeometryBuilder mShapeGeometryBuilder;
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 
@@ -102,7 +104,7 @@ public:
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
     void Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
-    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt,
+    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
        const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void SetWireframe(bool state);
     ID3D12Device8* GetDevice() { return mDevice.Get(); }
@@ -121,7 +123,7 @@ private:
     D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
     ID3D12Resource* CurrentBackBuffer() const noexcept;
     void FlushCommandQueue();
-    void UpdateMainPassCB(const GameTimerW& gt);
+    void UpdateMainPassCB(const GameTimerW* gt);
     void BuildDescriptorHeaps();
     void BuildConstantBufferViews();
     void BuildRootSignature();

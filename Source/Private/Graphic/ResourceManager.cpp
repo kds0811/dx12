@@ -16,6 +16,6 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
 
     mCommandList->Close();
 
-    mDevice->CreateFence(mFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf())) >> Kds::App::Check;
+    mDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf())) >> Kds::App::Check;
 
 }

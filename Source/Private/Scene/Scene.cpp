@@ -3,7 +3,7 @@
 #include "PrimitiveSceneObject.h"
 #include "WavesSceneObject.h"
 
-Scene::Scene(GameTimerW& timer, Graphic* pgfx) : mTimer(timer), pGfx(pgfx) {}
+Scene::Scene(GameTimerW* timer, Graphic* pgfx) : mTimer(timer), pGfx(pgfx) {}
 
 void Scene::InitScene()
 {
@@ -18,7 +18,7 @@ void Scene::Update()
 {
     for (const auto& object : mSceneObjects)
     {
-        object->Update(mTimer.GetDeltaTime());
+        object->Update(mTimer->GetDeltaTime());
     }
 }
 

@@ -183,15 +183,15 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
     mCurrBackBuffer = (mCurrBackBuffer + 1) % mSwapChainBufferCount;
 
     // Advance the fence value to mark commands up to this fence point.
-    mCurrFrameResource->Fence = ++mCurrentFence;
+    mCurrFrameResource->Fence = ++mCurrentFenceValue;
 
     // Add an instruction to the command queue to set a new fence point.
     // Because we are on the GPU timeline, the new fence point won't be
     // set until the GPU finishes processing all the commands prior to this Signal().
-    mCommandQueue->Signal(mFence.Get(), mCurrentFence);
+    mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue);
 }
 
-void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt,
+void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
     const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
     // Update Camera
@@ -265,7 +265,7 @@ void Graphic::InitPipeline()
     }
 
     // Create Fence
-    mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)) >> Check;
+    mDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)) >> Check;
 
     // Set Descriptors Size
     mRtvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -394,14 +394,14 @@ void Graphic::InitResources(size_t sceneObjectCount)
 
 void Graphic::FlushCommandQueue()
 {
-    ++mCurrentFence;
-    mCommandQueue->Signal(mFence.Get(), mCurrentFence) >> Check;
+    ++mCurrentFenceValue;
+    mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue) >> Check;
 
-    if (mFence->GetCompletedValue() < mCurrentFence)
+    if (mFence->GetCompletedValue() < mCurrentFenceValue)
     {
         HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
 
-        mFence->SetEventOnCompletion(mCurrentFence, eventHandle);
+        mFence->SetEventOnCompletion(mCurrentFenceValue, eventHandle);
 
         WaitForSingleObject(eventHandle, INFINITE);
         CloseHandle(eventHandle);
@@ -425,7 +425,7 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
     }
 }
 
-void Graphic::UpdateMainPassCB(const GameTimerW& gt)
+void Graphic::UpdateMainPassCB(const GameTimerW* gt)
 {
     XMMATRIX view = XMLoadFloat4x4(&mView);
     XMMATRIX proj = XMLoadFloat4x4(&mProj);
@@ -448,8 +448,8 @@ void Graphic::UpdateMainPassCB(const GameTimerW& gt)
     mMainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
     mMainPassCB.NearZ = 1.0f;
     mMainPassCB.FarZ = 1000.0f;
-    mMainPassCB.TotalTime = gt.GetTotalTime();
-    mMainPassCB.DeltaTime = gt.GetDeltaTime();
+    mMainPassCB.TotalTime = gt->GetTotalTime();
+    mMainPassCB.DeltaTime = gt->GetDeltaTime();
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, mMainPassCB);
