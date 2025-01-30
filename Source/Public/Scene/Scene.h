@@ -22,7 +22,7 @@ struct DataPrimitiveBuild
 class Scene
 {
     std::vector<std::unique_ptr<BaseSceneObject>> mSceneObjects;
-    GameTimerW* mTimer = nullptr;
+    GameTimerW* pTimer = nullptr;
     Graphic* pGfx = nullptr;
     
     std::vector<RenderItem*> mSceneRenderItems;

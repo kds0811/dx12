@@ -5,7 +5,7 @@
 #include <DirectXMath.h>
 #include "Vector.h"
 #include <chrono>
-
+#include <cassert>
 
 App::App()
 {
@@ -17,6 +17,13 @@ App::App()
     mScene = std::make_unique<Scene>(mTimer.get(), mGfx.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
 
+    assert(mWnd);
+    assert(mGfx);
+    assert(mTimer);
+    assert(mCamera);
+    assert(mCameraController);
+    assert(mScene);
+    assert(mResourceManager);
 
     mGfx->BuildStandartShapeGeometry();
     mScene->InitScene();

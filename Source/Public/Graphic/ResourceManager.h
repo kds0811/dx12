@@ -5,8 +5,8 @@
 class ResourceManager
 {
     // pointer to Graphic DirectX fields
-    ID3D12Device8* mDevice = nullptr;
-    ID3D12CommandQueue* mCommandQueue = nullptr;
+    ID3D12Device8* pDevice = nullptr;
+    ID3D12CommandQueue* pCommandQueue = nullptr;
 
     // own DirectX fields
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator = nullptr;

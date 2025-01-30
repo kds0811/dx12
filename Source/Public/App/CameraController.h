@@ -11,7 +11,7 @@ class CameraController
     Window* pWnd = nullptr;
     Camera* pCam = nullptr;
     GameTimerW* pTimer = nullptr;
-    DirectX::XMFLOAT2 PrevMousePosition;
+    DirectX::XMFLOAT2 PrevMousePosition = {0.0f, 0.0f};
     bool bMouseRightButtonIsPressed = false;
 
 public:

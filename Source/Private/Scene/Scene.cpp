@@ -3,10 +3,17 @@
 #include "PrimitiveSceneObject.h"
 #include "WavesSceneObject.h"
 
-Scene::Scene(GameTimerW* timer, Graphic* pgfx) : mTimer(timer), pGfx(pgfx) {}
+Scene::Scene(GameTimerW* timer, Graphic* gfx)
+{
+    assert(timer);
+    assert(gfx);
+    pTimer = timer;
+    pGfx = gfx;
+}
 
 void Scene::InitScene()
 {
+
     BuildScenePrimitives();
     BuildWaves();
     mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
@@ -18,7 +25,7 @@ void Scene::Update()
 {
     for (const auto& object : mSceneObjects)
     {
-        object->Update(mTimer->GetDeltaTime());
+        object->Update(pTimer->GetDeltaTime());
     }
 }
 

@@ -4,8 +4,13 @@
 #include "GameTimerW.h"
 
 CameraController::CameraController(Window* wnd, Camera* cam, GameTimerW* timer)
-    : pWnd(wnd), pCam(cam), pTimer(timer), PrevMousePosition(0.0f, 0.0f)
 {
+    assert(wnd);
+    assert(cam);
+    assert(timer);
+    pWnd = wnd;
+    pCam = cam;
+    pTimer = timer;
 }
 
 void CameraController::UpdateInput()

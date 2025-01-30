@@ -5,6 +5,7 @@
 #include "GameTimerW.h"
 #include "GeometryGenerator.h"
 #include "ShapeGeometryBuilder.h"
+#include <cassert>
 
 using namespace DirectX;
 using namespace Kds::App;
@@ -263,14 +264,19 @@ void Graphic::InitPipeline()
         mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
         D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&mDevice)) >> Check;
     }
+    assert(mDevice);
 
     // Create Fence
     mDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)) >> Check;
+    assert(mFence);
 
     // Set Descriptors Size
     mRtvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     mDsvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
     mCbvSrvUavDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    assert(mRtvDescriptorSize);
+    assert(mDsvDescriptorSize);
+    assert(mCbvSrvUavDescriptorSize);
 
     // Create Command Objects
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -284,6 +290,10 @@ void Graphic::InitPipeline()
         0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAlloc.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >>
         Check;
     mCommandList->Close();
+    assert(mCommandQueue);
+    assert(mCommandAlloc);
+    assert(mCommandList);
+
 
     // Create SwapChain
     mSwapChain.Reset();
@@ -302,6 +312,7 @@ void Graphic::InitPipeline()
     ComPtr<IDXGISwapChain1> swapChainTemp;
     mFactory->CreateSwapChainForHwnd(mCommandQueue.Get(), mWindowHandle, &sd, nullptr, nullptr, swapChainTemp.GetAddressOf()) >> Check;
     swapChainTemp.As(&mSwapChain);
+    assert(mSwapChain);
 
     // Create RTV Descriptor Heap
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
@@ -310,6 +321,7 @@ void Graphic::InitPipeline()
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     rtvHeapDesc.NodeMask = 0;
     mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())) >> Check;
+    assert(mRtvHeap);
 
     // Create DSV Descriptor Heap
     D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc{};
@@ -318,6 +330,7 @@ void Graphic::InitPipeline()
     dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     dsvHeapDesc.NodeMask = 0;
     mDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())) >> Check;
+    assert(mDsvHeap);
 
     // Create RTV for SWAPCHAIN
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -353,6 +366,7 @@ void Graphic::InitPipeline()
     auto ResBar =
         CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     mCommandList->ResourceBarrier(1, &ResBar);
+    assert(mDepthStencilBuffer);
 
     // Create And SetViewport
     mScreenViewport.TopLeftX = 0.0f;

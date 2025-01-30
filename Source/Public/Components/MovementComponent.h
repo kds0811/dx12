@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneComponent.h"
 
+
 class MovementComponent
 {
     SceneComponent& mUpdatedSceneComponent;
