@@ -8,8 +8,6 @@ WavesSceneObject::WavesSceneObject(ePrimitiveType objectType, Transform objectTr
     mSceneComponent.SetTransformation(objectTransformation);
 }
 
-
-
 void WavesSceneObject::CreateRenderItem(ePrimitiveType objectType, int sceneCounter)
 {
     mRenderItem = std::make_unique<RenderItem>();
