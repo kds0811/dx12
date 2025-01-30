@@ -7,15 +7,14 @@
 #include <chrono>
 
 
-
 App::App() :
     mWnd(mWidth, mHeight, this),
     mGfx(mWidth, mHeight, mWnd.GetHwnd()),
     mCamera(this),
     mCameraController(&mWnd, &mCamera, &mTimer),
-    mScene(mTimer, &mGfx)
+    mScene(mTimer, &mGfx),
+    mResourceManager(mGfx.GetDevice(), mGfx.GetCommandQueue())
 {
-    mGfx.InitPipeline();
     mGfx.BuildStandartShapeGeometry();
     mScene.InitScene();
     mGfx.InitResources(mScene.GetSceneRenderItems().size());

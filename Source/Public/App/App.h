@@ -5,6 +5,9 @@
 #include "Camera.h"
 #include "CameraController.h"
 #include "Scene.h"
+#include <memory>
+#include "ResourceManager.h"
+
 
 class App
 {
@@ -34,7 +37,7 @@ private:
     Camera mCamera;
     CameraController mCameraController;
     Scene mScene;
-
+    ResourceManager mResourceManager;
     
     bool bAppPaused = false;
 

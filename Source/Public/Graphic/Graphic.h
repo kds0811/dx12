@@ -105,16 +105,18 @@ public:
     void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW& gt,
        const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void SetWireframe(bool state);
-    ComPtr<ID3D12Device8> GetDevice() { return mDevice; }
-    ComPtr<ID3D12GraphicsCommandList6> GetCommandList() { return mCommandList; }
+    ID3D12Device8* GetDevice() { return mDevice.Get(); }
+    ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
+    ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
-    void InitPipeline();
+    
     void InitResources(size_t sceneObjectCount);
     void BuildStandartShapeGeometry();
     void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
 
 private:
+    void InitPipeline();
     D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const noexcept;
     D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
     ID3D12Resource* CurrentBackBuffer() const noexcept;

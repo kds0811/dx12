@@ -9,7 +9,10 @@
 using namespace DirectX;
 using namespace Kds::App;
 
-Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mClientHeight(Height), mWindowHandle(hwnd) {}
+Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mClientHeight(Height), mWindowHandle(hwnd)
+{
+    InitPipeline();
+}
 
 Graphic::~Graphic()
 {
