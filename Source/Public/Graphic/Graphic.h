@@ -5,7 +5,6 @@
 #include "MathHelper.h"
 #include "FrameResource.h"
 #include "RenderItem.h"
-#include "ShapeGeometryBuilder.h"
 #include "PrimitiveSceneObject.h"
 
 class GameTimerW;
@@ -67,18 +66,9 @@ private:
     ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
     ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 
-
-    
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
     std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
-
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
-
-    // List of all the render items.
-    //std::vector<std::unique_ptr<RenderItem>> mAllRitems;
-
-    // Render items divided by PSO.
-    //std::vector<RenderItem*> mOpaqueRitems;
 
     PassConstants mMainPassCB;
 
@@ -92,10 +82,6 @@ private:
 
     size_t mSceneObjectCount = 0;
 
-
-    // need delete on Resource manager will implemented
-    ShapeGeometryBuilder mShapeGeometryBuilder;
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
@@ -111,11 +97,8 @@ public:
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
     ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
-    
     void InitResources(size_t sceneObjectCount);
-    void BuildStandartShapeGeometry();
     void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
 
 private:
     void InitPipeline();

@@ -30,16 +30,15 @@ public:
 private:
     UINT mWidth = 1600;
     UINT mHeight = 1000;
-
     std::unique_ptr<Window> mWnd = nullptr;
     std::unique_ptr<Graphic> mGfx = nullptr;
     std::unique_ptr<GameTimerW> mTimer = nullptr;
     std::unique_ptr<Camera> mCamera = nullptr;
     std::unique_ptr<CameraController> mCameraController = nullptr;
-    std::unique_ptr<Scene> mScene = nullptr;
     std::unique_ptr<ResourceManager> mResourceManager = nullptr;
-    
+    std::unique_ptr<Scene> mScene = nullptr;
     bool bAppPaused = false;
+
 
     void CalculateFrameStats();
 };

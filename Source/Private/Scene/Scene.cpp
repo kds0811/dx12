@@ -1,21 +1,21 @@
 #include "Scene.h"
-#include "Graphic.h"
 #include "PrimitiveSceneObject.h"
 #include "WavesSceneObject.h"
+#include "ResourceManager.h"
 
-Scene::Scene(GameTimerW* timer, Graphic* gfx)
+Scene::Scene(GameTimerW* timer, ResourceManager* resourceManager)
 {
     assert(timer);
-    assert(gfx);
+    assert(resourceManager);
     pTimer = timer;
-    pGfx = gfx;
+    pResourceManager = resourceManager;
 }
 
 void Scene::InitScene()
 {
-
     BuildScenePrimitives();
     BuildWaves();
+
     mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
     mSceneObjects[1]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
     mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
@@ -60,8 +60,8 @@ void Scene::BuildScenePrimitives()
 
     for (const auto& prim : primitiveData)
     {
-        mSceneObjects.emplace_back(
-            std::make_unique<PrimitiveSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pGfx->GetGeometries()));
+        mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(
+            prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()));
         ++SceneObjectsCounter;
     }
 

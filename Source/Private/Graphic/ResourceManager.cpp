@@ -1,5 +1,4 @@
 #include "ResourceManager.h"
-#include <stdexcept>
 
 ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue)
 {
@@ -18,4 +17,40 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
 
     pDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf())) >> Kds::App::Check;
 
+    CreateStandartShapeGeometry();
+}
+
+void ResourceManager::CreateStandartShapeGeometry() 
+{
+    mCommandList->Reset(mCommandAllocator.Get(), nullptr) >> Kds::App::Check;
+
+    mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(pDevice, mCommandList.Get());
+
+    mCommandList->Close() >> Kds::App::Check;
+    ID3D12CommandList* cmdsLists[] = {mCommandList.Get()};
+    pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    FlushCommandQueue();
+
+    assert(mGeometries["shapeGeo"]->IndexBufferCPU);
+    assert(mGeometries["shapeGeo"]->IndexBufferGPU);
+    assert(mGeometries["shapeGeo"]->VertexBufferCPU);
+    assert(mGeometries["shapeGeo"]->VertexBufferGPU);
+}
+
+
+void ResourceManager::FlushCommandQueue()
+{
+    ++mCurrentFenceValue;
+    pCommandQueue->Signal(mFence.Get(), mCurrentFenceValue) >> Kds::App::Check;
+
+    if (mFence->GetCompletedValue() < mCurrentFenceValue)
+    {
+        HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
+
+        mFence->SetEventOnCompletion(mCurrentFenceValue, eventHandle);
+
+        WaitForSingleObject(eventHandle, INFINITE);
+        CloseHandle(eventHandle);
+    }
 }

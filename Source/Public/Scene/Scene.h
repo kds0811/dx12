@@ -6,8 +6,7 @@
 #include "ShapeGeometryBuilder.h"
 #include "D3D12Utils.h"
 
-class Graphic;
-
+class ResourceManager;
 
 struct DataPrimitiveBuild
 {
@@ -23,12 +22,12 @@ class Scene
 {
     std::vector<std::unique_ptr<BaseSceneObject>> mSceneObjects;
     GameTimerW* pTimer = nullptr;
-    Graphic* pGfx = nullptr;
+    ResourceManager* pResourceManager = nullptr;
     
     std::vector<RenderItem*> mSceneRenderItems;
 
 public:
-    Scene(GameTimerW* timer, Graphic* pgfx);
+    Scene(GameTimerW* timer, ResourceManager* resourceManager);
     Scene(const Scene&) = delete;
     Scene& operator=(const Scene&) = delete;
     Scene(const Scene&&) = delete;

@@ -3,8 +3,6 @@
 #include "UploadBuffer.h"
 #include <array>
 #include "GameTimerW.h"
-#include "GeometryGenerator.h"
-#include "ShapeGeometryBuilder.h"
 #include <cassert>
 
 using namespace DirectX;
@@ -388,6 +386,10 @@ void Graphic::InitPipeline()
 
 void Graphic::InitResources(size_t sceneObjectCount)
 {
+    // Reset the command list to prep for initialization commands.
+    mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
+
+
     mSceneObjectCount = sceneObjectCount;
 
     BuildRootSignature();
@@ -585,13 +587,7 @@ void Graphic::BuildShadersAndInputLayout()
     };
 }
 
-void Graphic::BuildStandartShapeGeometry()
-{
-    // Reset the command list to prep for initialization commands.
-    mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
 
-    mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(mDevice.Get(), mCommandList.Get());
-}
 
 void Graphic::BuildPSOs()
 {

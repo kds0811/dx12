@@ -17,11 +17,14 @@ class ResourceManager
     // standart Geonetry Builder
     ShapeGeometryBuilder mShapeGeometryBuilder;
 
-    //Store standart geometry and buffers
+    // Store standart geometry and buffers
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 
 public:
     ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);
+    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
 
-
+private:
+    void CreateStandartShapeGeometry();
+    void FlushCommandQueue();
 };

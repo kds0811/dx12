@@ -14,9 +14,9 @@ App::App()
     mTimer = std::make_unique<GameTimerW>();
     mCamera = std::make_unique<Camera>(this);
     mCameraController = std::make_unique<CameraController>(mWnd.get(), mCamera.get(), mTimer.get());
-    mScene = std::make_unique<Scene>(mTimer.get(), mGfx.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
-
+    mScene = std::make_unique<Scene>(mTimer.get(), mResourceManager.get());
+    
     assert(mWnd);
     assert(mGfx);
     assert(mTimer);
@@ -24,8 +24,7 @@ App::App()
     assert(mCameraController);
     assert(mScene);
     assert(mResourceManager);
-
-    mGfx->BuildStandartShapeGeometry();
+    
     mScene->InitScene();
     mGfx->InitResources(mScene->GetSceneRenderItems().size());
 }
