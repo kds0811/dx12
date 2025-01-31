@@ -14,10 +14,10 @@ class ResourceManager
     Microsoft::WRL::ComPtr<ID3D12Fence> mFence = nullptr;
     UINT64 mCurrentFenceValue = 0;
 
-    // standart Geonetry Builder
+    // standart Geometry Builder
     ShapeGeometryBuilder mShapeGeometryBuilder;
 
-    // Store standart geometry and buffers
+    // Storage standart geometry and buffers
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 
 public:

@@ -25,8 +25,14 @@ App::App()
     assert(mScene);
     assert(mResourceManager);
     
-    mScene->InitScene();
-    mGfx->InitResources(mScene->GetSceneRenderItems().size());
+    if (mScene)
+    {
+        mScene->InitScene();
+    }
+    if (mGfx)
+    {
+        mGfx->InitResources(mScene->GetSceneRenderItems().size());
+    }
 }
 
 std::optional<int> App::Go()

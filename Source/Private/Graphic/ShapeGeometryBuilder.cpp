@@ -1,6 +1,6 @@
 #include "ShapeGeometryBuilder.h"
 #include <algorithm>
-
+#include <string>
 
 using namespace DirectX;
 
@@ -12,7 +12,11 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), ePrimitiveType::SPHERE);
     AddGeometry(
         mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
+
+    //Mounts
     AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
+
+    //skull
     AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), ePrimitiveType::MESH);
 
     CalculateOffsets();
@@ -23,7 +27,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
    // modify height land vertices
     ModifyHeightLandVertices(vertices);
 
-    auto result = CreateMeshGeometry(device, cmdList, vertices, indices);
+    auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "shapeGeo", false);
 
     // Clear geometries for next use
     mGeometries.clear();
@@ -33,9 +37,23 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
 
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
+    // waves
+    AddGeometry(mGeometryGenerator.CreateGrid(128.0f, 128.0f, 128, 128), XMFLOAT4(DirectX::Colors::Blue), ePrimitiveType::WAVES);
 
-    return std::unique_ptr<MeshGeometry>();
+    CalculateOffsets();
+
+    auto vertices = CreateVertexBuffer();
+    auto indices = CreateIndexBuffer();
+
+    auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "waterGeo", true);
+
+    // Clear geometries for next use
+    mGeometries.clear();
+
+    return result;
 }
+
+
 
 void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, ePrimitiveType type)
 {
@@ -97,21 +115,29 @@ std::vector<std::uint16_t> ShapeGeometryBuilder::CreateIndexBuffer()
 }
 
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::CreateMeshGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
-    const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices)
+    const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices, std::string meshName, bool isWavesMesh)
 {
     const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
     const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
     auto geo = std::make_unique<MeshGeometry>();
-    geo->Name = "shapeGeo";
+    geo->Name = meshName;
 
-    D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Kds::App::Check;
-    CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+    if (!isWavesMesh)
+    {
+        D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Kds::App::Check;
+        CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+        geo->VertexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, vertices.data(), vbByteSize, geo->VertexBufferUploader);
+    }
+    else
+    {
+        // Set dynamically for Waves
+        geo->VertexBufferCPU = nullptr;
+        geo->VertexBufferGPU = nullptr;
+    }
 
     D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU) >> Kds::App::Check;
     CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-    geo->VertexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
     geo->IndexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, indices.data(), ibByteSize, geo->IndexBufferUploader);
 
@@ -181,3 +207,7 @@ float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
     float height = 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
     return std::max<float>(-5.0f, height * borderFalloff);
 }
+
+void ShapeGeometryBuilder::ModifyWaveMeshGeometry(std::unique_ptr<MeshGeometry>& geom) {}
+
+
