@@ -40,6 +40,5 @@ public:
 
 private:
     void BuildScenePrimitives();
-    void BuildWaves();
     int SceneObjectsCounter = 0;
 };
