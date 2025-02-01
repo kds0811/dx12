@@ -7,12 +7,7 @@
 #include <unordered_map>
 #include <DirectXMath.h>
 #include "MathHelper.h"
-
-struct Vertex
-{
-    DirectX::XMFLOAT3 Pos;
-    DirectX::XMFLOAT4 Color;
-};
+#include "SceneComponent.h"
 
 class D3D12Utils
 {
@@ -126,8 +121,7 @@ struct MaterialConstants
     DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
-// Simple struct to represent a material for our demos.  A production 3D engine
-// would likely create a class hierarchy of Materials.
+
 struct Material
 {
     // Unique material name for lookup.

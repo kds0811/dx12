@@ -95,7 +95,7 @@ std::vector<Vertex> ShapeGeometryBuilder::CreateVertexBuffer()
         {
             Vertex v;
             v.Pos = vertex.Position;
-            v.Color = geometry.color;
+            v.Normal = vertex.Normal;
             vertices.push_back(v);
         }
     }
@@ -164,17 +164,6 @@ void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertice
             for (size_t i = geom.vertexOffset; i < geom.vertexOffset + geom.mesh.Vertices.size(); ++i)
             {
                 vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
-
-                if (vertices[i].Pos.y < 0.1f)
-                    vertices[i].Color = XMFLOAT4(0.78f, 0.96f, 0.62f, 1.0f);
-                else if (vertices[i].Pos.y < 5.0f)
-                    vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-                else if (vertices[i].Pos.y < 12.0f)
-                    vertices[i].Color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-                else if (vertices[i].Pos.y < 20.0f)
-                    vertices[i].Color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
-                else
-                    vertices[i].Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
     }

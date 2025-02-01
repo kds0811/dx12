@@ -4,12 +4,14 @@
 #include "D3D12Utils.h"
 
 
-
 // Lightweight structure stores parameters to draw a shape.
 struct RenderItem
 {
     RenderItem() = default;
+    
+    DirectX::XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
 
+    Material* Mat = nullptr;
     MeshGeometry* Geo = nullptr;
 
     // Primitive topology.

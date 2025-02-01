@@ -1,6 +1,7 @@
 #pragma once
 #include "D3D12Utils.h"
 #include "ShapeGeometryBuilder.h"
+#include "MaterialBuilder.h"
 
 class ResourceManager
 {
@@ -14,11 +15,15 @@ class ResourceManager
     Microsoft::WRL::ComPtr<ID3D12Fence> mFence = nullptr;
     UINT64 mCurrentFenceValue = 0;
 
-    // standart Geometry Builder
+    // Builders
     ShapeGeometryBuilder mShapeGeometryBuilder;
+    MaterialBuilder mMaterialBuilder;
 
     // Storage standart geometry and buffers
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+
+    // Storage materials
+    std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
 
 public:
     ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);

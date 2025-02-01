@@ -25,6 +25,8 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     {
         CreateStandartShapeGeometry();
     }
+
+    mMaterials = mMaterialBuilder.CreateMaterials();
 }
 
 void ResourceManager::CreateStandartShapeGeometry() 

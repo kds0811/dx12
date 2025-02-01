@@ -7,6 +7,7 @@
 #include "GraphicError.h"
 #include <vector>
 #include "GeometryLoader.h"
+#include "FrameResource.h"
 
 class ShapeGeometryBuilder
 {
