@@ -18,6 +18,11 @@ void WavesSceneObject::Update(float dt)
 
 }
 
+int WavesSceneObject::GetVertexCount()
+{
+    return mWaves->VertexCount();
+}
+
 void WavesSceneObject::CreateRenderItem(int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
 {
     mRenderItem = std::make_unique<RenderItem>();
