@@ -11,6 +11,13 @@ WavesSceneObject::WavesSceneObject(ePrimitiveType objectType, Transform objectTr
     CreateRenderItem(scneneCounter, geometries);
 }
 
+void WavesSceneObject::Update(float dt)
+{
+    BaseSceneObject::Update(dt);
+
+
+}
+
 void WavesSceneObject::CreateRenderItem(int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)
 {
     mRenderItem = std::make_unique<RenderItem>();

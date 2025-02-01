@@ -14,7 +14,6 @@ Scene::Scene(GameTimerW* timer, ResourceManager* resourceManager)
 void Scene::InitScene()
 {
     BuildScenePrimitives();
-    BuildWaves();
 
     mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
     mSceneObjects[1]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
@@ -66,8 +65,11 @@ void Scene::BuildScenePrimitives()
         if (prim.ObjectType == ePrimitiveType::WAVES)
         {
             mSceneObjects.emplace_back(std::make_unique<WavesSceneObject>(
-                prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()))
+                prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()));
             ++SceneObjectsCounter;
+            
+            pWavesObject = dynamic_cast<WavesSceneObject*>(mSceneObjects.back().get());
+            assert(pWavesObject);
             continue;
         }
         

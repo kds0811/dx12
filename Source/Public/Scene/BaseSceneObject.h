@@ -12,7 +12,7 @@ public:
     {  }
     virtual ~BaseSceneObject() {}
 
-    void Update(float dt);
+    virtual void Update(float dt);
     RenderItem* GetRenderItem() { return mRenderItem.get(); }
     void SetContiniusRotation(Rotator rot);
 

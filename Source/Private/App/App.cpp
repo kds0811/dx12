@@ -6,6 +6,7 @@
 #include "Vector.h"
 #include <chrono>
 #include <cassert>
+#include "WavesSceneObject.h"
 
 App::App()
 {
@@ -31,7 +32,9 @@ App::App()
     }
     if (mGfx)
     {
-        mGfx->InitResources(mScene->GetSceneRenderItems().size());
+        assert(mScene);
+        assert(mScene->GetWavesPtr());
+        mGfx->InitResources(mScene->GetSceneRenderItems().size(), mScene->GetWavesPtr()->GetVertexCount());
     }
 }
 

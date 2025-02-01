@@ -9,6 +9,12 @@ PrimitiveSceneObject::PrimitiveSceneObject(ePrimitiveType objectType, Transform 
     CreateRenderItem(scneneCounter, geometries);
 }
 
+void PrimitiveSceneObject::Update(float dt) 
+{
+    BaseSceneObject::Update(dt);
+    
+}
+
 
 void PrimitiveSceneObject::CreateRenderItem(
      int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries)

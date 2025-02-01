@@ -12,6 +12,10 @@ public:
     WavesSceneObject(ePrimitiveType objectType, Transform objectTransformation, int scneneCounter,
         std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries);
 
+    virtual void Update(float dt) override;
+
+    int GetVertexCount() { return mWaves->VertexCount(); }
+
 private:
     void CreateRenderItem(int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries);
 };

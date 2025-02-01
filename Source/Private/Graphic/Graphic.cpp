@@ -384,13 +384,14 @@ void Graphic::InitPipeline()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Graphic::InitResources(size_t sceneObjectCount)
+void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount)
 {
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
 
 
     mSceneObjectCount = sceneObjectCount;
+    mWavesVerticesCount = wavesVertCount;
 
     BuildRootSignature();
     BuildShadersAndInputLayout();
@@ -626,7 +627,7 @@ void Graphic::BuildFrameResources()
 {
     for (int i = 0; i < gNumFrameResources; ++i)
     {
-        mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), 1, (UINT)mSceneObjectCount, (UINT)33u));
+        mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), 1, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount));
     }
 }
 

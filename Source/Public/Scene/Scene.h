@@ -21,6 +21,7 @@ struct DataPrimitiveBuild
 class Scene
 {
     std::vector<std::unique_ptr<BaseSceneObject>> mSceneObjects;
+    WavesSceneObject* pWavesObject = nullptr;
     GameTimerW* pTimer = nullptr;
     ResourceManager* pResourceManager = nullptr;
     
@@ -37,6 +38,7 @@ public:
     void Update();
     std::vector<RenderItem*>& GetSceneRenderItems() { return mSceneRenderItems; }
     std::vector<std::unique_ptr<BaseSceneObject>>& GetSceneObjects() { return mSceneObjects; }
+    WavesSceneObject* GetWavesPtr() { return pWavesObject; }
 
 private:
     void BuildScenePrimitives();

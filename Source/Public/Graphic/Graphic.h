@@ -81,6 +81,7 @@ private:
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
     size_t mSceneObjectCount = 0;
+    size_t mWavesVerticesCount = 0;
 
 
 public:
@@ -97,7 +98,7 @@ public:
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
     ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
-    void InitResources(size_t sceneObjectCount);
+    void InitResources(size_t sceneObjectCount, size_t wavesVertCount);
     void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
 
 private:
