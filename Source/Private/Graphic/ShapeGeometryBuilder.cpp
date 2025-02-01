@@ -38,7 +38,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // waves
-    AddGeometry(mGeometryGenerator.CreateGrid(128.0f, 128.0f, 128, 128), XMFLOAT4(DirectX::Colors::Blue), ePrimitiveType::WAVES);
+    AddGeometry(mGeometryGenerator.CreateGrid(145.0f, 145.0f, 145, 145), XMFLOAT4(DirectX::Colors::Blue), ePrimitiveType::WAVES);
 
     CalculateOffsets();
 

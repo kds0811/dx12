@@ -85,7 +85,7 @@ void App::Update()
 {
     mCameraController->UpdateInput();
     mScene->Update();
-    mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects());
+    mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects(), mScene->GetWavesPtr());
 }
 
 void App::Draw()

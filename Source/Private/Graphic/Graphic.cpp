@@ -191,7 +191,7 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
 }
 
 void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
-    const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
+    const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject)
 {
     // Update Camera
     DirectX::XMStoreFloat4x4(&mView, ViewMat);
@@ -212,6 +212,7 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
     }
     UpdateMainPassCB(gt);
     UpdateObjectCBs(sceneObjects);
+    UpdateWavesMesh(gt, waveObject);
 }
 
 void Graphic::SetWireframe(bool state)
@@ -654,4 +655,42 @@ void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vec
 
         cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
     }
+}
+
+void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject) 
+{
+    assert(gt);
+    assert(waveObject);
+    assert(waveObject->GetWaves());
+    	// Every quarter second, generate a random wave.
+    static float t_base = 0.0f;
+    if ((gt->GetTotalTime() - t_base) >= 0.25f)
+    {
+        t_base += 0.25f;
+
+        int i = MathHelper::Rand(4, waveObject->GetWaves()->RowCount() - 5);
+        int j = MathHelper::Rand(4, waveObject->GetWaves()->ColumnCount() - 5);
+
+        float r = MathHelper::RandF(0.2f, 0.5f);
+
+        waveObject->GetWaves()->Disturb(i, j, r);
+    }
+
+    // Update the wave simulation.
+    waveObject->GetWaves()->Update(gt->GetDeltaTime());
+
+    // Update the wave vertex buffer with the new solution.
+    auto currWavesVB = mCurrFrameResource->WavesVB.get();
+    for (int i = 0; i < waveObject->GetWaves()->VertexCount(); ++i)
+    {
+        Vertex v;
+
+        v.Pos = waveObject->GetWaves()->Position(i);
+        v.Color = XMFLOAT4(DirectX::Colors::Blue);
+
+        currWavesVB->CopyData(i, v);
+    }
+
+    // Set the dynamic VB of the wave renderitem to the current frame VB.
+    waveObject->GetRenderItem()->Geo->VertexBufferGPU = currWavesVB->Resource();
 }

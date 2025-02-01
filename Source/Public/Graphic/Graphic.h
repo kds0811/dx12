@@ -6,6 +6,7 @@
 #include "FrameResource.h"
 #include "RenderItem.h"
 #include "PrimitiveSceneObject.h"
+#include "WavesSceneObject.h"
 
 class GameTimerW;
 
@@ -92,7 +93,7 @@ public:
     void OnResize(UINT nWidth, UINT nHeight);
     void Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
-       const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+       const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject);
     void SetWireframe(bool state);
     ID3D12Device8* GetDevice() { return mDevice.Get(); }
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
@@ -117,5 +118,5 @@ private:
     void BuildFrameResources();
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
 
-    
+    void UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject);
 };

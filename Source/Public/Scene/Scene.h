@@ -40,6 +40,7 @@ public:
     std::vector<RenderItem*>& GetSceneRenderItems() { return mSceneRenderItems; }
     std::vector<std::unique_ptr<BaseSceneObject>>& GetSceneObjects() { return mSceneObjects; }
     WavesSceneObject* GetWavesPtr() { return pWavesObject; }
+   
 
 private:
     void BuildScenePrimitives();
