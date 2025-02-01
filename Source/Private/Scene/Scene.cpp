@@ -69,7 +69,7 @@ void Scene::BuildScenePrimitives()
         if (prim.ObjectType == ePrimitiveType::WAVES)
         {
             mSceneObjects.emplace_back(std::make_unique<WavesSceneObject>(
-                prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()));
+                prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials()));
             ++SceneObjectsCounter;
 
             pWavesObject = dynamic_cast<WavesSceneObject*>(mSceneObjects.back().get());
@@ -77,8 +77,8 @@ void Scene::BuildScenePrimitives()
             continue;
         }
 
-        mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(
-            prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()));
+        mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
+            pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials()));
         ++SceneObjectsCounter;
     }
 

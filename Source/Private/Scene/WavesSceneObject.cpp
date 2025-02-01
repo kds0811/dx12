@@ -15,8 +15,6 @@ WavesSceneObject::WavesSceneObject(ePrimitiveType objectType, Transform objectTr
 void WavesSceneObject::Update(float dt)
 {
     BaseSceneObject::Update(dt);
-
-
 }
 
 int WavesSceneObject::GetVertexCount()
