@@ -11,11 +11,14 @@ class ResourceManager;
 
 struct DataPrimitiveBuild
 {
-    DataPrimitiveBuild(ePrimitiveType objectType, Transform objectTransformation)
-        : ObjectType(objectType), ObjectTransformation(objectTransformation)
+    DataPrimitiveBuild(ePrimitiveType objectType, Transform objectTransformation, EMaterialType materialType)
+        : ObjectType(objectType), ObjectTransformation(objectTransformation), MaterialType(materialType)
     {}
+    DataPrimitiveBuild() = delete;
+
     ePrimitiveType ObjectType;
     Transform ObjectTransformation;
+    EMaterialType MaterialType;
 };
 
 
@@ -41,7 +44,6 @@ public:
     std::vector<std::unique_ptr<BaseSceneObject>>& GetSceneObjects() { return mSceneObjects; }
     WavesSceneObject* GetWavesPtr() { return pWavesObject; }
    
-
 private:
     void BuildScenePrimitives();
     int SceneObjectsCounter = 0;

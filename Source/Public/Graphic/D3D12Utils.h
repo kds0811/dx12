@@ -121,11 +121,20 @@ struct MaterialConstants
     DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
+enum class EMaterialType
+{
+    GRASS,
+    WATER,
+    BRICKS,
+    STONE,
+    TILE,
+    SKULLMAT
+};
 
 struct Material
 {
     // Unique material name for lookup.
-    std::string Name;
+    EMaterialType Type;
 
     // Index into constant buffer corresponding to this material.
     int MatCBIndex = -1;
@@ -148,3 +157,4 @@ struct Material
     float Roughness = .25f;
     DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
+

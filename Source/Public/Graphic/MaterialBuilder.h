@@ -6,5 +6,5 @@
 class MaterialBuilder
 {
 public:
-    std::unordered_map<std::string, std::unique_ptr<Material>> CreateMaterials();
+    std::unordered_map<EMaterialType, std::unique_ptr<Material>> CreateMaterials();
 };

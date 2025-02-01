@@ -10,7 +10,8 @@ class WavesSceneObject final : public BaseSceneObject
 
 public:
     WavesSceneObject(ePrimitiveType objectType, Transform objectTransformation, int scneneCounter,
-        std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries);
+        std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries, EMaterialType matType,
+        std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
     virtual void Update(float dt) override final;
 
@@ -19,5 +20,6 @@ public:
     RenderItem* GetRenderItem() { return mRenderItem.get(); }
 
 private:
-    void CreateRenderItem(int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries);
+    void CreateRenderItem(int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries,
+        std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 };

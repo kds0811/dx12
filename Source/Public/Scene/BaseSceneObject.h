@@ -6,7 +6,7 @@
 
 class alignas (16) BaseSceneObject
 {
-
+    
 public:
     BaseSceneObject() : mMovementComponent(mSceneComponent)
     {  }
@@ -28,6 +28,7 @@ protected:
     MovementComponent mMovementComponent;
     std::unique_ptr<RenderItem> mRenderItem;
     ePrimitiveType mObjectPrimitiveType;
+    EMaterialType mMaterialType;
 
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
     UINT ObjCBIndex = -1;

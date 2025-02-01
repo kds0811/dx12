@@ -32,33 +32,37 @@ void Scene::BuildScenePrimitives()
 {
     std::vector<DataPrimitiveBuild> primitiveData{};
     // add skull
-    primitiveData.emplace_back(ePrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()));
+    primitiveData.emplace_back(
+        ePrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT);
     // add rotate boxes
-    primitiveData.emplace_back(
-        ePrimitiveType::BOX, Transform(Vector(20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)));
-    primitiveData.emplace_back(
-        ePrimitiveType::BOX, Transform(Vector(-20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)));
-    
+    primitiveData.emplace_back(ePrimitiveType::BOX,
+        Transform(Vector(20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)), EMaterialType::STONE);
+    primitiveData.emplace_back(ePrimitiveType::BOX,
+        Transform(Vector(-20.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 2.0f, 1.0f)), EMaterialType::STONE);
+
     // add static shapes
-    primitiveData.emplace_back(ePrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)));
-    primitiveData.emplace_back(ePrimitiveType::GRID, Transform(Vector::Zero(), Rotator::Zero(), Vector::One()));
-   
-    // add Mounts
     primitiveData.emplace_back(
-        ePrimitiveType::LAND, Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)));
+        ePrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)),  EMaterialType::STONE);
+    primitiveData.emplace_back(ePrimitiveType::GRID, Transform(Vector::Zero(), Rotator::Zero(), Vector::One()), EMaterialType::TILE);
+
+    // add Mounts
+    primitiveData.emplace_back(ePrimitiveType::LAND,
+        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASS);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
-        primitiveData.emplace_back(ePrimitiveType::CYLINDER, Transform(Vector(-5.0f, 1.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
-        primitiveData.emplace_back(ePrimitiveType::CYLINDER, Transform(Vector(5.0f, 1.5f, i * 5.0f),  Rotator::Zero(), Vector::One()));
-        primitiveData.emplace_back(ePrimitiveType::SPHERE,   Transform(Vector(-5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()));
-        primitiveData.emplace_back(ePrimitiveType::SPHERE,   Transform(Vector(5.0f, 3.5f, i * 5.0f),  Rotator::Zero(), Vector::One()));
+        primitiveData.emplace_back(ePrimitiveType::CYLINDER, Transform(Vector(-5.0f, 1.5f, i * 5.0f), Rotator::Zero(), Vector::One()), EMaterialType::STONE);
+        primitiveData.emplace_back(
+            ePrimitiveType::CYLINDER, Transform(Vector(5.0f, 1.5f, i * 5.0f), Rotator::Zero(), Vector::One()), EMaterialType::STONE);
+        primitiveData.emplace_back(ePrimitiveType::SPHERE, Transform(Vector(-5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()), EMaterialType::BRICKS);
+        primitiveData.emplace_back(
+            ePrimitiveType::SPHERE, Transform(Vector(5.0f, 3.5f, i * 5.0f), Rotator::Zero(), Vector::One()), EMaterialType::BRICKS);
     }
 
-    //Add Waves
+    // Add Waves
     primitiveData.emplace_back(
-        ePrimitiveType::WAVES, Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)));
+        ePrimitiveType::WAVES, Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER);
 
     for (const auto& prim : primitiveData)
     {
@@ -67,12 +71,12 @@ void Scene::BuildScenePrimitives()
             mSceneObjects.emplace_back(std::make_unique<WavesSceneObject>(
                 prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()));
             ++SceneObjectsCounter;
-            
+
             pWavesObject = dynamic_cast<WavesSceneObject*>(mSceneObjects.back().get());
             assert(pWavesObject);
             continue;
         }
-        
+
         mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(
             prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter, pResourceManager->GetGeometries()));
         ++SceneObjectsCounter;
@@ -84,4 +88,3 @@ void Scene::BuildScenePrimitives()
         mSceneRenderItems.push_back(obj->GetRenderItem());
     }
 }
-

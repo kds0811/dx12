@@ -1,5 +1,4 @@
 #pragma once
-
 #include "MathHelper.h"
 #include "D3D12Utils.h"
 
