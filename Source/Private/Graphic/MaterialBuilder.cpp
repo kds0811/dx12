@@ -10,12 +10,10 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     auto grass = std::make_unique<Material>();
     grass->Type = EMaterialType::GRASS;
     grass->MatCBIndex = 0;
-    grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.2f, 1.0f);
+    grass->DiffuseAlbedo = XMFLOAT4(0.3f, 0.6f, 0.3f, 1.0f);
     grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
     grass->Roughness = 0.125f;
 
-    // This is not a good water material definition, but we do not have all the rendering
-    // tools we need (transparency, environment reflection), so we fake it for now.
     auto water = std::make_unique<Material>();
     water->Type = EMaterialType::WATER;
     water->MatCBIndex = 1;
@@ -25,7 +23,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
 
     auto bricks0 = std::make_unique<Material>();
     bricks0->Type = EMaterialType::BRICKS;
-    bricks0->MatCBIndex = 0;
+    bricks0->MatCBIndex = 2;
     bricks0->DiffuseSrvHeapIndex = 0;
     bricks0->DiffuseAlbedo = XMFLOAT4(Colors::ForestGreen);
     bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
@@ -33,7 +31,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
 
     auto stone0 = std::make_unique<Material>();
     stone0->Type = EMaterialType::STONE;
-    stone0->MatCBIndex = 1;
+    stone0->MatCBIndex = 3;
     stone0->DiffuseSrvHeapIndex = 1;
     stone0->DiffuseAlbedo = XMFLOAT4(Colors::LightSteelBlue);
     stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
@@ -41,7 +39,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
 
     auto tile0 = std::make_unique<Material>();
     tile0->Type = EMaterialType::TILE;
-    tile0->MatCBIndex = 2;
+    tile0->MatCBIndex = 4;
     tile0->DiffuseSrvHeapIndex = 2;
     tile0->DiffuseAlbedo = XMFLOAT4(Colors::LightGray);
     tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
@@ -49,7 +47,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
 
     auto skullMat = std::make_unique<Material>();
     skullMat->Type = EMaterialType::SKULLMAT;
-    skullMat->MatCBIndex = 3;
+    skullMat->MatCBIndex = 5;
     skullMat->DiffuseSrvHeapIndex = 3;
     skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);

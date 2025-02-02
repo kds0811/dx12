@@ -42,5 +42,4 @@ private:
         const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices, std::string meshName, bool isWavesMesh);
     void ModifyHeightLandVertices(std::vector<Vertex>& vertices);
     float GetHillsHeight(float x, float z) const;
-    void ModifyWaveMeshGeometry(std::unique_ptr<MeshGeometry>& geom);
 };

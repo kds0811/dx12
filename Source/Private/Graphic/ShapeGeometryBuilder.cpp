@@ -1,6 +1,7 @@
 #include "ShapeGeometryBuilder.h"
 #include <algorithm>
 #include <string>
+#include "Transform.h"
 
 using namespace DirectX;
 
@@ -161,9 +162,61 @@ void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertice
     {
         if (geom.type == ePrimitiveType::LAND)
         {
+            //update vecrtices
             for (size_t i = geom.vertexOffset; i < geom.vertexOffset + geom.mesh.Vertices.size(); ++i)
             {
                 vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
+            }
+            //update normals
+            const int rows = 161;  // width + 1
+            const int cols = 161;  // depth + 1  
+
+            for (int i = 0; i < rows; ++i)
+            {
+                for (int j = 0; j < cols; ++j)
+                {
+                    int index = geom.vertexOffset + i * cols + j;
+
+                    // Получаем соседние вершины (если они существуют)
+                    Vector normal(0.0f, 0.0f, 0.0f);
+                    int numContributions = 0;
+
+                    // Проверяем все возможные треугольники вокруг текущей вершины
+                    if (i < rows - 1 && j < cols - 1)  // нижний правый треугольник
+                    {
+                        Vector v1 = Vector(vertices[index + cols].Pos) - Vector(vertices[index].Pos);
+                        Vector v2 = Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos);
+                        normal = normal + v1.Cross(v2);
+                        numContributions++;
+                    }
+                    if (i < rows - 1 && j > 0)  // нижний левый треугольник
+                    {
+                        Vector v1 = Vector(vertices[index - 1].Pos) - Vector(vertices[index].Pos);
+                        Vector v2 = Vector(vertices[index + cols - 1].Pos) - Vector(vertices[index].Pos);
+                        normal = normal + v1.Cross(v2);
+                        numContributions++;
+                    }
+                    if (i > 0 && j < cols - 1)  // верхний правый треугольник
+                    {
+                        Vector v1 = Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos);
+                        Vector v2 = Vector(vertices[index - cols + 1].Pos) - Vector(vertices[index].Pos);
+                        normal = normal + v1.Cross(v2);
+                        numContributions++;
+                    }
+                    if (i > 0 && j > 0)  // верхний левый треугольник
+                    {
+                        Vector v1 = Vector(vertices[index - cols].Pos) - Vector(vertices[index].Pos);
+                        Vector v2 = Vector(vertices[index - 1].Pos) - Vector(vertices[index].Pos);
+                        normal = normal + v1.Cross(v2);
+                        numContributions++;
+                    }
+
+                    if (numContributions > 0)
+                    {
+                        normal = (normal * (1.0f / numContributions)).Normalize();
+                        vertices[index].Normal = DirectX::XMFLOAT3(normal.GetX(), normal.GetY(), normal.GetZ());
+                    }
+                }
             }
         }
     }
@@ -197,6 +250,6 @@ float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
     return std::max<float>(-5.0f, height * borderFalloff);
 }
 
-void ShapeGeometryBuilder::ModifyWaveMeshGeometry(std::unique_ptr<MeshGeometry>& geom) {}
+
 
 
