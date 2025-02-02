@@ -153,15 +153,13 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
     auto DSV = GetDepthStencilView();
     mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
-    ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvHeap.Get()};
-    mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+   // ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvHeap.Get()};
+   // mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
-    int passCbvIndex = mPassCbvOffset + mCurrFrameResourceIndex;
-    auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-    passCbvHandle.Offset(passCbvIndex, mCbvSrvUavDescriptorSize);
-    mCommandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+    auto passCB = mCurrFrameResource->PassCB->Resource();
+    mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
     DrawRenderItems(mCommandList.Get(), sceneObjects);
 
@@ -479,12 +477,14 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
     XMMATRIX view = XMLoadFloat4x4(&mView);
     XMMATRIX proj = XMLoadFloat4x4(&mProj);
     XMMATRIX viewProj = XMMatrixMultiply(view, proj);
-    auto DetMatView = XMMatrixDeterminant(view);
-    XMMATRIX invView = XMMatrixInverse(&DetMatView, view);
-    auto DetMatProj = XMMatrixDeterminant(proj);
-    XMMATRIX invProj = XMMatrixInverse(&DetMatProj, proj);
-    auto DetMatViewProj = XMMatrixDeterminant(viewProj);
-    XMMATRIX invViewProj = XMMatrixInverse(&DetMatViewProj, viewProj);
+
+    auto ViewDet = XMMatrixDeterminant(view);
+    auto ProjDet = XMMatrixDeterminant(proj);
+    auto ViewProjDet = XMMatrixDeterminant(viewProj);
+
+    XMMATRIX invView = XMMatrixInverse(&ViewDet, view);
+    XMMATRIX invProj = XMMatrixInverse(&ProjDet, proj);
+    XMMATRIX invViewProj = XMMatrixInverse(&ViewProjDet, viewProj);
 
     XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
     XMStoreFloat4x4(&mMainPassCB.InvView, XMMatrixTranspose(invView));
@@ -499,9 +499,17 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
     mMainPassCB.FarZ = 1000.0f;
     mMainPassCB.TotalTime = gt->GetTotalTime();
     mMainPassCB.DeltaTime = gt->GetDeltaTime();
+    mMainPassCB.AmbientLight = {0.25f, 0.25f, 0.35f, 1.0f};
+    mMainPassCB.Lights[0].Direction = {0.57735f, -0.57735f, 0.57735f};
+    mMainPassCB.Lights[0].Strength = {0.6f, 0.6f, 0.6f};
+    mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
+    mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
+    mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
+    mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, mMainPassCB);
+
 }
 
 void Graphic::BuildDescriptorHeaps()
