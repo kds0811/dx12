@@ -34,7 +34,7 @@ App::App()
     {
         assert(mScene);
         assert(mScene->GetWavesPtr());
-        mGfx->InitResources(mScene->GetSceneRenderItems().size(), mScene->GetWavesPtr()->GetVertexCount());
+        mGfx->InitResources(mScene->GetSceneRenderItems().size(), mScene->GetWavesPtr()->GetVertexCount(), mResourceManager->GetMaterials().size());
     }
 }
 
@@ -85,7 +85,7 @@ void App::Update()
 {
     mCameraController->UpdateInput();
     mScene->Update();
-    mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects(), mScene->GetWavesPtr());
+    mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects(), mScene->GetWavesPtr(), mResourceManager->GetMaterials());
 }
 
 void App::Draw()

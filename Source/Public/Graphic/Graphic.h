@@ -83,7 +83,7 @@ private:
 
     size_t mSceneObjectCount = 0;
     size_t mWavesVerticesCount = 0;
-
+    size_t mMaterialCount = 0;
 
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
@@ -92,15 +92,18 @@ public:
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
     void Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+
     void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
-       const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject);
+        const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject,
+        std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
+
     void SetWireframe(bool state);
     ID3D12Device8* GetDevice() { return mDevice.Get(); }
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
     ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
-    void InitResources(size_t sceneObjectCount, size_t wavesVertCount);
-    void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+    void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount);
+    
 
 private:
     void InitPipeline();
@@ -108,7 +111,11 @@ private:
     D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept;
     ID3D12Resource* CurrentBackBuffer() const noexcept;
     void FlushCommandQueue();
+
     void UpdateMainPassCB(const GameTimerW* gt);
+    void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+    void UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
+
     void BuildDescriptorHeaps();
     void BuildConstantBufferViews();
     void BuildRootSignature();

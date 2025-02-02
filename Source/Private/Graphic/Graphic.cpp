@@ -191,7 +191,8 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
 }
 
 void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
-    const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject)
+    const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject,
+    std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
     // Update Camera
     DirectX::XMStoreFloat4x4(&mView, ViewMat);
@@ -210,9 +211,12 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
         WaitForSingleObject(eventHandle, INFINITE);
         CloseHandle(eventHandle);
     }
-    UpdateMainPassCB(gt);
+
+    
     UpdateObjectCBs(sceneObjects);
+    UpdateMaterialCBs(materials);
     UpdateWavesMesh(gt, waveObject);
+    UpdateMainPassCB(gt);
 }
 
 void Graphic::SetWireframe(bool state)
@@ -385,7 +389,7 @@ void Graphic::InitPipeline()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount)
+void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount)
 {
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
@@ -393,6 +397,7 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount)
 
     mSceneObjectCount = sceneObjectCount;
     mWavesVerticesCount = wavesVertCount;
+    mMaterialCount = materialsCount;
 
     BuildRootSignature();
     BuildShadersAndInputLayout();
@@ -439,6 +444,32 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
             XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(scObj->GetWorldMatrix()));
             currObjectCB->CopyData(scObj->GetObjCBIndex(), objConstants);
             scObj->DecrementNumFrameDirty();
+        }
+    }
+}
+
+void Graphic::UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials) 
+{
+    auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
+    for (auto& e : materials)
+    {
+        // Only update the cbuffer data if the constants have changed.  If the cbuffer
+        // data changes, it needs to be updated for each FrameResource.
+        Material* mat = e.second.get();
+        if (mat->NumFramesDirty > 0)
+        {
+            XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+
+            MaterialConstants matConstants;
+            matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+            matConstants.FresnelR0 = mat->FresnelR0;
+            matConstants.Roughness = mat->Roughness;
+            XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+
+            currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+
+            // Next FrameResource need to be updated too.
+            mat->NumFramesDirty--;
         }
     }
 }
@@ -545,21 +576,16 @@ void Graphic::BuildConstantBufferViews()
 
 void Graphic::BuildRootSignature()
 {
-    CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-    cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-
-    CD3DX12_DESCRIPTOR_RANGE cbvTable1;
-    cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-
     // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[3];
 
-    // Create root CBVs.
-    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
-    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
+    // Create root CBV.
+    slotRootParameter[0].InitAsConstantBufferView(0);
+    slotRootParameter[1].InitAsConstantBufferView(1);
+    slotRootParameter[2].InitAsConstantBufferView(2);
 
     // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -574,13 +600,13 @@ void Graphic::BuildRootSignature()
     hr >> Check;
 
     mDevice->CreateRootSignature(
-        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >>
-        Check;
+        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >> Check;
 }
 
 void Graphic::BuildShadersAndInputLayout()
 {
-   
+    const D3D_SHADER_MACRO alphaTestDefines[] = {"ALPHA_TEST", "1", NULL, NULL};
+
     mShaders["standardVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
 
@@ -630,30 +656,45 @@ void Graphic::BuildFrameResources()
 {
     for (int i = 0; i < gNumFrameResources; ++i)
     {
-        mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), 1, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount));
+        mFrameResources.push_back(
+            std::make_unique<FrameResource>(mDevice.Get(), 1, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount, (UINT)mMaterialCount));
     }
 }
 
 void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
-    // UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-    // auto objectCB = mCurrFrameResource->ObjectCB->Resource();
-    // For each render item...
+    UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    UINT matCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+
+    auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+    auto matCB = mCurrFrameResource->MaterialCB->Resource();
+
     for (size_t i = 0; i < sceneObjects.size(); ++i)
     {
         auto ri = sceneObjects[i]->GetRenderItem();
+
         auto VBView = ri->Geo->VertexBufferView();
-        cmdList->IASetVertexBuffers(0, 1, &VBView);
         auto IBView = ri->Geo->IndexBufferView();
+
+        cmdList->IASetVertexBuffers(0, 1, &VBView);
         cmdList->IASetIndexBuffer(&IBView);
         cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-        // Offset to the CBV in the descriptor heap for this object and for this frame resource.
-        UINT cbvIndex = mCurrFrameResourceIndex * (UINT)sceneObjects.size() + sceneObjects[i]->GetObjCBIndex();
-        auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-        cbvHandle.Offset(cbvIndex, mCbvSrvUavDescriptorSize);
+        //// Offset to the CBV in the descriptor heap for this object and for this frame resource.
+        //UINT cbvIndex = mCurrFrameResourceIndex * (UINT)sceneObjects.size() + sceneObjects[i]->GetObjCBIndex();
+        //auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+        //cbvHandle.Offset(cbvIndex, mCbvSrvUavDescriptorSize);
 
-        cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+        //cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+
+        //cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+
+
+        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + sceneObjects[i]->GetObjCBIndex() * objCBByteSize;
+        D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
+
+        cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+        cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
         cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
     }
