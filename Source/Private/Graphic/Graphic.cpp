@@ -736,6 +736,7 @@ void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject
     {
         Vertex v;
         v.Pos = waveObject->GetWaves()->Position(i);
+        v.Normal = waveObject->GetWaves()->Normal(i);
         currWavesVB->CopyData(i, v);
     }
 
