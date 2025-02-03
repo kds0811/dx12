@@ -128,7 +128,9 @@ enum class EMaterialType
     BRICKS,
     STONE,
     TILE,
-    SKULLMAT
+    SKULLMAT,
+    UNKNOWN
+
 };
 
 struct Material
