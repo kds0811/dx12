@@ -9,7 +9,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     std::vector<MaterialInfo> materialsInfo{};
 
     MaterialInfo grassInfo{.Type = EMaterialType::GRASS,
-        .DiffuseAlbedo = XMFLOAT4(0.5f, 0.8f, 0.5f, 1.0f),
+        .DiffuseAlbedo = XMFLOAT4(0.3f, 0.5f, 0.3f, 1.0f),
         .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
         .Roughness = 0.125f};
     materialsInfo.push_back(grassInfo);
@@ -48,9 +48,10 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
 
     for (const auto& matInfo : materialsInfo)
     {
+
         if (result.contains(matInfo.Type))
         {
-            assert(0, "material type allready contains on result mao");
+            assert(false); // material type allready on container
             continue;
         }
         result[matInfo.Type] = MakeMaterial(matInfo);

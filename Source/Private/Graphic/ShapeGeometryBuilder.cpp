@@ -186,28 +186,28 @@ void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertice
                     {
                         Vector v1 = Vector(vertices[index + cols].Pos) - Vector(vertices[index].Pos);
                         Vector v2 = Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v1.Cross(v2);
+                        normal = normal + v2.Cross(v1);
                         numContributions++;
                     }
                     if (i < rows - 1 && j > 0)  // нижний левый треугольник
                     {
                         Vector v1 = Vector(vertices[index - 1].Pos) - Vector(vertices[index].Pos);
                         Vector v2 = Vector(vertices[index + cols - 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v1.Cross(v2);
+                        normal = normal + v2.Cross(v1);
                         numContributions++;
                     }
                     if (i > 0 && j < cols - 1)  // верхний правый треугольник
                     {
                         Vector v1 = Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos);
                         Vector v2 = Vector(vertices[index - cols + 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v1.Cross(v2);
+                        normal = normal + v2.Cross(v1);
                         numContributions++;
                     }
                     if (i > 0 && j > 0)  // верхний левый треугольник
                     {
                         Vector v1 = Vector(vertices[index - cols].Pos) - Vector(vertices[index].Pos);
                         Vector v2 = Vector(vertices[index - 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v1.Cross(v2);
+                        normal = normal + v2.Cross(v1);
                         numContributions++;
                     }
 
