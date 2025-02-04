@@ -6,7 +6,7 @@
 class PrimitiveSceneObject final : public BaseSceneObject
 {
 public:
-    PrimitiveSceneObject(ePrimitiveType objectType, Transform objectTransformation, int scneneCounter,
+    PrimitiveSceneObject(EPrimitiveType objectType, Transform objectTransformation, int scneneCounter,
         std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries, EMaterialType matType,
         std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 

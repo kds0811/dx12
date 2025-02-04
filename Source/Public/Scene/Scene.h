@@ -11,12 +11,12 @@ class ResourceManager;
 
 struct DataPrimitiveBuild
 {
-    DataPrimitiveBuild(ePrimitiveType objectType, Transform objectTransformation, EMaterialType materialType)
+    DataPrimitiveBuild(EPrimitiveType objectType, Transform objectTransformation, EMaterialType materialType)
         : ObjectType(objectType), ObjectTransformation(objectTransformation), MaterialType(materialType)
     {}
     DataPrimitiveBuild() = delete;
 
-    ePrimitiveType ObjectType;
+    EPrimitiveType ObjectType;
     Transform ObjectTransformation;
     EMaterialType MaterialType;
 };

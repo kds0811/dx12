@@ -15,7 +15,7 @@ class ShapeGeometryBuilder
     {
         GeometryGenerator::MeshData mesh;
         DirectX::XMFLOAT4 color;
-        ePrimitiveType type;
+        EPrimitiveType type;
         UINT vertexOffset;
         UINT indexOffset;
         SubmeshGeometry submesh;
@@ -34,7 +34,7 @@ public:
     std::unique_ptr<MeshGeometry> BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
 private:
-    void AddGeometry(const GeometryGenerator::MeshData& mesh, const DirectX::XMFLOAT4& color, ePrimitiveType type);
+    void AddGeometry(const GeometryGenerator::MeshData& mesh, const DirectX::XMFLOAT4& color, EPrimitiveType type);
     void CalculateOffsets();
     std::vector<Vertex> CreateVertexBuffer();
     std::vector<std::uint16_t> CreateIndexBuffer();

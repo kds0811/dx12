@@ -9,7 +9,7 @@ class WavesSceneObject final : public BaseSceneObject
     std::unique_ptr<Waves> mWaves = nullptr;
 
 public:
-    WavesSceneObject(ePrimitiveType objectType, Transform objectTransformation, int scneneCounter,
+    WavesSceneObject(EPrimitiveType objectType, Transform objectTransformation, int scneneCounter,
         std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries, EMaterialType matType,
         std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 

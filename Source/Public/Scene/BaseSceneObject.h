@@ -27,7 +27,7 @@ protected:
     SceneComponent mSceneComponent;
     MovementComponent mMovementComponent;
     std::unique_ptr<RenderItem> mRenderItem;
-    ePrimitiveType mObjectPrimitiveType;
+    EPrimitiveType mObjectPrimitiveType;
     EMaterialType mMaterialType;
 
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.

@@ -8,17 +8,17 @@ using namespace DirectX;
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // Add geometries
-    AddGeometry(mGeometryGenerator.CreateBox(1.5f, 5.0f, 1.5f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), ePrimitiveType::BOX);
-    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), ePrimitiveType::GRID);
-    AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), ePrimitiveType::SPHERE);
+    AddGeometry(mGeometryGenerator.CreateBox(1.5f, 5.0f, 1.5f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), EPrimitiveType::BOX);
+    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), EPrimitiveType::GRID);
+    AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), EPrimitiveType::SPHERE);
     AddGeometry(
-        mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::CYLINDER);
+        mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::CYLINDER);
 
     //Mounts
-    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), ePrimitiveType::LAND);
+    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::LAND);
 
     //skull
-    AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), ePrimitiveType::MESH);
+    AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), EPrimitiveType::MESH);
 
     CalculateOffsets();
 
@@ -39,7 +39,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // waves
-    AddGeometry(mGeometryGenerator.CreateGrid(145.0f, 145.0f, 145, 145), XMFLOAT4(DirectX::Colors::Blue), ePrimitiveType::WAVES);
+    AddGeometry(mGeometryGenerator.CreateGrid(145.0f, 145.0f, 145, 145), XMFLOAT4(DirectX::Colors::Blue), EPrimitiveType::WAVES);
 
     CalculateOffsets();
 
@@ -56,7 +56,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Dev
 
 
 
-void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, ePrimitiveType type)
+void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, EPrimitiveType type)
 {
     GeometryData data;
     data.mesh = mesh;
@@ -160,7 +160,7 @@ void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertice
 {
     for (auto& geom : mGeometries)
     {
-        if (geom.type == ePrimitiveType::LAND)
+        if (geom.type == EPrimitiveType::LAND)
         {
             //update vecrtices
             for (size_t i = geom.vertexOffset; i < geom.vertexOffset + geom.mesh.Vertices.size(); ++i)

@@ -8,6 +8,7 @@
 #include <DirectXMath.h>
 #include "MathHelper.h"
 #include "SceneComponent.h"
+#include <cstdint>
 
 class D3D12Utils
 {
@@ -24,7 +25,7 @@ public:
         const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target);
 };
 
-enum class ePrimitiveType
+enum class EPrimitiveType : std::uint8_t
 {
     BOX,
     GRID,
@@ -67,7 +68,7 @@ struct MeshGeometry
     // A MeshGeometry may store multiple geometries in one vertex/index buffer.
     // Use this container to define the Submesh geometries so we can draw
     // the Submeshes individually.
-    std::unordered_map<ePrimitiveType, SubmeshGeometry> DrawArgs;
+    std::unordered_map<EPrimitiveType, SubmeshGeometry> DrawArgs;
 
     D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
     {
@@ -121,7 +122,7 @@ struct MaterialConstants
     DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
-enum class EMaterialType
+enum class EMaterialType : std::uint8_t
 {
     GRASS,
     WATER,
