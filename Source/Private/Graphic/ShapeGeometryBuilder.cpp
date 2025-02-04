@@ -168,54 +168,18 @@ void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertice
                 vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
             }
             //update normals
-            const int rows = 161;  // width + 1
-            const int cols = 161;  // depth + 1  
-
-            for (int i = 0; i < rows; ++i)
+            const int rows = 160;
+            const int cols = 160;
+            for (int i = 0; i < rows - 1; ++i)
             {
-                for (int j = 0; j < cols; ++j)
+                for (int j = 0; j < cols - 1; ++j)
                 {
                     int index = geom.vertexOffset + i * cols + j;
 
-                    // Получаем соседние вершины (если они существуют)
-                    Vector normal(0.0f, 0.0f, 0.0f);
-                    int numContributions = 0;
-
-                    // Проверяем все возможные треугольники вокруг текущей вершины
-                    if (i < rows - 1 && j < cols - 1)  // нижний правый треугольник
-                    {
-                        Vector v1 = Vector(vertices[index + cols].Pos) - Vector(vertices[index].Pos);
-                        Vector v2 = Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v2.Cross(v1);
-                        numContributions++;
-                    }
-                    if (i < rows - 1 && j > 0)  // нижний левый треугольник
-                    {
-                        Vector v1 = Vector(vertices[index - 1].Pos) - Vector(vertices[index].Pos);
-                        Vector v2 = Vector(vertices[index + cols - 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v2.Cross(v1);
-                        numContributions++;
-                    }
-                    if (i > 0 && j < cols - 1)  // верхний правый треугольник
-                    {
-                        Vector v1 = Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos);
-                        Vector v2 = Vector(vertices[index - cols + 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v2.Cross(v1);
-                        numContributions++;
-                    }
-                    if (i > 0 && j > 0)  // верхний левый треугольник
-                    {
-                        Vector v1 = Vector(vertices[index - cols].Pos) - Vector(vertices[index].Pos);
-                        Vector v2 = Vector(vertices[index - 1].Pos) - Vector(vertices[index].Pos);
-                        normal = normal + v2.Cross(v1);
-                        numContributions++;
-                    }
-
-                    if (numContributions > 0)
-                    {
-                        normal = (normal * (1.0f / numContributions)).Normalize();
-                        vertices[index].Normal = DirectX::XMFLOAT3(normal.GetX(), normal.GetY(), normal.GetZ());
-                    }
+                    Vector v1 = (Vector(vertices[index + cols].Pos) - Vector(vertices[index].Pos)).Normalize();
+                    Vector v2 = (Vector(vertices[index + 1].Pos) - Vector(vertices[index].Pos)).Normalize();
+                    auto normal = v2.Cross(v1);
+                    vertices[index].Normal = DirectX::XMFLOAT3(normal.GetX(), normal.GetY(), normal.GetZ());
                 }
             }
         }
