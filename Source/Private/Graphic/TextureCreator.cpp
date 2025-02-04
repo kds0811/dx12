@@ -5,15 +5,33 @@
 std::unordered_map<std::string, std::unique_ptr<Texture>> TextureCreator::CreateTextures(
     ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-    std::unordered_map<std::string, std::unique_ptr<Texture>> result{};
+    assert(device);
+    assert(cmdList);
 
-    auto woodCrateTex = std::make_unique<Texture>();
-    woodCrateTex->Name = "woodCrateTex";
-    woodCrateTex->Filename = L"../Source/Textures/WoodCrate01.dds";
-    DirectX::CreateDDSTextureFromFile12(
-        device, cmdList, woodCrateTex->Filename.c_str(), woodCrateTex->Resource, woodCrateTex->UploadHeap) >> Kds::App::Check;
+    std::unordered_map<std::string, std::unique_ptr<Texture>> result;
 
-    result[woodCrateTex->Name] = std::move(woodCrateTex);
+    std::vector<TextureInfo> texInfos;
+
+    // add textures
+    texInfos.push_back(TextureInfo{.Name = "woodCrateTex", .FilePath = L"../Source/Textures/WoodCrate01.dds"});
+
+
+    for (const auto& info : texInfos)
+    {
+        result[info.Name] = CreateTexture(info, device, cmdList);
+    }
+
+    return result;
+}
+
+std::unique_ptr<Texture> TextureCreator::CreateTexture(const TextureInfo& info, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
+{
+    auto result = std::make_unique<Texture>();
+    result->Name = info.Name;
+    result->Filename = info.FilePath;
+
+    DirectX::CreateDDSTextureFromFile12(device, cmdList, result->Filename.c_str(), result->Resource, result->UploadHeap) >>
+        Kds::App::Check;
 
     return result;
 }
