@@ -30,6 +30,7 @@ public:
     ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
     std::unordered_map<EMaterialType, std::unique_ptr<Material>>& GetMaterials() { return mMaterials; }
+    std::unordered_map<std::string, std::unique_ptr<Texture>>& GetTextures() { return mTextures; }
 
 private:
     void CreateStandartShapeGeometry();

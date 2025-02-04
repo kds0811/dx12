@@ -97,6 +97,7 @@ std::vector<Vertex> ShapeGeometryBuilder::CreateVertexBuffer()
             Vertex v;
             v.Pos = vertex.Position;
             v.Normal = vertex.Normal;
+            v.TexC = vertex.TexC;
             vertices.push_back(v);
         }
     }

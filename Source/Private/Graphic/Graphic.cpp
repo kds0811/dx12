@@ -387,7 +387,8 @@ void Graphic::InitPipeline()
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount)
+void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
+    std::unordered_map<std::string, std::unique_ptr<Texture>>& textures)
 {
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
@@ -399,9 +400,9 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
 
 
     BuildRootSignature();
+    BuildDescriptorHeaps();
     BuildShadersAndInputLayout();
     BuildFrameResources();
-    BuildDescriptorHeaps();
     BuildConstantBufferViews();
     BuildPSOs();
 
@@ -513,23 +514,50 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
 
 }
 
-void Graphic::BuildDescriptorHeaps()
+void Graphic::BuildDescriptorHeaps(std::unordered_map<std::string, std::unique_ptr<Texture>>& textures)
 {
-    UINT objCount = (UINT)mSceneObjectCount;
+    //
+    // Create the SRV heap.
+    //
+    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+    srvHeapDesc.NumDescriptors = 1;
+    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    mDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)) >> Check;
 
-    // Need a CBV descriptor for each object for each frame resource,
-    // +1 for the perPass CBV for each frame resource.
-    UINT numDescriptors = (objCount + 1) * gNumFrameResources;
+    //
+    // Fill out the heap with actual descriptors.
+    //
+    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-    // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
-    mPassCbvOffset = objCount * gNumFrameResources;
+    auto woodCrateTex = textures["woodCrateTex"]->Resource;
 
-    D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-    cbvHeapDesc.NumDescriptors = numDescriptors;
-    cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    cbvHeapDesc.NodeMask = 0;
-    mDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)) >> Check;
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = woodCrateTex->GetDesc().Format;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
+    srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+    mDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+
+
+    //UINT objCount = (UINT)mSceneObjectCount;
+
+    //// Need a CBV descriptor for each object for each frame resource,
+    //// +1 for the perPass CBV for each frame resource.
+    //UINT numDescriptors = (objCount + 1) * gNumFrameResources;
+
+    //// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
+    //mPassCbvOffset = objCount * gNumFrameResources;
+
+    //D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+    //cbvHeapDesc.NumDescriptors = numDescriptors;
+    //cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    //cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    //cbvHeapDesc.NodeMask = 0;
+    //mDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)) >> Check;
 }
 
 void Graphic::BuildConstantBufferViews()
@@ -621,15 +649,13 @@ void Graphic::BuildRootSignature()
 
 void Graphic::BuildShadersAndInputLayout()
 {
-    const D3D_SHADER_MACRO alphaTestDefines[] = {"ALPHA_TEST", "1", NULL, NULL};
-
     mShaders["standardVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
 
    mInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-       // {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
 }
 

@@ -102,7 +102,8 @@ public:
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
     ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
-    void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount);
+    void InitResources(
+        size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount, std::unordered_map<std::string, std::unique_ptr<Texture>>& textures);
     
 
 private:
@@ -116,7 +117,7 @@ private:
     void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
-    void BuildDescriptorHeaps();
+    void BuildDescriptorHeaps(std::unordered_map<std::string, std::unique_ptr<Texture>>& textures);
     void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
