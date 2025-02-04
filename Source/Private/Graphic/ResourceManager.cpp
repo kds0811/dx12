@@ -33,8 +33,11 @@ void ResourceManager::CreateStandartShapeGeometry()
 {
     mCommandList->Reset(mCommandAllocator.Get(), nullptr) >> Kds::App::Check;
 
+    // create geometries
     mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(pDevice, mCommandList.Get());
     mGeometries["waterGeo"] = mShapeGeometryBuilder.BuildWavesGeometry(pDevice, mCommandList.Get());
+    // load and build textures
+    mTextures = mTextureCreator.CreateTextures(pDevice, mCommandList.Get());
 
     // add on queue and execute commands
     mCommandList->Close() >> Kds::App::Check;

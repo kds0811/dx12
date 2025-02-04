@@ -2,6 +2,7 @@
 #include "D3D12Utils.h"
 #include "ShapeGeometryBuilder.h"
 #include "MaterialBuilder.h"
+#include "TextureCreator.h"
 
 class ResourceManager
 {
@@ -9,7 +10,7 @@ class ResourceManager
     ID3D12Device8* pDevice = nullptr;
     ID3D12CommandQueue* pCommandQueue = nullptr;
 
-    // own DirectX fields
+    // own DirectX members
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator = nullptr;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> mCommandList = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Fence> mFence = nullptr;
@@ -18,12 +19,12 @@ class ResourceManager
     // Builders
     ShapeGeometryBuilder mShapeGeometryBuilder;
     MaterialBuilder mMaterialBuilder;
+    TextureCreator mTextureCreator;
 
-    // Storage standart geometry and buffers
+    // Storages
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
-
-    // Storage materials
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> mMaterials;
+    std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 
 public:
     ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);
