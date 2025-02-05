@@ -131,9 +131,12 @@ enum class EMaterialType : std::uint8_t
     STONE,
     TILE,
     SKULLMAT,
-    UNKNOWN
+    UNKNOWN,
+    WOODCRATE
 
 };
+
+struct Texture;
 
 struct Material
 {
@@ -143,11 +146,7 @@ struct Material
     // Index into constant buffer corresponding to this material.
     int MatCBIndex = -1;
 
-    // Index into SRV heap for diffuse texture.
-    int DiffuseSrvHeapIndex = -1;
-
-    // Index into SRV heap for normal texture.
-    int NormalSrvHeapIndex = -1;
+    Texture* pTexture = nullptr;
 
     // Dirty flag indicating the material has changed and we need to update the constant buffer.
     // Because we have a material constant buffer for each FrameResource, we have to apply the
@@ -166,11 +165,15 @@ struct Material
 struct Texture
 {
     // Unique material name for lookup.
-    std::string Name;
+    EMaterialType Type;
 
     std::wstring Filename;
 
-    int IndexSRVHeap = -1;
+    // Index into SRV heap for diffuse texture.
+    int DiffuseSrvHeapIndex = -1;
+
+    // Index into SRV heap for normal texture.
+    int NormalSrvHeapIndex = -1;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;

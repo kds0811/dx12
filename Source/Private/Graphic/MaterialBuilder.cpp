@@ -57,8 +57,6 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         result[matInfo.Type] = MakeMaterial(matInfo);
 
         ++mCurrentMatCBIndex;
-        ++mCurrentDiffuseSrvHeapIndex;
-        ++mCurrentNormalSrvHeapIndex;
     }
 
     return result;
@@ -72,7 +70,5 @@ std::unique_ptr<Material> MaterialBuilder::MakeMaterial(const MaterialInfo& matI
     result->FresnelR0 = matInfo.Fresnel;
     result->Roughness = matInfo.Roughness;
     result->MatCBIndex = mCurrentMatCBIndex;
-    result->DiffuseSrvHeapIndex = mCurrentDiffuseSrvHeapIndex;
-    result->NormalSrvHeapIndex = mCurrentNormalSrvHeapIndex;
     return result;
 }
