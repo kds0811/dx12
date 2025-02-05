@@ -400,7 +400,7 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
 
 
     BuildRootSignature();
-    BuildDescriptorHeaps();
+    BuildDescriptorHeaps(textures);
     BuildShadersAndInputLayout();
     BuildFrameResources();
     BuildConstantBufferViews();
