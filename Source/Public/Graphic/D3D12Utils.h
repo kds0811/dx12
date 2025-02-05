@@ -146,7 +146,7 @@ struct Material
     // Index into constant buffer corresponding to this material.
     int MatCBIndex = -1;
 
-    Texture* pTexture = nullptr;
+    Texture* Tex = nullptr;
 
     // Dirty flag indicating the material has changed and we need to update the constant buffer.
     // Because we have a material constant buffer for each FrameResource, we have to apply the

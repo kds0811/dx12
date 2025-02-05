@@ -80,11 +80,11 @@ void ResourceManager::AddTexturePtrOnMaterial()
     {
         if (mTextures.contains(type))
         {
-            mat->pTexture = mTextures[type].get();
+            mat->Tex = mTextures[type].get();
         }
         else
         {
-            mat->pTexture = mTextures[EMaterialType::UNKNOWN].get();
+            mat->Tex = mTextures[EMaterialType::UNKNOWN].get();
         }
     }
 }

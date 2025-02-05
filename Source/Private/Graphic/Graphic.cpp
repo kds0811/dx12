@@ -153,8 +153,10 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
     auto DSV = GetDepthStencilView();
     mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
-   // ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvHeap.Get()};
-   // mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+    // set textures SRV heaps
+   	ID3D12DescriptorHeap* descriptorHeaps[] = {mSrvDescriptorHeap.Get()};
+    mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
@@ -442,6 +444,9 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
         {
             ObjectConstants objConstants;
             XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(scObj->GetWorldMatrix()));
+            XMMATRIX texTransform = XMLoadFloat4x4(&scObj->GetRenderItem()->TexTransform);
+            XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+
             currObjectCB->CopyData(scObj->GetObjCBIndex(), objConstants);
             scObj->DecrementNumFrameDirty();
         }
@@ -746,21 +751,16 @@ void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vec
         cmdList->IASetIndexBuffer(&IBView);
         cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-        //// Offset to the CBV in the descriptor heap for this object and for this frame resource.
-        //UINT cbvIndex = mCurrFrameResourceIndex * (UINT)sceneObjects.size() + sceneObjects[i]->GetObjCBIndex();
-        //auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-        //cbvHandle.Offset(cbvIndex, mCbvSrvUavDescriptorSize);
-
-        //cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
-
-        //cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+       CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
 
 
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + sceneObjects[i]->GetObjCBIndex() * objCBByteSize;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
 
-        cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-        cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+        cmdList->SetGraphicsRootDescriptorTable(0, tex);
+        cmdList->SetGraphicsRootConstantBufferView(1, objCBAddress);
+        cmdList->SetGraphicsRootConstantBufferView(3, matCBAddress);
 
         cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
     }
