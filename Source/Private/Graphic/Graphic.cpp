@@ -388,7 +388,7 @@ void Graphic::InitPipeline()
 }
 
 void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
-    std::unordered_map<std::string, std::unique_ptr<Texture>>& textures)
+    std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures)
 {
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
@@ -514,7 +514,7 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
 
 }
 
-void Graphic::BuildDescriptorHeaps(std::unordered_map<std::string, std::unique_ptr<Texture>>& textures)
+void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures)
 {
     assert(!textures.empty());
 
@@ -535,7 +535,7 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<std::string, std::unique_p
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
     int index = 0;
 
-    for (const auto& [TexName, TexPtr] : textures)
+    for (const auto& [type, TexPtr] : textures)
     {
         auto texRes = TexPtr->Resource;
         TexPtr->DiffuseSrvHeapIndex = index;

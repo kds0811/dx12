@@ -35,4 +35,5 @@ public:
 private:
     void CreateStandartShapeGeometry();
     void FlushCommandQueue();
+    void AddTexturePtrOnMaterial();
 };

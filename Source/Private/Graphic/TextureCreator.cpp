@@ -20,7 +20,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Texture>> TextureCreator::Crea
     texInfos.push_back(TextureInfo{.Type = EMaterialType::UNKNOWN, .FilePath = L"../Source/Textures/default_nmap.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::STONE, .FilePath = L"../Source/Textures/stone.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::WATER, .FilePath = L"../Source/Textures/water1.dds"});
-
+    texInfos.push_back(TextureInfo{.Type = EMaterialType::SKULLMAT, .FilePath = L"../Source/Textures/default_nmap.dds"});
 
     for (const auto& info : texInfos)
     {
