@@ -15,9 +15,9 @@ void Scene::InitScene()
 {
     BuildScenePrimitives();
 
-    //mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
-    //mSceneObjects[1]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
-    //mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
+    mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
+    mSceneObjects[1]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
+    mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
 }
 
 void Scene::Update()
@@ -32,8 +32,8 @@ void Scene::BuildScenePrimitives()
 {
     std::vector<DataPrimitiveBuild> primitiveData{};
     // add skull
-   // primitiveData.emplace_back(
-       // EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT);
+    primitiveData.emplace_back(
+        EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT);
        // 
     // add rotate boxes
     primitiveData.emplace_back(EPrimitiveType::BOX,

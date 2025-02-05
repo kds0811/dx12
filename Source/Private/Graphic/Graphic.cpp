@@ -560,33 +560,21 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
     }
 
 
-    //auto woodCrateTex = textures["woodCrateTex"]->Resource;
+    UINT objCount = (UINT)mSceneObjectCount;
 
-    //D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    //srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    //srvDesc.Format = woodCrateTex->GetDesc().Format;
-    //srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    //srvDesc.Texture2D.MostDetailedMip = 0;
-    //srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
-    //srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+    // Need a CBV descriptor for each object for each frame resource,
+    // +1 for the perPass CBV for each frame resource.
+    UINT numDescriptors = (objCount + 1) * gNumFrameResources;
 
-    //mDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+    // Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
+    mPassCbvOffset = objCount * gNumFrameResources;
 
-    //UINT objCount = (UINT)mSceneObjectCount;
-
-    //// Need a CBV descriptor for each object for each frame resource,
-    //// +1 for the perPass CBV for each frame resource.
-    //UINT numDescriptors = (objCount + 1) * gNumFrameResources;
-
-    //// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
-    //mPassCbvOffset = objCount * gNumFrameResources;
-
-    //D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-    //cbvHeapDesc.NumDescriptors = numDescriptors;
-    //cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    //cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    //cbvHeapDesc.NodeMask = 0;
-    //mDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)) >> Check;
+    D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+    cbvHeapDesc.NumDescriptors = numDescriptors;
+    cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    cbvHeapDesc.NodeMask = 0;
+    mDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)) >> Check;
 }
 
 void Graphic::BuildConstantBufferViews()
@@ -795,6 +783,13 @@ void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject
         Vertex v;
         v.Pos = waveObject->GetWaves()->Position(i);
         v.Normal = waveObject->GetWaves()->Normal(i);
+
+        // Derive tex-coords from position by
+        // mapping [-w/2,w/2] --> [0,1]
+        v.TexC.x = 0.5f + v.Pos.x / waveObject->GetWaves()->Width();
+        v.TexC.y = 0.5f - v.Pos.z / waveObject->GetWaves()->Depth();
+
+
         currWavesVB->CopyData(i, v);
     }
 
