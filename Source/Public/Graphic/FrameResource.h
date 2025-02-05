@@ -38,9 +38,9 @@ struct PassConstants
 
 struct Vertex
 {
-    DirectX::XMFLOAT3 Pos;
-    DirectX::XMFLOAT3 Normal;
-    DirectX::XMFLOAT2 TexC;
+    DirectX::XMFLOAT3 Pos{0.0f, 0.0f, 0.0f};
+    DirectX::XMFLOAT3 Normal = {0.0f, 0.0f, 0.0f};
+    DirectX::XMFLOAT2 TexC = {0.0f, 0.0f};
 };
 
 
