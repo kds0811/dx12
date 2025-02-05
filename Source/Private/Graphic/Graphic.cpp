@@ -516,11 +516,15 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
 
 void Graphic::BuildDescriptorHeaps(std::unordered_map<std::string, std::unique_ptr<Texture>>& textures)
 {
+    assert(!textures.empty());
+
+    if (textures.empty()) return;
+
     //
     // Create the SRV heap.
     //
     D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = 1;
+    srvHeapDesc.NumDescriptors = (UINT)textures.size();
     srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     mDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)) >> Check;
@@ -529,19 +533,38 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<std::string, std::unique_p
     // Fill out the heap with actual descriptors.
     //
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    int index = 0;
 
-    auto woodCrateTex = textures["woodCrateTex"]->Resource;
+    for (const auto& [TexName, TexPtr] : textures)
+    {
+        auto texRes = TexPtr->Resource;
+        TexPtr->IndexSRVHeap = index;
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = woodCrateTex->GetDesc().Format;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
-    srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.Format = texRes->GetDesc().Format;
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = texRes->GetDesc().MipLevels;
+        srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-    mDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+        mDevice->CreateShaderResourceView(texRes.Get(), &srvDesc, hDescriptor);
+        ++index;
+        hDescriptor.Offset(1, mRtvDescriptorSize);
+    }
 
+
+    //auto woodCrateTex = textures["woodCrateTex"]->Resource;
+
+    //D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    //srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    //srvDesc.Format = woodCrateTex->GetDesc().Format;
+    //srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    //srvDesc.Texture2D.MostDetailedMip = 0;
+    //srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
+    //srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+    //mDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
 
     //UINT objCount = (UINT)mSceneObjectCount;
 
