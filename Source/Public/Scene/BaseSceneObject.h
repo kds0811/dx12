@@ -23,6 +23,17 @@ public:
     [[nodiscard]] inline DirectX::XMMATRIX GetWorldMatrix() const noexcept { return mSceneComponent.GetWorldMatrix(); }
     [[nodiscard]] inline UINT GetObjCBIndex() const noexcept { return ObjCBIndex; }
 
+
+    void SetMaterialTransformation(Transform trs) noexcept;
+    void SetMaterialTranslation(Vector vec) noexcept;
+    void SetMaterialRotation(Rotator rot) noexcept;
+    void SetMaterialScale(Vector scale) noexcept;
+
+    void SetTextureTransformation(Transform trs) noexcept;
+    void SetTextureTranslation(Vector vec) noexcept;
+    void SetTextureRotation(Rotator rot) noexcept;
+    void SetTextureScale(Vector scale) noexcept;
+
 protected:
     SceneComponent mSceneComponent;
     MovementComponent mMovementComponent;

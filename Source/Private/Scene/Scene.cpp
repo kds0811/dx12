@@ -18,6 +18,8 @@ void Scene::InitScene()
     mSceneObjects[0]->SetContiniusRotation(Rotator(0.0f, 5.0f, 0.0f));
     mSceneObjects[1]->SetContiniusRotation(Rotator(0.0f, 0.0f, 10.0f));
     mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
+
+    mSceneObjects[4]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
 }
 
 void Scene::Update()
