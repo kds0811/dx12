@@ -56,6 +56,19 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Roughness = 0.3f};
     materialsInfo.push_back(skullInfo);
 
+
+     MaterialInfo fireball{.Type = EMaterialType::FIREBALL,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
+        .Roughness = 0.3f};
+    materialsInfo.push_back(fireball);
+
+    MaterialInfo coldfire{.Type = EMaterialType::COLDFIRE,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
+        .Roughness = 0.3f};
+    materialsInfo.push_back(coldfire);
+
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};
 
     for (const auto& matInfo : materialsInfo)

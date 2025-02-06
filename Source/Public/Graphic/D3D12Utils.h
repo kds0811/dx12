@@ -134,7 +134,9 @@ enum class EMaterialType : std::uint8_t
     TILE,
     SKULLMAT,
     UNKNOWN,
-    WOODCRATE
+    WOODCRATE,
+    FIREBALL,
+    COLDFIRE
 
 };
 

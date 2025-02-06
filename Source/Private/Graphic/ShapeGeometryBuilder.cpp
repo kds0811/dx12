@@ -8,11 +8,11 @@ using namespace DirectX;
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // Add geometries
-    AddGeometry(mGeometryGenerator.CreateBox(1.5f, 5.0f, 1.5f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), EPrimitiveType::BOX);
+    AddGeometry(mGeometryGenerator.CreateBox(1.f, 1.0f, 1.0f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), EPrimitiveType::BOX);
     AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), EPrimitiveType::GRID);
-    AddGeometry(mGeometryGenerator.CreateSphere(0.5f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), EPrimitiveType::SPHERE);
+    AddGeometry(mGeometryGenerator.CreateSphere(1.f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), EPrimitiveType::SPHERE);
     AddGeometry(
-        mGeometryGenerator.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::CYLINDER);
+        mGeometryGenerator.CreateCylinder(2.0f, 1.f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::CYLINDER);
 
     //Mounts
     AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::LAND);

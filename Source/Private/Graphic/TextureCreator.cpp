@@ -23,6 +23,10 @@ std::unordered_map<EMaterialType, std::unique_ptr<Texture>> TextureCreator::Crea
     texInfos.push_back(TextureInfo{.Type = EMaterialType::SKULLMAT, .FilePath = L"../Source/Textures/default_nmap.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::GRASSX, .FilePath = L"../Source/Textures/grassx.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::GRASSY, .FilePath = L"../Source/Textures/grassy.dds"});
+    texInfos.push_back(TextureInfo{.Type = EMaterialType::FIREBALL, .FilePath = L"../Source/Textures/fireball.dds"});
+    texInfos.push_back(TextureInfo{.Type = EMaterialType::COLDFIRE, .FilePath = L"../Source/Textures/coldfire.dds"});
+
+
 
     for (const auto& info : texInfos)
     {
