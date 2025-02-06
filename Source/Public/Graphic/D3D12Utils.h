@@ -126,6 +126,8 @@ struct MaterialConstants
 enum class EMaterialType : std::uint8_t
 {
     GRASS,
+    GRASSX,
+    GRASSY,
     WATER,
     BRICKS,
     STONE,

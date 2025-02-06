@@ -20,7 +20,11 @@ void Scene::InitScene()
     mSceneObjects[2]->SetContiniusRotation(Rotator(0.0f, 0.0f, -10.0f));
 
     mSceneObjects[4]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
-    mSceneObjects[5]->SetTextureScale(Vector(6.0f, 6.0f, 6.0f));
+    mSceneObjects[5]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
+
+
+    // set scale mounts
+    mSceneObjects[7]->SetTextureScale(Vector(6.0f, 6.0f, 6.0f));
 }
 
 void Scene::Update()
@@ -47,7 +51,14 @@ void Scene::BuildScenePrimitives()
     // add static shapes
     primitiveData.emplace_back(
         EPrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::STONE);
-    primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector::Zero(), Rotator::Zero(), Vector::One()), EMaterialType::TILE);
+
+    primitiveData.emplace_back(
+        EPrimitiveType::GRID, Transform(Vector(0.0f, 0.0f, 0.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::TILE);
+    primitiveData.emplace_back(
+        EPrimitiveType::GRID, Transform(Vector(50.0f, 0.0f, 0.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASSX);
+    primitiveData.emplace_back(
+        EPrimitiveType::GRID, Transform(Vector(-50.0f, 0.0f, 0.0f), Rotator::Zero(), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASSY);
+
 
     // add Mounts
     primitiveData.emplace_back(EPrimitiveType::LAND,
@@ -61,9 +72,9 @@ void Scene::BuildScenePrimitives()
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
             Transform(Vector(7.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 4.0f, 2.0f)), EMaterialType::STONE);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(-7.0f, 10.0f, i * 7.0f), Rotator::Zero(), Vector(4.0f, 4.0f, 4.0f)), EMaterialType::BRICKS);
+            Transform(Vector(-7.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(4.0f, 4.0f, 4.0f)), EMaterialType::BRICKS);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(7.0f, 10.0f, i * 7.0f), Rotator::Zero(), Vector(4.0f, 4.0f, 4.0f)), EMaterialType::BRICKS);
+            Transform(Vector(7.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(4.0f, 4.0f, 4.0f)), EMaterialType::BRICKS);
     }
 
     // Add Waves

@@ -9,10 +9,22 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     std::vector<MaterialInfo> materialsInfo{};
 
     MaterialInfo grassInfo{.Type = EMaterialType::GRASS,
+        .DiffuseAlbedo = XMFLOAT4(0.3f, 0.6f, 0.3f, 1.0f),
+        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
+        .Roughness = 0.5f};
+    materialsInfo.push_back(grassInfo);
+
+    MaterialInfo grassxInfo{.Type = EMaterialType::GRASSX,
         .DiffuseAlbedo = XMFLOAT4(0.3f, 0.5f, 0.3f, 1.0f),
         .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
-        .Roughness = 0.125f};
-    materialsInfo.push_back(grassInfo);
+        .Roughness = 0.5f};
+    materialsInfo.push_back(grassxInfo);
+
+        MaterialInfo grassyInfo{.Type = EMaterialType::GRASSY,
+        .DiffuseAlbedo = XMFLOAT4(0.3f, 0.5f, 0.3f, 1.0f),
+        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
+        .Roughness = 0.5f};
+    materialsInfo.push_back(grassyInfo);
 
     MaterialInfo waterInfo{.Type = EMaterialType::WATER,
         .DiffuseAlbedo = XMFLOAT4(0.0f, 0.2f, 0.6f, 1.0f),
@@ -21,7 +33,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     materialsInfo.push_back(waterInfo);
 
     MaterialInfo bricksInfo{.Type = EMaterialType::BRICKS,
-        .DiffuseAlbedo = XMFLOAT4(Colors::ForestGreen),
+        .DiffuseAlbedo = XMFLOAT4(Colors::DarkGray),
         .Fresnel = XMFLOAT3(0.02f, 0.02f, 0.02f),
         .Roughness = 0.1f};
     materialsInfo.push_back(bricksInfo);
