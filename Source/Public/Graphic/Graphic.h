@@ -16,7 +16,7 @@ class Graphic
 {
 private:
     // Main Fields
-    ComPtr<ID3D12Debug3> mDebugController;
+  
     ComPtr<IDXGIFactory7> mFactory;
     ComPtr<ID3D12Device8> mDevice;
 

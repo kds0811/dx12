@@ -246,8 +246,9 @@ void Graphic::InitPipeline()
 {
     // enable debug layer
 #if defined(_DEBUG)
-    D3D12GetDebugInterface(IID_PPV_ARGS(&mDebugController)) >> Check;
-    mDebugController->EnableDebugLayer();
+    ComPtr<ID3D12Debug3> debugInterface;
+    D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)) >> Check;
+    debugInterface->EnableDebugLayer();
 #endif
 
     // create FACTORY
@@ -268,6 +269,17 @@ void Graphic::InitPipeline()
         D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&mDevice)) >> Check;
     }
     assert(mDevice);
+
+#if defined(_DEBUG)
+    ComPtr<ID3D12InfoQueue> pInfoQueue = nullptr;
+    mDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue));
+    if (pInfoQueue)
+    {
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+    }
+#endif
 
     // Create Fence
     mDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)) >> Check;
@@ -361,14 +373,23 @@ void Graphic::InitPipeline()
     optClear.Format = mDepthStencilFormat;
     optClear.DepthStencil.Depth = 1.0f;
     optClear.DepthStencil.Stencil = 0;
+
     CD3DX12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE_DEFAULT);
+
     mDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear,
         IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
         Check;
+
     mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, GetDepthStencilView());
+
     auto ResBar =
         CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    
+    // Reset the command list to prep for initialization commands.
+    mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
+
     mCommandList->ResourceBarrier(1, &ResBar);
+
     assert(mDepthStencilBuffer);
 
     // Create And SetViewport
@@ -387,6 +408,14 @@ void Graphic::InitPipeline()
     // Init Projection matrix
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
+
+    // Execute the initialization commands.
+    mCommandList->Close() >> Check;
+    ID3D12CommandList* cmdsLists[] = {mCommandList.Get()};
+    mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    // Wait until initialization is complete.
+    FlushCommandQueue();
 }
 
 void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
@@ -394,7 +423,6 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
 {
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
-
 
     mSceneObjectCount = sceneObjectCount;
     mWavesVerticesCount = wavesVertCount;
