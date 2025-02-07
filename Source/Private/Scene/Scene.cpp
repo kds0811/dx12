@@ -55,11 +55,11 @@ void Scene::BuildScenePrimitives()
         EPrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 3.0f, 1.0f)), EMaterialType::STONE);
 
     primitiveData.emplace_back(
-        EPrimitiveType::GRID, Transform(Vector(0.0f, 0.0f, -50.0f), Rotator::Zero(), Vector(2.f, 1.0f, 3.f)), EMaterialType::TILE);
+        EPrimitiveType::GRID, Transform(Vector(0.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)), EMaterialType::TILE);
     primitiveData.emplace_back(
-        EPrimitiveType::GRID, Transform(Vector(100.0f, 0.0f, -50.0f), Rotator::Zero(), Vector(2.f, 1.0f, 3.f)), EMaterialType::GRASSX);
+        EPrimitiveType::GRID, Transform(Vector(100.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)), EMaterialType::GRASSX);
     primitiveData.emplace_back(
-        EPrimitiveType::GRID, Transform(Vector(-100.0f, 0.0f, -50.0f), Rotator::Zero(), Vector(2.f, 1.0f, 3.f)), EMaterialType::GRASSY);
+        EPrimitiveType::GRID, Transform(Vector(-100.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)), EMaterialType::GRASSY);
 
     // add Mounts
     primitiveData.emplace_back(EPrimitiveType::LAND,
