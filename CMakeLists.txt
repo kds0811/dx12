@@ -163,6 +163,7 @@ set(DIRECTX_LIBS
 
 # Library linking  
 target_link_libraries(dx12 PRIVATE ${DIRECTX_LIBS})  
+
 target_link_libraries(Tests PRIVATE   
     GTest::gtest   
     GTest::gtest_main  
