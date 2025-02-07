@@ -117,7 +117,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
+void Graphic::StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
     auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -153,9 +153,8 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
     auto DSV = GetDepthStencilView();
     mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
-
     // set textures SRV heaps
-   	ID3D12DescriptorHeap* descriptorHeaps[] = {mSrvDescriptorHeap.Get()};
+    ID3D12DescriptorHeap* descriptorHeaps[] = {mSrvDescriptorHeap.Get()};
     mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
@@ -165,6 +164,11 @@ void Graphic::Draw(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObj
 
     DrawRenderItems(mCommandList.Get(), sceneObjects);
 
+   
+}
+
+void Graphic::EndDrawFrame()
+{
     // Indicate a state transition on the resource usage.
     const auto ResBarrRenderTargetToPresent =
         CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

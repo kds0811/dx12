@@ -9,10 +9,12 @@
 #include "ResourceManager.h"
 
 
+
 class App
 {
 public:
     App();
+    ~App();
     App(const App&) = delete;
     App& operator=(const App&) = delete;
     App(const App&&) = delete;
@@ -39,6 +41,10 @@ private:
     std::unique_ptr<Scene> mScene = nullptr;
     bool bAppPaused = false;
 
+   // DescriptorHeapAllocator mDescriptorHeapAllocator;
 
     void CalculateFrameStats();
+    void InitImgui();
+    void StartImguiFrame();
+
 };
