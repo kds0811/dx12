@@ -3,6 +3,10 @@
 #include "WavesSceneObject.h"
 #include "ResourceManager.h"
 
+#define USE_PIX
+#include <pix3.h>
+
+
 Scene::Scene(GameTimerW* timer, ResourceManager* resourceManager)
 {
     assert(timer);
@@ -31,6 +35,8 @@ void Scene::InitScene()
 
 void Scene::Update()
 {
+    PIXScopedEvent(PIX_COLOR(60, 150, 60), L"Update  Scene");
+
     for (const auto& object : mSceneObjects)
     {
         object->Update(pTimer->GetDeltaTime());

@@ -1,8 +1,11 @@
 #include "BaseSceneObject.h"
 
+#define USE_PIX
+#include <pix3.h>
 
 void BaseSceneObject::Update(float dt)
 {
+    PIXScopedEvent(PIX_COLOR(60, 150, 60), L"Update Objcet");
     mMovementComponent.Update(dt);
 }
 

@@ -40,6 +40,7 @@ private:
     std::unique_ptr<ResourceManager> mResourceManager = nullptr;
     std::unique_ptr<Scene> mScene = nullptr;
     bool bAppPaused = false;
+    std::uint64_t mFrameCount = 0;
 
    // DescriptorHeapAllocator mDescriptorHeapAllocator;
 

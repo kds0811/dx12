@@ -3,6 +3,10 @@
 #include "WindowDK.h"
 #include "GameTimerW.h"
 
+#define USE_PIX
+#include <pix3.h>
+
+
 CameraController::CameraController(Window* wnd, Camera* cam, GameTimerW* timer)
 {
     assert(wnd);
@@ -15,6 +19,7 @@ CameraController::CameraController(Window* wnd, Camera* cam, GameTimerW* timer)
 
 void CameraController::UpdateInput()
 {
+    PIXScopedEvent(PIX_COLOR(60, 150, 60), L"Update Camera Input");
     UpdateKeyboardInput();
     UpdateMouseInput();
 }

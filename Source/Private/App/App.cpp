@@ -12,6 +12,9 @@
 #include "imgui_impl_dx12.h"
 #include "DescriptorHeapAllocator.h"
 
+#define USE_PIX
+#include <pix3.h>
+
 static DescriptorHeapAllocator g_pd3dSrvDescHeapAlloc;
 
 
@@ -63,10 +66,15 @@ std::optional<int> App::Go()
 
     while (true)
     {
+        PIXBeginEvent(PIX_COLOR_DEFAULT, "Main LOOP %llu", mFrameCount);
+
         mTimer->Tick();
         CalculateFrameStats();
         Update();
         Draw();
+
+       PIXEndEvent();
+
         if (const auto ecode = Window::PrecessMessages())
         {
             return *ecode;
@@ -102,6 +110,8 @@ void App::OnStart()
 
 void App::Update()
 {
+    PIXScopedEvent(PIX_COLOR(0, 255, 0), L"Update");
+
     mCameraController->UpdateInput();
     mScene->Update();
     mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects(), mScene->GetWavesPtr(),
@@ -110,11 +120,15 @@ void App::Update()
 
 void App::Draw()
 {
+    PIXBeginEvent(mGfx->GetCommandQueue(), PIX_COLOR(0, 0, 255), L"RENDER");
+
     StartImguiFrame();
     mGfx->StartDrawFrame(mScene->GetSceneObjects());
     ImGui::Render();
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGfx->GetCommandList());
     mGfx->EndDrawFrame();
+
+   PIXEndEvent(mGfx->GetCommandQueue());
 }
 
 void App::SetWireframe(bool wireframeIsEnabled)
@@ -124,10 +138,12 @@ void App::SetWireframe(bool wireframeIsEnabled)
 
 void App::CalculateFrameStats()
 {
+    PIXScopedEvent(PIX_COLOR(255, 0, 255), L"CalculateFrameStats");
     static int frameCnt = 0;
     static double timeElapsed = 0.0f;
 
-    frameCnt++;
+    ++frameCnt;
+    ++mFrameCount;
 
     if ((mTimer->GetTotalTime() - timeElapsed) >= 1.0)
     {
@@ -135,7 +151,7 @@ void App::CalculateFrameStats()
         double mspf = 1000.0 / fps;
 
         std::string windowText =
-            std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f} ", mWnd->GetTitle(), fps, mspf, mTimer->GetTotalTime());
+            std::format("{} FPS : {:.2f} MSPF {:.2f} TOTAL TIME : {:.2f} Frame : {}", mWnd->GetTitle(), fps, mspf, mTimer->GetTotalTime(), mFrameCount);
 
         SetWindowText(mWnd->GetHwnd(), windowText.c_str());
 
@@ -184,12 +200,12 @@ void App::InitImgui()
 
 void App::StartImguiFrame()
 {
+    PIXScopedEvent(PIX_COLOR(30, 30, 200), L"StartImguiFrame");
+
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
     //ImGui::ShowDemoWindow();
-
-  
 
     if (ImGui::Begin("Fog Settings", nullptr, ImGuiWindowFlags_NoCollapse))
     {

@@ -5,6 +5,9 @@
 #include "GameTimerW.h"
 #include <cassert>
 
+#define USE_PIX
+#include <pix3.h>
+
 using namespace DirectX;
 using namespace Kds::App;
 
@@ -119,6 +122,8 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
 
 void Graphic::StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
 {
+    PIXScopedEvent(PIX_COLOR(60, 40, 130), L"StartDrawFrame");
+
     auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
     // Reuse the memory associated with command recording.
@@ -169,6 +174,8 @@ void Graphic::StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>
 
 void Graphic::EndDrawFrame()
 {
+    PIXScopedEvent(PIX_COLOR(50, 50, 150), L"EndDrawFrame");
+
     // Indicate a state transition on the resource usage.
     const auto ResBarrRenderTargetToPresent =
         CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -198,6 +205,9 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
     const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject,
     std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
+
+    PIXScopedEvent(PIX_COLOR(60, 180, 60), L"Update Buffers");
+
     // Update Camera
     DirectX::XMStoreFloat4x4(&mView, ViewMat);
     mEyePos = CameraPos;
