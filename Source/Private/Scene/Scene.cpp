@@ -2,10 +2,13 @@
 #include "PrimitiveSceneObject.h"
 #include "WavesSceneObject.h"
 #include "ResourceManager.h"
+#include "PixProfile.h"
 
+
+#if defined PIXPROFILE
 #define USE_PIX
 #include <pix3.h>
-
+#endif
 
 Scene::Scene(GameTimerW* timer, ResourceManager* resourceManager)
 {
@@ -35,7 +38,10 @@ void Scene::InitScene()
 
 void Scene::Update()
 {
+
+#if defined PIXPROFILE
     PIXScopedEvent(PIX_COLOR(60, 150, 60), L"Update  Scene");
+#endif
 
     for (const auto& object : mSceneObjects)
     {

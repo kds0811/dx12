@@ -219,6 +219,7 @@ if(WIN32 AND MSVC)
         /Od          # Disable optimization  
         /RTC1        # Runtime error checks  
         /Ob0         # Disable inlining  
+        /Zi
     )  
 
     # Warning and code generation flags  
@@ -250,6 +251,11 @@ if(WIN32 AND MSVC)
     set_target_properties(dx12 Tests PROPERTIES  
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"  
     )  
+
+    # Set linker flag for Debug mode to include debugging information  
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG:FULL")  
+    set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG:FULL")  
+    set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} /DEBUG:FULL")
 
     # Release-only linker optimizations  
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")  
