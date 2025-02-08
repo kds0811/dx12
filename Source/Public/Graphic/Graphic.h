@@ -113,6 +113,8 @@ public:
     ID3D12DescriptorHeap* GetRtvDescriptorHeap() { return mRtvHeap.Get(); }
     ID3D12DescriptorHeap* GetSrvDescriptorHeap() { return mSrvDescriptorHeap.Get(); }
 
+    PassConstants& GetMainPassCB() { return mMainPassCB; }
+
 
 private:
     void InitPipeline();

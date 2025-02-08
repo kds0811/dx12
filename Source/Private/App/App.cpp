@@ -187,5 +187,15 @@ void App::StartImguiFrame()
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
+
+  
+
+    if (ImGui::Begin("Fog Settings", nullptr, ImGuiWindowFlags_NoCollapse))
+    {
+        ImGui::SliderFloat("Fog Start", &mGfx->GetMainPassCB().gFogStart, 0.0f, 100.0f);
+        ImGui::SliderFloat("Fog Range", &mGfx->GetMainPassCB().gFogRange, 100.0f, 500.0f);
+        ImGui::ColorEdit4("Fog Color", (float*)&mGfx->GetMainPassCB().FogColor); 
+        ImGui::End();  
+    }
 }

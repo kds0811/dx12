@@ -30,8 +30,8 @@ public:
     void SetWireframe(bool wireframeIsEnabled);
 
 private:
-    UINT mWidth = 1600;
-    UINT mHeight = 1000;
+    UINT mWidth = 2000;
+    UINT mHeight = 1200;
     std::unique_ptr<Window> mWnd = nullptr;
     std::unique_ptr<Graphic> mGfx = nullptr;
     std::unique_ptr<GameTimerW> mTimer = nullptr;

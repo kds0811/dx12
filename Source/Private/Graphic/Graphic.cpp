@@ -546,6 +546,7 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
     mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
     mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
 
+
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, mMainPassCB);
 
