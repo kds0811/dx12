@@ -29,7 +29,7 @@ void Scene::InitScene()
     mSceneObjects[9]->SetContiniusRotation(Rotator(-10.0f, -10.0f, -10.0f));
 
 
-    mSceneObjects[4]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
+    mSceneObjects[4]->SetTextureScale(Vector(2.0f, 2.0f, 2.0f));
     mSceneObjects[5]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
 
     // set scale mounts

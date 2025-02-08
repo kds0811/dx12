@@ -7,10 +7,7 @@
 #include <chrono>
 #include <cassert>
 #include "WavesSceneObject.h"
-#include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx12.h"
-#include "DescriptorHeapAllocator.h"
+
 #include "PixProfile.h"
 
 #if defined PIXPROFILE
@@ -18,7 +15,7 @@
 #include <pix3.h>
 #endif
 
-static DescriptorHeapAllocator g_pd3dSrvDescHeapAlloc;
+
 
 App::App()
 {
@@ -50,15 +47,16 @@ App::App()
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
 
-    g_pd3dSrvDescHeapAlloc.Create(mGfx->GetDevice(), mGfx->GetSrvDescriptorHeap());
-    InitImgui();
+   // g_pd3dSrvDescHeapAlloc.Create(mGfx->GetDevice(), mGfx->GetSrvDescriptorHeap());
+
+   // InitImgui();
 }
 
 App::~App()
 {
-    ImGui_ImplDX12_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+   // ImGui_ImplDX12_Shutdown();
+   // ImGui_ImplWin32_Shutdown();
+   // ImGui::DestroyContext();
 }
 
 std::optional<int> App::Go()
@@ -131,10 +129,10 @@ void App::Draw()
     PIXBeginEvent(mGfx->GetCommandQueue(), PIX_COLOR(0, 0, 255), L"RENDER");
 #endif
 
-    StartImguiFrame();
+   // StartImguiFrame();
     mGfx->StartDrawFrame(mScene->GetSceneObjects());
-    ImGui::Render();
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGfx->GetCommandList());
+    //ImGui::Render();
+   // ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGfx->GetCommandList());
     mGfx->EndDrawFrame();
 
 #if defined PIXPROFILE
