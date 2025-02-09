@@ -29,7 +29,6 @@ struct DescriptorHeapAllocator
     }
     void Destroy()
     {
-        
         Heap = nullptr;
         FreeIndices.clear();
     }

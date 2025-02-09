@@ -1,13 +1,20 @@
 #pragma once
-#include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx12.h"
 #include "DescriptorHeapAllocator.h"
+
+class Graphic;
 
 static DescriptorHeapAllocator g_pd3dSrvDescHeapAlloc;
 
-
 class ImguiWrapper
 {
+    Graphic* pGfx = nullptr;
+
+public:
+    ImguiWrapper();
+    ~ImguiWrapper();
+
+    void InitImgui(Graphic* gfx, HWND hwnd);
+    void StartImguiFrame();
+    void EndImguiFrame();
 
 };

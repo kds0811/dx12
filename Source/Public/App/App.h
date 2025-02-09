@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include <memory>
 #include "ResourceManager.h"
+#include "ImguiWrapper.h"
 
 
 
@@ -39,13 +40,10 @@ private:
     std::unique_ptr<CameraController> mCameraController = nullptr;
     std::unique_ptr<ResourceManager> mResourceManager = nullptr;
     std::unique_ptr<Scene> mScene = nullptr;
+    std::unique_ptr<ImguiWrapper> mImguiWrapper = nullptr;
     bool bAppPaused = false;
     std::uint64_t mFrameCount = 0;
 
-   // DescriptorHeapAllocator mDescriptorHeapAllocator;
-
     void CalculateFrameStats();
-    void InitImgui();
-    void StartImguiFrame();
 
 };

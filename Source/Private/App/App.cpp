@@ -26,6 +26,7 @@ App::App()
     mCameraController = std::make_unique<CameraController>(mWnd.get(), mCamera.get(), mTimer.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
     mScene = std::make_unique<Scene>(mTimer.get(), mResourceManager.get());
+    mImguiWrapper = std::make_unique<ImguiWrapper>();
 
     assert(mWnd);
     assert(mGfx);
@@ -47,17 +48,12 @@ App::App()
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
 
-   // g_pd3dSrvDescHeapAlloc.Create(mGfx->GetDevice(), mGfx->GetSrvDescriptorHeap());
+    mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd());
 
-   // InitImgui();
 }
 
 App::~App()
-{
-   // ImGui_ImplDX12_Shutdown();
-   // ImGui_ImplWin32_Shutdown();
-   // ImGui::DestroyContext();
-}
+{}
 
 std::optional<int> App::Go()
 {
@@ -129,10 +125,9 @@ void App::Draw()
     PIXBeginEvent(mGfx->GetCommandQueue(), PIX_COLOR(0, 0, 255), L"RENDER");
 #endif
 
-   // StartImguiFrame();
+    mImguiWrapper->StartImguiFrame();
     mGfx->StartDrawFrame(mScene->GetSceneObjects());
-    //ImGui::Render();
-   // ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGfx->GetCommandList());
+    mImguiWrapper->EndImguiFrame();
     mGfx->EndDrawFrame();
 
 #if defined PIXPROFILE
@@ -171,60 +166,4 @@ void App::CalculateFrameStats()
     }
 }
 
-void App::InitImgui()
-{
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
 
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplWin32_Init(mWnd->GetHwnd());
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplDX12_InitInfo init_info = {};
-    init_info.Device = mGfx->GetDevice();
-    init_info.CommandQueue = mGfx->GetCommandQueue();
-    init_info.NumFramesInFlight = gNumFrameResources;
-    init_info.RTVFormat = mGfx->GetBackBufferFormat();
-    init_info.DSVFormat = DXGI_FORMAT_UNKNOWN;
-
-    // Allocating SRV descriptors (for textures) is up to the application, so we provide callbacks.
-    // The example_win32_directx12/main.cpp application include a simple free-list based allocator.
-    init_info.SrvDescriptorHeap = mGfx->GetSrvDescriptorHeap();
-
-    init_info.SrvDescriptorAllocFn =
-        [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle)
-    { return g_pd3dSrvDescHeapAlloc.Alloc(out_cpu_handle, out_gpu_handle); };
-
-    init_info.SrvDescriptorFreeFn =
-        [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle)
-    { return g_pd3dSrvDescHeapAlloc.Free(cpu_handle, gpu_handle); };
-
-    ImGui_ImplDX12_Init(&init_info);
-}
-
-void App::StartImguiFrame()
-{
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(30, 30, 200), L"StartImguiFrame");
-#endif
-
-    ImGui_ImplDX12_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    // ImGui::ShowDemoWindow();
-
-    if (ImGui::Begin("Fog Settings", nullptr, ImGuiWindowFlags_NoCollapse))
-    {
-        ImGui::SliderFloat("Fog Start", &mGfx->GetMainPassCB().gFogStart, 0.0f, 100.0f);
-        ImGui::SliderFloat("Fog Range", &mGfx->GetMainPassCB().gFogRange, 100.0f, 500.0f);
-        ImGui::ColorEdit4("Fog Color", (float*)&mGfx->GetMainPassCB().FogColor);
-        ImGui::End();
-    }
-}
