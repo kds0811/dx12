@@ -28,6 +28,10 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
 
     mMaterials = mMaterialBuilder.CreateMaterials();
     AddTexturePtrOnMaterial();
+
+    bool result = mAssimpLoader.LoadModel("..//Source//Models//ironpod.fbx");
+
+
 }
 
 void ResourceManager::CreateStandartShapeGeometry() 

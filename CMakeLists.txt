@@ -82,6 +82,7 @@ find_package(GTest CONFIG REQUIRED)
 find_package(benchmark CONFIG REQUIRED)  
 find_package(directx-headers CONFIG REQUIRED)  
 find_package(directxtk12 CONFIG REQUIRED)  
+find_package(assimp CONFIG REQUIRED)
 
 # Основной исполняемый файл  
 add_executable(dx12 WIN32
@@ -162,7 +163,7 @@ set(DIRECTX_LIBS
 )  
 
 # Library linking  
-target_link_libraries(dx12 PRIVATE ${DIRECTX_LIBS})  
+target_link_libraries(dx12 PRIVATE ${DIRECTX_LIBS} assimp::assimp)  
 
 target_link_libraries(Tests PRIVATE   
     GTest::gtest   
@@ -219,7 +220,6 @@ if(WIN32 AND MSVC)
         /Od          # Disable optimization  
         /RTC1        # Runtime error checks  
         /Ob0         # Disable inlining  
-        /Zi
     )  
 
     # Warning and code generation flags  
