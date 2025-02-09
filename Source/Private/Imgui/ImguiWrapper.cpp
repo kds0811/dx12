@@ -17,10 +17,10 @@ ImguiWrapper::~ImguiWrapper()
     ImGui::DestroyContext();
 }
 
-void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd)
+void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures)
 {
     pGfx = gfx; 
-    g_pd3dSrvDescHeapAlloc.Create(pGfx->GetDevice(), pGfx->GetSrvDescriptorHeap());
+    g_pd3dSrvDescHeapAlloc.Create(pGfx->GetDevice(), pGfx->GetSrvDescriptorHeap(), numTextures);
    
      // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

@@ -12,9 +12,11 @@ struct DescriptorHeapAllocator
     D3D12_GPU_DESCRIPTOR_HANDLE HeapStartGpu;
     UINT HeapHandleIncrement;
     std::vector<int> FreeIndices;
+    UINT reservedIndexes;
 
-    void Create(ID3D12Device* device, ID3D12DescriptorHeap* heap)
+    void Create(ID3D12Device* device, ID3D12DescriptorHeap* heap, size_t numTextures)
     {
+        reservedIndexes = (UINT)numTextures;
         assert(Heap == nullptr && FreeIndices.empty());
         Heap = heap;
         assert(Heap);
@@ -23,8 +25,8 @@ struct DescriptorHeapAllocator
         HeapStartCpu = Heap->GetCPUDescriptorHandleForHeapStart();
         HeapStartGpu = Heap->GetGPUDescriptorHandleForHeapStart();
         HeapHandleIncrement = device->GetDescriptorHandleIncrementSize(HeapType);
-        FreeIndices.reserve((int)desc.NumDescriptors);
-        for (int n = desc.NumDescriptors; n > 0; n--)
+        FreeIndices.reserve((size_t)(desc.NumDescriptors - reservedIndexes));
+        for (UINT n = reservedIndexes; n < desc.NumDescriptors; ++n)
             FreeIndices.push_back(n);
     }
     void Destroy()

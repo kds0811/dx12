@@ -13,7 +13,7 @@ public:
     ImguiWrapper();
     ~ImguiWrapper();
 
-    void InitImgui(Graphic* gfx, HWND hwnd);
+    void InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures);
     void StartImguiFrame();
     void EndImguiFrame();
 

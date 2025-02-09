@@ -48,7 +48,7 @@ App::App()
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
 
-    mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd());
+    mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd(), mResourceManager->GetTextures().size());
 
 }
 

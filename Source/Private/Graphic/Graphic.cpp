@@ -579,7 +579,7 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
     // Create the SRV heap.
     //
     D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = (UINT)textures.size();
+    srvHeapDesc.NumDescriptors = (UINT)textures.size() + 64;
     srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     mDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)) >> Check;
@@ -606,7 +606,7 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
 
         mDevice->CreateShaderResourceView(texRes.Get(), &srvDesc, hDescriptor);
         ++index;
-        hDescriptor.Offset(1, mRtvDescriptorSize);
+        hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
     }
 
 
