@@ -34,7 +34,8 @@ enum class EPrimitiveType : std::uint8_t
     SPHERE,
     LAND,
     MESH,
-    WAVES
+    WAVES,
+    MODEL
 };
 
 struct SubmeshGeometry

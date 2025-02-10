@@ -1,25 +1,54 @@
 #include "AssimpLoader.h"
 #include <cassert>
+#include <stdexcept>
 
-
-bool AssimpLoader::LoadModel(std::string filePath)
-{  // Create an instance of the Importer class
+GeometryGenerator::MeshData AssimpLoader::LoadGeometryFromFile(std::string filePath)
+{
     Assimp::Importer importer;
+    GeometryGenerator::MeshData result{};
+    const aiScene* scene = importer.ReadFile(filePath, aiProcess_CalcTangentSpace | aiProcess_Triangulate |
+                                                           aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_GenNormals);
 
-    // And have it read the given file with some example postprocessing
-    // Usually - if speed is not the most important aspect for you - you'll
-    // probably to request more postprocessing than we do in this example.
-    const aiScene* scene = importer.ReadFile(
-        filePath, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+    {
+        throw std::runtime_error(importer.GetErrorString());
+    }
 
-    // If the import failed, report it
+    for (size_t i = 0; i < scene->mNumMeshes; ++i)
+    {
+        for (size_t j = 0; j < scene->mMeshes[i]->mNumVertices; ++j)
+        {
+            GeometryGenerator::Vertex v;
 
+            v.Position =
+                DirectX::XMFLOAT3{scene->mMeshes[i]->mVertices[j].x, scene->mMeshes[i]->mVertices[j].y, scene->mMeshes[i]->mVertices[j].z};
 
-    auto size = scene->mNumMeshes;
-    auto pMesh = scene->mMeshes[0];
-    
+            v.Normal =
+                DirectX::XMFLOAT3{scene->mMeshes[i]->mNormals[j].x, scene->mMeshes[i]->mNormals[j].y, scene->mMeshes[i]->mNormals[j].z};
 
+            result.Vertices.push_back(v);
+        }
+    }
 
-    // We're done. Everything will be cleaned up by the importer destructor
-    return true;
+    size_t vertexOffset = 0;
+    for (size_t i = 0; i < scene->mNumMeshes; ++i)
+    {
+        const aiMesh* mesh = scene->mMeshes[i];
+
+        for (size_t j = 0; j < mesh->mNumFaces; ++j)
+        {
+            const aiFace& face = mesh->mFaces[j];
+
+            if (face.mNumIndices != 3)
+            {
+                throw std::runtime_error("Non-triangular face detected!");
+            }
+            result.Indices32.push_back(face.mIndices[0] + vertexOffset);
+            result.Indices32.push_back(face.mIndices[1] + vertexOffset);
+            result.Indices32.push_back(face.mIndices[2] + vertexOffset);
+        }
+        vertexOffset += mesh->mNumVertices;
+    }
+
+    return result;
 }

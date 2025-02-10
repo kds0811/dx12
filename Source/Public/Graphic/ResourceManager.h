@@ -3,7 +3,7 @@
 #include "ShapeGeometryBuilder.h"
 #include "MaterialBuilder.h"
 #include "TextureCreator.h"
-#include "AssimpLoader.h"
+
 
 class ResourceManager
 {
@@ -21,7 +21,7 @@ class ResourceManager
     ShapeGeometryBuilder mShapeGeometryBuilder;
     MaterialBuilder mMaterialBuilder;
     TextureCreator mTextureCreator;
-    AssimpLoader mAssimpLoader;
+    
 
     // Storages
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;

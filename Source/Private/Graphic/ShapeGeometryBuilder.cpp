@@ -20,6 +20,11 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     //skull
     AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), EPrimitiveType::MESH);
 
+    //assimp load model
+    AddGeometry(
+        mAssimpLoader.LoadGeometryFromFile("..//Source//Models//ironpod.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::MODEL);
+
+   
     CalculateOffsets();
 
     auto vertices = CreateVertexBuffer();
@@ -64,6 +69,8 @@ void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, 
     data.type = type;
     mGeometries.push_back(data);
 }
+
+
 
 void ShapeGeometryBuilder::CalculateOffsets()
 {

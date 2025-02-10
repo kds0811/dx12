@@ -100,6 +100,11 @@ void Scene::BuildScenePrimitives()
     primitiveData.emplace_back(EPrimitiveType::WAVES,
         Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER);
 
+    // Model
+     primitiveData.emplace_back(EPrimitiveType::MODEL,
+        Transform(Vector(0.0f, 10.0f, -30.0f), Rotator(-90.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::SKULLMAT);
+
+
     for (const auto& prim : primitiveData)
     {
         if (prim.ObjectType == EPrimitiveType::WAVES)

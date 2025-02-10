@@ -8,6 +8,7 @@
 #include <vector>
 #include "GeometryLoader.h"
 #include "FrameResource.h"
+#include "AssimpLoader.h"
 
 class ShapeGeometryBuilder
 {
@@ -24,6 +25,7 @@ class ShapeGeometryBuilder
     std::vector<GeometryData> mGeometries;
     GeometryGenerator mGeometryGenerator;
     GeometryLoader mGeometryLoader;
+    AssimpLoader mAssimpLoader;
 
     UINT mVertexBufferSize = 0;
     UINT mIndexBufferSize = 0;
@@ -35,6 +37,8 @@ public:
 
 private:
     void AddGeometry(const GeometryGenerator::MeshData& mesh, const DirectX::XMFLOAT4& color, EPrimitiveType type);
+
+
     void CalculateOffsets();
     std::vector<Vertex> CreateVertexBuffer();
     std::vector<std::uint16_t> CreateIndexBuffer();
