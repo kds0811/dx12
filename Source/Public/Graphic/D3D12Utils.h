@@ -38,7 +38,8 @@ enum class EPrimitiveType : std::uint8_t
     MODEL,
     MODEL1,
     MODELSPIDERFBX,
-    MODELSPIDEROBJ
+    MODELSPIDEROBJ,
+    HUESITOS
 };
 
 struct SubmeshGeometry

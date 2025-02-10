@@ -34,6 +34,10 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.obj"), XMFLOAT4(DirectX::Colors::DarkRed),
         EPrimitiveType::MODELSPIDEROBJ);
     
+    // HUESITOS
+     AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//huesitos.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
+        EPrimitiveType::HUESITOS);
+
     
 
 
