@@ -1,6 +1,10 @@
 #include "AssimpLoader.h"
 #include <cassert>
 #include <stdexcept>
+#include <assimp/Importer.hpp>   // C++ importer interface
+#include <assimp/scene.h>        // Output data structure
+#include <assimp/postprocess.h>  // Post processing flags
+
 
 GeometryGenerator::MeshData AssimpLoader::LoadGeometryFromFile(std::string filePath)
 {

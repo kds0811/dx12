@@ -2,9 +2,8 @@
 #include "GeometryGenerator.h"
 #include <string>
 
-class AssimpLoader
+class TinyObjLoaderWrapper
 {
 public:
     GeometryGenerator::MeshData LoadGeometryFromFile(std::string filePath);
-
 };
