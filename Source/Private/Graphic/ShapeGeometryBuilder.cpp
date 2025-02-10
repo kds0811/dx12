@@ -24,7 +24,19 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(
         mAssimpLoader.LoadGeometryFromFile("..//Source//Models//ironpod.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::MODEL);
 
-   
+   // assimp load model
+    AddGeometry(
+        mAssimpLoader.LoadGeometryFromFile("..//Source//Models//UpgradedKleinerToilet.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::MODEL1);
+
+       // assimp load model
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
+        EPrimitiveType::MODELSPIDERFBX);
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.obj"), XMFLOAT4(DirectX::Colors::DarkRed),
+        EPrimitiveType::MODELSPIDEROBJ);
+    
+    
+
+
     CalculateOffsets();
 
     auto vertices = CreateVertexBuffer();

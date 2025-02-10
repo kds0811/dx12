@@ -102,8 +102,13 @@ void Scene::BuildScenePrimitives()
 
     // Model
      primitiveData.emplace_back(EPrimitiveType::MODEL,
-        Transform(Vector(0.0f, 10.0f, -30.0f), Rotator(-90.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::SKULLMAT);
+        Transform(Vector(0.0f, 10.0f, -40.0f), Rotator(-90.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::SKULLMAT);
 
+     // <ODELS spiders
+     primitiveData.emplace_back(EPrimitiveType::MODELSPIDERFBX,
+         Transform(Vector(30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS);
+     primitiveData.emplace_back(EPrimitiveType::MODELSPIDEROBJ,
+         Transform(Vector(-30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE);
 
     for (const auto& prim : primitiveData)
     {
