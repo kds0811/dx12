@@ -54,65 +54,77 @@ void Scene::BuildScenePrimitives()
     std::vector<DataPrimitiveBuild> primitiveData{};
     // add skull
     primitiveData.emplace_back(
-        EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT);
+        EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT, ERenderLayer::Opaque);
     //
-    // add rotate boxes
-    primitiveData.emplace_back(EPrimitiveType::BOX,
-        Transform(Vector(10.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 5.0f, 1.0f)), EMaterialType::STONE);
-    primitiveData.emplace_back(EPrimitiveType::BOX,
-        Transform(Vector(-10.0f, 5.0f, 20.0f), Rotator(0.0f, 0.0f, 90.0f), Vector(1.0f, 5.0f, 1.0f)), EMaterialType::STONE);
+    // add rotate spinners
+    primitiveData.emplace_back(EPrimitiveType::SPINER,
+        Transform(Vector(10.0f, 25.0f, 20.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::STONE,
+        ERenderLayer::Opaque);
+    primitiveData.emplace_back(EPrimitiveType::SPINER,
+        Transform(Vector(-10.0f, 25.0f, 20.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+        ERenderLayer::Opaque);
 
     // add static shapes
-    primitiveData.emplace_back(
-        EPrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 3.0f, 1.0f)), EMaterialType::STONE);
+    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 3.0f, 1.0f)),
+        EMaterialType::STONE, ERenderLayer::Opaque);
 
-    primitiveData.emplace_back(
-        EPrimitiveType::GRID, Transform(Vector(0.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)), EMaterialType::TILE);
-    primitiveData.emplace_back(
-        EPrimitiveType::GRID, Transform(Vector(100.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)), EMaterialType::GRASSX);
-    primitiveData.emplace_back(
-        EPrimitiveType::GRID, Transform(Vector(-100.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)), EMaterialType::GRASSY);
+    primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(0.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)),
+        EMaterialType::TILE, ERenderLayer::Opaque);
+    primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(100.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)),
+        EMaterialType::GRASSX, ERenderLayer::Opaque);
+    primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(-100.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)),
+        EMaterialType::GRASSY, ERenderLayer::Opaque);
 
     // add Mounts
     primitiveData.emplace_back(EPrimitiveType::LAND,
-        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASS);
+        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASS,
+        ERenderLayer::Opaque);
 
     // textured boxes
-    primitiveData.emplace_back(
-        EPrimitiveType::BOX, Transform(Vector(-20.0f, 5.f, -20.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)), EMaterialType::FIREBALL);
-    primitiveData.emplace_back(
-        EPrimitiveType::BOX, Transform(Vector(20.0f, 5.f, -20.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)), EMaterialType::COLDFIRE);
+    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(-20.0f, 5.f, -20.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
+        EMaterialType::FIREBALL, ERenderLayer::Opaque);
+    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(20.0f, 5.f, -20.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
+        EMaterialType::COLDFIRE, ERenderLayer::Opaque);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
-            Transform(Vector(-20.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE);
+            Transform(Vector(-20.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
+            ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
-            Transform(Vector(20.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE);
+            Transform(Vector(20.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
+            ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(-20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS);
+            Transform(Vector(-20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+            ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS);
+            Transform(Vector(20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+            ERenderLayer::Opaque);
     }
 
     // Add Waves
     primitiveData.emplace_back(EPrimitiveType::WAVES,
-        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER);
+        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER,
+        ERenderLayer::Transparent);
 
     // Model
      primitiveData.emplace_back(EPrimitiveType::MODEL,
-        Transform(Vector(0.0f, 10.0f, -40.0f), Rotator(-90.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::SKULLMAT);
+        Transform(Vector(0.0f, 10.0f, -40.0f), Rotator(-90.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::SKULLMAT,
+        ERenderLayer::Opaque);
 
      // MODELS spiders
      primitiveData.emplace_back(EPrimitiveType::MODELSPIDERFBX,
-         Transform(Vector(30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS);
+         Transform(Vector(30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS,
+         ERenderLayer::Opaque);
      primitiveData.emplace_back(EPrimitiveType::MODELSPIDEROBJ,
-         Transform(Vector(-30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE);
+         Transform(Vector(-30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE,
+         ERenderLayer::Opaque);
 
      //HEUSITOS
      primitiveData.emplace_back(EPrimitiveType::HUESITOS,
-         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER);
+         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER,
+         ERenderLayer::Opaque);
 
     for (const auto& prim : primitiveData)
     {

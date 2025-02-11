@@ -38,7 +38,10 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
      AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//huesitos.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
         EPrimitiveType::HUESITOS);
 
-    
+    // SPINER
+     AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spinner.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
+         EPrimitiveType::SPINER);
+     
 
 
     CalculateOffsets();

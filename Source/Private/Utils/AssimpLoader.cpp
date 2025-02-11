@@ -20,15 +20,21 @@ GeometryGenerator::MeshData AssimpLoader::LoadGeometryFromFile(std::string fileP
 
     for (size_t i = 0; i < scene->mNumMeshes; ++i)
     {
-        for (size_t j = 0; j < scene->mMeshes[i]->mNumVertices; ++j)
+        const aiMesh* mesh = scene->mMeshes[i];
+        for (size_t j = 0; j < mesh->mNumVertices; ++j)
         {
             GeometryGenerator::Vertex v;
+            v.Position = DirectX::XMFLOAT3{mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z};
+            v.Normal = DirectX::XMFLOAT3{mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z};
 
-            v.Position =
-                DirectX::XMFLOAT3{scene->mMeshes[i]->mVertices[j].x, scene->mMeshes[i]->mVertices[j].y, scene->mMeshes[i]->mVertices[j].z};
-
-            v.Normal =
-                DirectX::XMFLOAT3{scene->mMeshes[i]->mNormals[j].x, scene->mMeshes[i]->mNormals[j].y, scene->mMeshes[i]->mNormals[j].z};
+            if (mesh->HasTextureCoords(0)) 
+            {
+                v.TexC = DirectX::XMFLOAT2{mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y};
+            }
+            else
+            {
+                v.TexC = DirectX::XMFLOAT2{0.0f, 0.0f};
+            }
 
             result.Vertices.push_back(v);
         }

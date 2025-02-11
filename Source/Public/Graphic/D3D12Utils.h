@@ -39,7 +39,8 @@ enum class EPrimitiveType : std::uint8_t
     MODEL1,
     MODELSPIDERFBX,
     MODELSPIDEROBJ,
-    HUESITOS
+    HUESITOS,
+    SPINER
 };
 
 struct SubmeshGeometry
@@ -126,6 +127,14 @@ struct MaterialConstants
 
     // Used in texture mapping.
     DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
+};
+
+enum class ERenderLayer : std::uint8_t
+{
+    Opaque,
+    Transparent,
+    AlphaTested,
+    Count
 };
 
 enum class EMaterialType : std::uint8_t
