@@ -40,7 +40,8 @@ enum class EPrimitiveType : std::uint8_t
     MODELSPIDERFBX,
     MODELSPIDEROBJ,
     HUESITOS,
-    SPINER
+    SPINER,
+    DRONE
 };
 
 struct SubmeshGeometry
@@ -150,7 +151,9 @@ enum class EMaterialType : std::uint8_t
     UNKNOWN,
     WOODCRATE,
     FIREBALL,
-    COLDFIRE
+    COLDFIRE,
+    METALL,
+    DRONEBASECOLOR
 
 };
 

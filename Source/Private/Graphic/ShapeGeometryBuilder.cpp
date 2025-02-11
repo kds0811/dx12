@@ -42,7 +42,10 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
      AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spinner.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
          EPrimitiveType::SPINER);
      
-
+     //DRONE
+     AddGeometry(
+         mAssimpLoader.LoadGeometryFromFile("..//Source//Models//drone_simple.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::DRONE);
+     
 
     CalculateOffsets();
 

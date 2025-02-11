@@ -69,6 +69,21 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Roughness = 0.3f};
     materialsInfo.push_back(coldfire);
 
+    MaterialInfo metall{.Type = EMaterialType::METALL,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
+        .Roughness = 0.3f};
+    materialsInfo.push_back(metall);
+
+    MaterialInfo droneBaseColor{.Type = EMaterialType::DRONEBASECOLOR,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
+        .Roughness = 0.3f};
+    materialsInfo.push_back(droneBaseColor);
+
+
+
+
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};
 
     for (const auto& matInfo : materialsInfo)
