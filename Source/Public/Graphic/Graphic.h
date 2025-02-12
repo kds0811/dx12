@@ -7,6 +7,7 @@
 #include "RenderItem.h"
 #include "PrimitiveSceneObject.h"
 #include "WavesSceneObject.h"
+#include "Scene.h"
 
 class GameTimerW;
 
@@ -97,7 +98,9 @@ public:
 
     float GetAspectRatio() const;
     void OnResize(UINT nWidth, UINT nHeight);
-    void StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+
+    // Draw
+    void StartDrawFrame(const SortedSceneObjects& sortedSceneObjects);
     void EndDrawFrame();
 
     void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
@@ -137,7 +140,7 @@ private:
 
     void BuildPSOs();
     void BuildFrameResources();
-    void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
+    void DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects);
 
     void UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject);
 };

@@ -126,7 +126,7 @@ void App::Draw()
 #endif
 
     mImguiWrapper->StartImguiFrame();
-    mGfx->StartDrawFrame(mScene->GetSceneObjects());
+    mGfx->StartDrawFrame(mScene->GetSortedSceneObjects());
     mImguiWrapper->EndImguiFrame();
     mGfx->EndDrawFrame();
 

@@ -36,6 +36,10 @@ void Scene::InitScene()
     mSceneObjects[7]->SetTextureScale(Vector(6.0f, 6.0f, 6.0f));
 
     mSceneObjects[10]->SetTextureScale(Vector(6.0f, 6.0f, 6.0f));
+
+    // set waves texture scale
+    mSceneObjects[12]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
+
 }
 
 void Scene::Update()
@@ -98,8 +102,10 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(80.0f, 2.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::DRONEBASECOLOR,
         ERenderLayer::Opaque);
 
-
-
+       // Add Waves
+    primitiveData.emplace_back(EPrimitiveType::WAVES,
+        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER,
+        ERenderLayer::Transparent);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
@@ -117,12 +123,6 @@ void Scene::BuildScenePrimitives()
             Transform(Vector(20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
             ERenderLayer::Opaque);
     }
-
-
-    // Add Waves
-    primitiveData.emplace_back(EPrimitiveType::WAVES,
-        Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER,
-        ERenderLayer::Transparent);
 
     // Model
      primitiveData.emplace_back(EPrimitiveType::MODEL,
@@ -143,8 +143,8 @@ void Scene::BuildScenePrimitives()
          ERenderLayer::Opaque);
 
      // Wire Fence
-     primitiveData.emplace_back(EPrimitiveType::HUESITOS,
-         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WIREFENCE,
+     primitiveData.emplace_back(EPrimitiveType::BOX,
+         Transform(Vector(-45.0f, 1.0f, 45.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::WIREFENCE,
          ERenderLayer::AlphaTested);
 
 

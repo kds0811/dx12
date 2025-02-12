@@ -123,7 +123,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     XMStoreFloat4x4(&mProj, P);
 }
 
-void Graphic::StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
+void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 {
 #if defined PIXPROFILE
     PIXScopedEvent(PIX_COLOR(60, 40, 130), L"StartDrawFrame");
@@ -172,9 +172,24 @@ void Graphic::StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>
     auto passCB = mCurrFrameResource->PassCB->Resource();
     mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-    DrawRenderItems(mCommandList.Get(), sceneObjects);
 
-   
+    // render opaque objects
+
+    DrawRenderItems(sortedSceneObjects.OpaqueObjects);
+
+    //render alpha tested objects
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
+    }
+    DrawRenderItems(sortedSceneObjects.AlphaTestObjects);
+
+    //render transparent objects
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+    }
+    DrawRenderItems(sortedSceneObjects.TransparentObjects);
 }
 
 void Graphic::EndDrawFrame()
@@ -233,7 +248,6 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
         CloseHandle(eventHandle);
     }
 
-    
     UpdateObjectCBs(sceneObjects);
     UpdateMaterialCBs(materials);
     UpdateWavesMesh(gt, waveObject);
@@ -330,7 +344,6 @@ void Graphic::InitPipeline()
     assert(mCommandAlloc);
     assert(mCommandList);
 
-
     // Create SwapChain
     mSwapChain.Reset();
     DXGI_SWAP_CHAIN_DESC1 sd = {};
@@ -405,7 +418,7 @@ void Graphic::InitPipeline()
 
     auto ResBar =
         CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    
+
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
 
@@ -448,7 +461,6 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
     mSceneObjectCount = sceneObjectCount;
     mWavesVerticesCount = wavesVertCount;
     mMaterialCount = materialsCount;
-
 
     BuildRootSignature();
     BuildDescriptorHeaps(textures);
@@ -502,7 +514,7 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
     }
 }
 
-void Graphic::UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials) 
+void Graphic::UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
     auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
     for (auto& e : materials)
@@ -558,15 +570,13 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
     mMainPassCB.AmbientLight = mAmbientLight;
     mMainPassCB.Lights[0].Direction = mLightsDirection;
     mMainPassCB.Lights[0].Strength = mLightsStrength;
-    //mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
-    //mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
-    //mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
-    //mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
-
+    // mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
+    // mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
+    // mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
+    // mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, mMainPassCB);
-
 }
 
 void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures)
@@ -608,7 +618,6 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
         ++index;
         hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
     }
-
 
     UINT objCount = (UINT)mSceneObjectCount;
 
@@ -711,7 +720,8 @@ void Graphic::BuildRootSignature()
     hr >> Check;
 
     mDevice->CreateRootSignature(
-        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >> Check;
+        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >>
+        Check;
 }
 
 void Graphic::BuildShadersAndInputLayout()
@@ -720,19 +730,16 @@ void Graphic::BuildShadersAndInputLayout()
 
     const D3D_SHADER_MACRO alphaTestDefines[] = {"FOG", "1", "ALPHA_TEST", "1", NULL, NULL};
 
-
     mShaders["standardVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
     mShaders["alphaTestedPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
-   mInputLayout = {
+    mInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
 }
-
-
 
 void Graphic::BuildPSOs()
 {
@@ -805,7 +812,7 @@ void Graphic::BuildFrameResources()
     }
 }
 
-void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)
+void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects)
 {
     UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
     UINT matCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(MaterialConstants));
@@ -820,31 +827,29 @@ void Graphic::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vec
         auto VBView = ri->Geo->VertexBufferView();
         auto IBView = ri->Geo->IndexBufferView();
 
-        cmdList->IASetVertexBuffers(0, 1, &VBView);
-        cmdList->IASetIndexBuffer(&IBView);
-        cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
+        mCommandList->IASetVertexBuffers(0, 1, &VBView);
+        mCommandList->IASetIndexBuffer(&IBView);
+        mCommandList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-       CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
         tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
-
 
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + sceneObjects[i]->GetObjCBIndex() * objCBByteSize;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
 
-        cmdList->SetGraphicsRootDescriptorTable(0, tex);
-        cmdList->SetGraphicsRootConstantBufferView(1, objCBAddress);
-        cmdList->SetGraphicsRootConstantBufferView(3, matCBAddress);
-
-        cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+        mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+        mCommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
+        mCommandList->SetGraphicsRootConstantBufferView(3, matCBAddress);
+        mCommandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
     }
 }
 
-void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject) 
+void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject)
 {
     assert(gt);
     assert(waveObject);
     assert(waveObject->GetWaves());
-    	// Every quarter second, generate a random wave.
+    // Every quarter second, generate a random wave.
     static float t_base = 0.0f;
     if ((gt->GetTotalTime() - t_base) >= 0.25f)
     {
@@ -873,7 +878,6 @@ void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject
         // mapping [-w/2,w/2] --> [0,1]
         v.TexC.x = 0.5f + v.Pos.x / waveObject->GetWaves()->Width();
         v.TexC.y = 0.5f - v.Pos.z / waveObject->GetWaves()->Depth();
-
 
         currWavesVB->CopyData(i, v);
     }
