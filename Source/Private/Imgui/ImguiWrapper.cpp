@@ -6,7 +6,6 @@
 #include "imgui_impl_dx12.h"
 #include "GraphicError.h"
 
-
 ImguiWrapper::ImguiWrapper() {}
 
 ImguiWrapper::~ImguiWrapper()
@@ -19,10 +18,10 @@ ImguiWrapper::~ImguiWrapper()
 
 void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures)
 {
-    pGfx = gfx; 
+    pGfx = gfx;
     g_pd3dSrvDescHeapAlloc.Create(pGfx->GetDevice(), pGfx->GetSrvDescriptorHeap(), numTextures);
-   
-     // Setup Dear ImGui context
+
+    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -55,7 +54,6 @@ void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures)
     { return g_pd3dSrvDescHeapAlloc.Free(cpu_handle, gpu_handle); };
 
     ImGui_ImplDX12_Init(&init_info);
-
 }
 
 void ImguiWrapper::StartImguiFrame()
@@ -68,16 +66,22 @@ void ImguiWrapper::StartImguiFrame()
     if (ImGui::Begin("Fog Settings", nullptr, ImGuiWindowFlags_NoCollapse))
     {
         ImGui::SliderFloat("Fog Start", &pGfx->GetMainPassCB().gFogStart, 0.0f, 100.0f);
-        ImGui::SliderFloat("Fog Range", &pGfx->GetMainPassCB().gFogRange, 100.0f, 500.0f);
+        ImGui::SliderFloat("Fog Range", &pGfx->GetMainPassCB().gFogRange, 100.0f, 1000.0f);
         ImGui::ColorEdit4("Fog Color", (float*)&pGfx->GetMainPassCB().FogColor);
+        ImGui::End();
+    }
+
+    if (ImGui::Begin("Light Settings", nullptr, ImGuiWindowFlags_NoCollapse))
+    {
+        ImGui::ColorEdit4("Ambient Light", (float*)&pGfx->mAmbientLight);
+        ImGui::DragFloat3("Light Direction", &pGfx->mLightsDirection.x, 0.1f, -1.0f, 1.0f);
+        ImGui::ColorEdit3("Light Color", (float*)&pGfx->mLightsStrength);
         ImGui::End();
     }
 }
 
 void ImguiWrapper::EndImguiFrame()
 {
-     ImGui::Render();
-     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pGfx->GetCommandList());
+    ImGui::Render();
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pGfx->GetCommandList());
 }
-
-

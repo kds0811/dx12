@@ -16,7 +16,7 @@ class Graphic
 {
 private:
     // Main Fields
-  
+
     ComPtr<IDXGIFactory7> mFactory;
     ComPtr<ID3D12Device8> mDevice;
 
@@ -86,6 +86,12 @@ private:
     size_t mMaterialCount = 0;
 
 public:
+    // Lights
+    DirectX::XMFLOAT4 mAmbientLight = {0.25f, 0.25f, 0.35f, 1.0f};
+    DirectX::XMFLOAT3 mLightsDirection = {0.57735f, -0.57735f, 0.57735f};
+    DirectX::XMFLOAT3 mLightsStrength = {0.3f, 0.3f, 0.3f};
+
+public:
     Graphic(UINT Width, UINT Height, HWND hwnd);
     ~Graphic();
 
@@ -93,8 +99,6 @@ public:
     void OnResize(UINT nWidth, UINT nHeight);
     void StartDrawFrame(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void EndDrawFrame();
-    
-
 
     void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
         const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject,
@@ -107,14 +111,13 @@ public:
 
     void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
         std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
-    
+
     DXGI_FORMAT GetBackBufferFormat() { return mBackBufferFormat; }
     DXGI_FORMAT GetDepthStencilFormat() { return mDepthStencilFormat; }
     ID3D12DescriptorHeap* GetRtvDescriptorHeap() { return mRtvHeap.Get(); }
     ID3D12DescriptorHeap* GetSrvDescriptorHeap() { return mSrvDescriptorHeap.Get(); }
 
     PassConstants& GetMainPassCB() { return mMainPassCB; }
-
 
 private:
     void InitPipeline();
@@ -131,7 +134,7 @@ private:
     void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
-    
+
     void BuildPSOs();
     void BuildFrameResources();
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);

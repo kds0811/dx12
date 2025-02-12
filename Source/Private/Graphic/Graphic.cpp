@@ -555,13 +555,13 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
     mMainPassCB.FarZ = 1000.0f;
     mMainPassCB.TotalTime = gt->GetTotalTime();
     mMainPassCB.DeltaTime = gt->GetDeltaTime();
-    mMainPassCB.AmbientLight = {0.25f, 0.25f, 0.35f, 1.0f};
-    mMainPassCB.Lights[0].Direction = {0.57735f, -0.57735f, 0.57735f};
-    mMainPassCB.Lights[0].Strength = {0.6f, 0.6f, 0.6f};
-    mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
-    mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
-    mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
-    mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
+    mMainPassCB.AmbientLight = mAmbientLight;
+    mMainPassCB.Lights[0].Direction = mLightsDirection;
+    mMainPassCB.Lights[0].Strength = mLightsStrength;
+    //mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
+    //mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
+    //mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
+    //mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
 
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
