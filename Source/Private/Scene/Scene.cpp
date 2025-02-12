@@ -94,12 +94,12 @@ void Scene::BuildScenePrimitives()
 
            // Drone
     primitiveData.emplace_back(EPrimitiveType::DRONE,
-        Transform(Vector(60.0f, 2.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::METALL,
+        Transform(Vector(60.0f, 0.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::METALL,
         ERenderLayer::Opaque);
 
     // Drone2
     primitiveData.emplace_back(EPrimitiveType::DRONE,
-        Transform(Vector(80.0f, 2.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::DRONEBASECOLOR,
+        Transform(Vector(100.0f, 0.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(15.f, 15.f, 15.f)), EMaterialType::DRONEBASECOLOR,
         ERenderLayer::Opaque);
 
        // Add Waves
