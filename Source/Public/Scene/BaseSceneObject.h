@@ -34,13 +34,15 @@ public:
     void SetTextureRotation(Rotator rot) noexcept;
     void SetTextureScale(Vector scale) noexcept;
 
+    ERenderLayer& GetRenderLayer() noexcept;
+
 protected:
     SceneComponent mSceneComponent;
     MovementComponent mMovementComponent;
     std::unique_ptr<RenderItem> mRenderItem;
     EPrimitiveType mObjectPrimitiveType;
     EMaterialType mMaterialType;
-
+    ERenderLayer mRenderLayer;
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
     UINT ObjCBIndex = -1;
 };

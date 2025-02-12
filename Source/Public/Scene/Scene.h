@@ -9,6 +9,13 @@
 
 class ResourceManager;
 
+struct SortedSceneObjects
+{
+    std::vector<BaseSceneObject*> OpaqueObjects;
+    std::vector<BaseSceneObject*> TransparentObjects;
+    std::vector<BaseSceneObject*> AlphaTestObjects;
+};
+
 struct DataPrimitiveBuild
 {
     DataPrimitiveBuild(EPrimitiveType objectType, Transform objectTransformation, EMaterialType materialType, ERenderLayer renderLayer)
@@ -33,8 +40,8 @@ class Scene
     WavesSceneObject* pWavesObject = nullptr;
     GameTimerW* pTimer = nullptr;
     ResourceManager* pResourceManager = nullptr;
-    
-    std::vector<RenderItem*> mSceneRenderItems;
+
+    SortedSceneObjects mSortedSceneObjects;
 
 public:
     Scene(GameTimerW* timer, ResourceManager* resourceManager);
@@ -45,9 +52,9 @@ public:
 
     void InitScene();
     void Update();
-    std::vector<RenderItem*>& GetSceneRenderItems() { return mSceneRenderItems; }
     std::vector<std::unique_ptr<BaseSceneObject>>& GetSceneObjects() { return mSceneObjects; }
     WavesSceneObject* GetWavesPtr() { return pWavesObject; }
+    SortedSceneObjects& GetSortedSceneObjects() { return mSortedSceneObjects; }
    
 private:
     void BuildScenePrimitives();

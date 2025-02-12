@@ -153,7 +153,8 @@ enum class EMaterialType : std::uint8_t
     FIREBALL,
     COLDFIRE,
     METALL,
-    DRONEBASECOLOR
+    DRONEBASECOLOR,
+    WIREFENCE
 
 };
 

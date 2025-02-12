@@ -27,7 +27,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Texture>> TextureCreator::Crea
     texInfos.push_back(TextureInfo{.Type = EMaterialType::COLDFIRE, .FilePath = L"../Source/Textures/coldfire.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::METALL, .FilePath = L"../Source/Textures/metall.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::DRONEBASECOLOR, .FilePath = L"../Source/Textures/droneBaseColor.dds"});
-    
+    texInfos.push_back(TextureInfo{.Type = EMaterialType::WIREFENCE, .FilePath = L"../Source/Textures/WireFence.dds"});
 
     for (const auto& info : texInfos)
     {

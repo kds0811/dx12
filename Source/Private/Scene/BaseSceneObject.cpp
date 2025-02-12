@@ -66,3 +66,8 @@ void BaseSceneObject::SetTextureScale(Vector scale) noexcept
     Transform trs(Vector::Zero(), Rotator::Zero(), scale);
     DirectX::XMStoreFloat4x4(&mRenderItem->TexTransform, trs.GetWorldMatrix());
 }
+
+ERenderLayer& BaseSceneObject::GetRenderLayer() noexcept
+{
+    return mRenderLayer;
+}

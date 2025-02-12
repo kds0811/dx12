@@ -142,6 +142,10 @@ void Scene::BuildScenePrimitives()
          Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER,
          ERenderLayer::Opaque);
 
+     // Wire Fence
+     primitiveData.emplace_back(EPrimitiveType::HUESITOS,
+         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WIREFENCE,
+         ERenderLayer::AlphaTested);
 
 
 
@@ -150,22 +154,34 @@ void Scene::BuildScenePrimitives()
         if (prim.ObjectType == EPrimitiveType::WAVES)
         {
             mSceneObjects.emplace_back(std::make_unique<WavesSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
-                pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials()));
+                pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
             ++SceneObjectsCounter;
 
-            pWavesObject = dynamic_cast<WavesSceneObject*>(mSceneObjects.back().get());
+            pWavesObject = static_cast<WavesSceneObject*>(mSceneObjects.back().get());
             assert(pWavesObject);
             continue;
         }
 
         mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
-            pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials()));
+            pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
         ++SceneObjectsCounter;
     }
 
-    mSceneRenderItems.reserve(SceneObjectsCounter);
+
+    // sort object by render layer
     for (const auto& obj : mSceneObjects)
     {
-        mSceneRenderItems.push_back(obj->GetRenderItem());
+        if (obj->GetRenderLayer() == ERenderLayer::Opaque)
+        {
+            mSortedSceneObjects.OpaqueObjects.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::AlphaTested)
+        {
+            mSortedSceneObjects.AlphaTestObjects.push_back(obj.get());
+        }
+        else 
+        {
+            mSortedSceneObjects.TransparentObjects.push_back(obj.get());
+        }
     }
 }

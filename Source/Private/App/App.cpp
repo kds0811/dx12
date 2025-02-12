@@ -44,7 +44,7 @@ App::App()
     {
         assert(mScene);
         assert(mScene->GetWavesPtr());
-        mGfx->InitResources(mScene->GetSceneRenderItems().size(), mScene->GetWavesPtr()->GetVertexCount(),
+        mGfx->InitResources(mScene->GetSceneObjects().size(), mScene->GetWavesPtr()->GetVertexCount(),
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
 
