@@ -107,6 +107,10 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER,
         ERenderLayer::Transparent);
 
+       primitiveData.emplace_back(EPrimitiveType::BOX,
+        Transform(Vector(0.0f, 15.0f, -75.5f), Rotator(90.0f, 0.0f, 0.0f), Vector(100.f, 1.0f, 30.f)), EMaterialType::SKULLMAT,
+        ERenderLayer::Opaque);
+
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
