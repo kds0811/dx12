@@ -70,7 +70,7 @@ function(auto_source_group base_group base_dir)
 endfunction()   
 
 file(GLOB_RECURSE PUBLIC_HEADERS "${PUBLIC_DIR}/*.h")  
-file(GLOB_RECURSE PRIVATE_SOURCES "${PRIVATE_DIR}/*.cpp")  
+file(GLOB_RECURSE PRIVATE_SOURCES "${PRIVATE_DIR}/*.cpp" "${PRIVATE_DIR}/*.c")  
 file(GLOB_RECURSE SHADER_SOURCES "${SHADERS_DIR}/*.hlsl")
 
 # C++ settings  
@@ -163,7 +163,10 @@ set(DIRECTX_LIBS
 )  
 
 # Library linking  
-target_link_libraries(dx12 PRIVATE ${DIRECTX_LIBS} assimp::assimp)  
+target_link_libraries(dx12 PRIVATE
+ ${DIRECTX_LIBS}
+  assimp::assimp
+  )  
 
 target_link_libraries(Tests PRIVATE   
     GTest::gtest   
