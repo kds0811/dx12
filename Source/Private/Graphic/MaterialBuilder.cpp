@@ -87,6 +87,17 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Roughness = 0.3f};
     materialsInfo.push_back(wireFence);
 
+    MaterialInfo mirror{.Type = EMaterialType::MIRROR,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.3f),
+        .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1),
+        .Roughness = 0.5f};
+    materialsInfo.push_back(mirror);
+
+        MaterialInfo shadow{.Type = EMaterialType::SHADOW,
+        .DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.5f),
+        .Fresnel = XMFLOAT3(0.001f, 0.001f, 0.001),
+        .Roughness = 0.0f};
+    materialsInfo.push_back(shadow);
 
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};
 

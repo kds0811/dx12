@@ -154,7 +154,9 @@ enum class EMaterialType : std::uint8_t
     COLDFIRE,
     METALL,
     DRONEBASECOLOR,
-    WIREFENCE
+    WIREFENCE,
+    MIRROR,
+    SHADOW
 
 };
 
