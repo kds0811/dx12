@@ -110,7 +110,7 @@ void Scene::BuildScenePrimitives()
     // MIRROR
        primitiveData.emplace_back(EPrimitiveType::BOX,
         Transform(Vector(0.0f, 15.0f, -75.5f), Rotator(90.0f, 0.0f, 0.0f), Vector(100.f, 1.0f, 30.f)), EMaterialType::MIRROR,
-        ERenderLayer::Opaque);
+        ERenderLayer::Transparent);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)

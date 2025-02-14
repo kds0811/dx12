@@ -135,7 +135,10 @@ enum class ERenderLayer : std::uint8_t
     Opaque,
     Transparent,
     AlphaTested,
-    Count
+    Count,
+    Mirror,
+    Reflected,
+    Shadow
 };
 
 enum class EMaterialType : std::uint8_t
