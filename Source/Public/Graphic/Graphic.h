@@ -88,9 +88,9 @@ private:
 
 public:
     // Lights
-    DirectX::XMFLOAT4 mAmbientLight = {0.2f, 0.2f, 0.3f, 1.0f};
+    DirectX::XMFLOAT4 mAmbientLight = {0.3f, 0.3f, 0.35f, 1.0f};
     DirectX::XMFLOAT3 mLightsDirection = {0.57735f, -0.57735f, 0.57735f};
-    DirectX::XMFLOAT3 mLightsStrength = {0.1f, 0.1f, 0.1f};
+    DirectX::XMFLOAT3 mLightsStrength = {0.8f, 0.8f, 0.8f};
 
 public:
     Graphic(UINT Width, UINT Height, HWND hwnd);

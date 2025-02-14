@@ -27,7 +27,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     materialsInfo.push_back(grassyInfo);
 
     MaterialInfo waterInfo{.Type = EMaterialType::WATER,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f),
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.4f),
         .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1f),
         .Roughness = 0.0f};
     materialsInfo.push_back(waterInfo);
