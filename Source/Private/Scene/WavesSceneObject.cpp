@@ -27,7 +27,7 @@ void WavesSceneObject::CreateRenderItem(int sceneCounter, std::unordered_map<std
     std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
     mRenderItem = std::make_unique<RenderItem>();
-    ObjCBIndex = sceneCounter;
+    mRenderItem->ObjCBIndex = sceneCounter;
     mRenderItem->Geo = geometries["waterGeo"].get();
     mRenderItem->Mat = materials[mMaterialType].get();
     mRenderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

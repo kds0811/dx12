@@ -508,7 +508,7 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
             XMMATRIX texTransform = XMLoadFloat4x4(&scObj->GetRenderItem()->TexTransform);
             XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 
-            currObjectCB->CopyData(scObj->GetObjCBIndex(), objConstants);
+            currObjectCB->CopyData(scObj->GetRenderItem()->ObjCBIndex, objConstants);
             scObj->DecrementNumFrameDirty();
         }
     }
@@ -919,7 +919,7 @@ void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects)
         CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
         tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
 
-        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + sceneObjects[i]->GetObjCBIndex() * objCBByteSize;
+        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
 
         mCommandList->SetGraphicsRootDescriptorTable(0, tex);

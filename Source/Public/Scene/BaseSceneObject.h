@@ -21,7 +21,6 @@ public:
 
     [[nodiscard]] inline DirectX::XMMATRIX GetLookAtMatrix() const noexcept { return mSceneComponent.GetLookAtMatrix(); }
     [[nodiscard]] inline DirectX::XMMATRIX GetWorldMatrix() const noexcept { return mSceneComponent.GetWorldMatrix(); }
-    [[nodiscard]] inline UINT GetObjCBIndex() const noexcept { return ObjCBIndex; }
 
 
     void SetMaterialTransformation(Transform trs) noexcept;
@@ -43,6 +42,5 @@ protected:
     EPrimitiveType mObjectPrimitiveType;
     EMaterialType mMaterialType;
     ERenderLayer mRenderLayer;
-    // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
-    UINT ObjCBIndex = -1;
+
 };
