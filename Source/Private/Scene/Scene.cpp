@@ -108,9 +108,14 @@ void Scene::BuildScenePrimitives()
         ERenderLayer::Transparent);
 
     // MIRROR
-       primitiveData.emplace_back(EPrimitiveType::BOX,
-        Transform(Vector(0.0f, 15.0f, -75.5f), Rotator(90.0f, 0.0f, 0.0f), Vector(100.f, 1.0f, 30.f)), EMaterialType::MIRROR,
+       primitiveData.emplace_back(EPrimitiveType::GRID,
+        Transform(Vector(0.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::MIRROR,
         ERenderLayer::Transparent);
+
+     // mirror Backface 
+       primitiveData.emplace_back(EPrimitiveType::GRID,
+           Transform(Vector(0.0f, 17.5f, -75.1f), Rotator(-90.0f, 0.0f, 0.0f), Vector(2.f, 1.f, 0.7f)), EMaterialType::SKULLMAT,
+           ERenderLayer::Transparent);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)

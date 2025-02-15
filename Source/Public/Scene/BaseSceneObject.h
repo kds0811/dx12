@@ -4,12 +4,11 @@
 #include "MovementComponent.h"
 #include <memory>
 
-class alignas (16) BaseSceneObject
+class alignas(16) BaseSceneObject
 {
-    
+
 public:
-    BaseSceneObject() : mMovementComponent(mSceneComponent)
-    {  }
+    BaseSceneObject() : mMovementComponent(mSceneComponent) {}
     virtual ~BaseSceneObject() {}
 
     virtual void Update(float dt);
@@ -22,7 +21,6 @@ public:
     [[nodiscard]] inline DirectX::XMMATRIX GetLookAtMatrix() const noexcept { return mSceneComponent.GetLookAtMatrix(); }
     [[nodiscard]] inline DirectX::XMMATRIX GetWorldMatrix() const noexcept { return mSceneComponent.GetWorldMatrix(); }
 
-
     void SetMaterialTransformation(Transform trs) noexcept;
     void SetMaterialTranslation(Vector vec) noexcept;
     void SetMaterialRotation(Rotator rot) noexcept;
@@ -34,6 +32,9 @@ public:
     void SetTextureScale(Vector scale) noexcept;
 
     ERenderLayer& GetRenderLayer() noexcept;
+    DirectX::XMFLOAT4X4& GetMatrixReflectedObject() { return mMatrixReflectedObject; }
+    UINT GetReflectedObjCBIndex() { return mObjCBIndexRef; }
+
 
 protected:
     SceneComponent mSceneComponent;
@@ -43,6 +44,9 @@ protected:
     EMaterialType mMaterialType;
     ERenderLayer mRenderLayer;
 
-    DirectX::XMFLOAT4X4 mReflectedObjectMatrix = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mMatrixReflectedObject = MathHelper::Identity4x4();
     UINT mObjCBIndexRef;
+
+private:
+    void UpdateReflectedMatrix();
 };

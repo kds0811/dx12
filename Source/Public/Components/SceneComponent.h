@@ -23,33 +23,33 @@ public:
     inline void SetTransformation(Transform trans) noexcept
     {
         mTrans = trans;
-        NumFramesDirty++;
+        NumFramesDirty = gNumFrameResources;
     }
     inline void SetLocation(Vector location) noexcept
     {
         mTrans.SetLocation(location);
-        NumFramesDirty++;
+        NumFramesDirty = gNumFrameResources;
     }
     inline void SetRotation(Rotator rotation) noexcept
     {
         mTrans.SetRotation(rotation);
-        NumFramesDirty++;
+        NumFramesDirty = gNumFrameResources;
     }
     inline void SetScale(Vector scale) noexcept { mTrans.SetScale(scale); }
     inline void AddLocation(Vector location) noexcept
     {
         mTrans.AddLocation(location);
-        NumFramesDirty++;
+        NumFramesDirty = gNumFrameResources;
     }
     inline void AddRotation(Rotator rotation) noexcept
     {
         mTrans.AddRotation(rotation);
-        NumFramesDirty++;
+        NumFramesDirty = gNumFrameResources;
     }
     inline void AddScale(Vector scale) noexcept
     {
         mTrans.AddScale(scale);
-        NumFramesDirty++;
+        NumFramesDirty = gNumFrameResources;
     }
 
     inline int GetNumFramesDirty() const noexcept { return NumFramesDirty; }

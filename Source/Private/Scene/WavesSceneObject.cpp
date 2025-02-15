@@ -35,5 +35,5 @@ void WavesSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_map<st
     mRenderItem->StartIndexLocation = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].StartIndexLocation;
     mRenderItem->BaseVertexLocation = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].BaseVertexLocation;
 
-    mObjCBIndexRef = ++mRenderItem->ObjCBIndex;
+    mObjCBIndexRef = mRenderItem->ObjCBIndex + 1;
 }

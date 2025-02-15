@@ -14,6 +14,7 @@ void BaseSceneObject::Update(float dt)
 #endif
 
     mMovementComponent.Update(dt);
+    UpdateReflectedMatrix();
 }
 
 void BaseSceneObject::SetContiniusRotation(Rotator rot)
@@ -70,4 +71,13 @@ void BaseSceneObject::SetTextureScale(Vector scale) noexcept
 ERenderLayer& BaseSceneObject::GetRenderLayer() noexcept
 {
     return mRenderLayer;
+}
+
+void BaseSceneObject::UpdateReflectedMatrix() 
+{
+    DirectX::XMVECTOR plane = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 75.5f);
+    DirectX::XMMATRIX reflectionMatrix = DirectX::XMMatrixReflect(plane);
+
+    DirectX::XMStoreFloat4x4(&mMatrixReflectedObject, mSceneComponent.GetWorldMatrix() * reflectionMatrix);
+
 }

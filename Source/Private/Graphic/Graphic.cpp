@@ -505,10 +505,16 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
         {
             ObjectConstants objConstants;
             XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(scObj->GetWorldMatrix()));
+
             XMMATRIX texTransform = XMLoadFloat4x4(&scObj->GetRenderItem()->TexTransform);
             XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 
             currObjectCB->CopyData(scObj->GetRenderItem()->ObjCBIndex, objConstants);
+
+            ObjectConstants objConstantsReflected = objConstants;
+            XMStoreFloat4x4(&objConstantsReflected.World, XMMatrixTranspose(DirectX::XMLoadFloat4x4(&scObj->GetMatrixReflectedObject())));
+            currObjectCB->CopyData(scObj->GetReflectedObjCBIndex(), objConstantsReflected);
+
             scObj->DecrementNumFrameDirty();
         }
     }
