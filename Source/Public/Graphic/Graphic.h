@@ -132,6 +132,7 @@ private:
     void FlushCommandQueue();
 
     void UpdateMainPassCB(const GameTimerW* gt);
+    void UpdateReflectedPassCB();
     void UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects);
     void UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
@@ -142,7 +143,8 @@ private:
 
     void BuildPSOs();
     void BuildFrameResources();
-    void DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects);
+
+    void DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects, bool isReflectedObjects);
 
     void UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject);
 };

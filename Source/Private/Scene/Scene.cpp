@@ -110,12 +110,12 @@ void Scene::BuildScenePrimitives()
     // MIRROR
        primitiveData.emplace_back(EPrimitiveType::GRID,
         Transform(Vector(0.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::MIRROR,
-        ERenderLayer::Transparent);
+        ERenderLayer::Mirror);
 
      // mirror Backface 
-       primitiveData.emplace_back(EPrimitiveType::GRID,
-           Transform(Vector(0.0f, 17.5f, -75.1f), Rotator(-90.0f, 0.0f, 0.0f), Vector(2.f, 1.f, 0.7f)), EMaterialType::SKULLMAT,
-           ERenderLayer::Transparent);
+       //primitiveData.emplace_back(EPrimitiveType::GRID,
+       //    Transform(Vector(0.0f, 17.5f, -75.1f), Rotator(-90.0f, 0.0f, 0.0f), Vector(2.f, 1.f, 0.7f)), EMaterialType::SKULLMAT,
+       //    ERenderLayer::Opaque);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
@@ -189,9 +189,13 @@ void Scene::BuildScenePrimitives()
         {
             mSortedSceneObjects.AlphaTestObjects.push_back(obj.get());
         }
-        else 
+        else if (obj->GetRenderLayer() == ERenderLayer::Transparent)
         {
             mSortedSceneObjects.TransparentObjects.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::Mirror)
+        {
+            mSortedSceneObjects.MirrorObjects.push_back(obj.get());
         }
     }
 }

@@ -172,24 +172,48 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     auto passCB = mCurrFrameResource->PassCB->Resource();
     mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
+    UINT passCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(PassConstants));
+
 
     // render opaque objects
-
-    DrawRenderItems(sortedSceneObjects.OpaqueObjects);
+    DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
 
     //render alpha tested objects
     if (!bIsWireframe)
     {
         mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
     }
-    DrawRenderItems(sortedSceneObjects.AlphaTestObjects);
+    DrawRenderItems(sortedSceneObjects.AlphaTestObjects, false);
 
     //render transparent objects
     if (!bIsWireframe)
     {
         mCommandList->SetPipelineState(mPSOs["transparent"].Get());
     }
-    DrawRenderItems(sortedSceneObjects.TransparentObjects);
+    DrawRenderItems(sortedSceneObjects.TransparentObjects, false);
+
+    // Mark the visible mirror pixels in the stencil buffer with the value 1
+    mCommandList->OMSetStencilRef(1);
+    mCommandList->SetPipelineState(mPSOs["markStencilMirrors"].Get());
+    DrawRenderItems(sortedSceneObjects.MirrorObjects, false);
+
+    // Draw the reflection into the mirror only (only for pixels where the stencil buffer is 1).
+    // Note that we must supply a different per-pass constant buffer--one with the lights reflected.
+    mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress() + 1 * passCBByteSize);
+    mCommandList->SetPipelineState(mPSOs["drawStencilReflections"].Get());
+    DrawRenderItems(sortedSceneObjects.OpaqueObjects, true);
+    DrawRenderItems(sortedSceneObjects.AlphaTestObjects, true);
+    DrawRenderItems(sortedSceneObjects.TransparentObjects, true);
+
+    // Restore main pass constants and stencil ref.
+    mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+    mCommandList->OMSetStencilRef(0);
+
+    // Draw mirror with transparency so reflection blends through.
+    mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+    DrawRenderItems(sortedSceneObjects.MirrorObjects, false);
+
+
 }
 
 void Graphic::EndDrawFrame()
@@ -252,6 +276,7 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
     UpdateMaterialCBs(materials);
     UpdateWavesMesh(gt, waveObject);
     UpdateMainPassCB(gt);
+    UpdateReflectedPassCB();
 }
 
 void Graphic::SetWireframe(bool state)
@@ -576,13 +601,33 @@ void Graphic::UpdateMainPassCB(const GameTimerW* gt)
     mMainPassCB.AmbientLight = mAmbientLight;
     mMainPassCB.Lights[0].Direction = mLightsDirection;
     mMainPassCB.Lights[0].Strength = mLightsStrength;
-    // mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
-    // mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
-    // mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
-    // mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
+    mMainPassCB.Lights[1].Direction = {-0.57735f, -0.57735f, 0.57735f};
+    mMainPassCB.Lights[1].Strength = {0.3f, 0.3f, 0.3f};
+    mMainPassCB.Lights[2].Direction = {0.0f, -0.707f, -0.707f};
+    mMainPassCB.Lights[2].Strength = {0.15f, 0.15f, 0.15f};
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, mMainPassCB);
+}
+
+void Graphic::UpdateReflectedPassCB()
+{
+    mReflectedPassCB = mMainPassCB;
+
+    XMVECTOR mirrorPlane = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);  // xy plane
+    XMMATRIX R = XMMatrixReflect(mirrorPlane);
+
+    // Reflect the lighting.
+    for (int i = 0; i < 1; ++i)
+    {
+        XMVECTOR lightDir = XMLoadFloat3(&mMainPassCB.Lights[i].Direction);
+        XMVECTOR reflectedLightDir = XMVector3TransformNormal(lightDir, R);
+        XMStoreFloat3(&mReflectedPassCB.Lights[i].Direction, reflectedLightDir);
+    }
+
+    // Reflected pass stored in index 1
+    auto currPassCB = mCurrFrameResource->PassCB.get();
+    currPassCB->CopyData(1, mReflectedPassCB);
 }
 
 void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures)
@@ -903,7 +948,7 @@ void Graphic::BuildFrameResources()
     }
 }
 
-void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects)
+void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects, bool isReflectedObjects)
 {
     UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
     UINT matCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(MaterialConstants));
@@ -925,7 +970,9 @@ void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects)
         CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
         tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
 
-        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+        auto objCBIndex = isReflectedObjects ? sceneObjects[i]->GetReflectedObjCBIndex() * objCBByteSize : ri->ObjCBIndex * objCBByteSize;
+
+        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + objCBIndex;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
 
         mCommandList->SetGraphicsRootDescriptorTable(0, tex);
