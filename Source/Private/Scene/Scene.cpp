@@ -160,7 +160,7 @@ void Scene::BuildScenePrimitives()
         {
             mSceneObjects.emplace_back(std::make_unique<WavesSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
                 pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
-            ++SceneObjectsCounter;
+            SceneObjectsCounter += 2;
 
             pWavesObject = static_cast<WavesSceneObject*>(mSceneObjects.back().get());
             assert(pWavesObject);
@@ -169,7 +169,7 @@ void Scene::BuildScenePrimitives()
 
         mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
             pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
-        ++SceneObjectsCounter;
+        SceneObjectsCounter += 2;
     }
 
 

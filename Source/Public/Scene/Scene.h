@@ -56,8 +56,9 @@ public:
     std::vector<std::unique_ptr<BaseSceneObject>>& GetSceneObjects() { return mSceneObjects; }
     WavesSceneObject* GetWavesPtr() { return pWavesObject; }
     SortedSceneObjects& GetSortedSceneObjects() { return mSortedSceneObjects; }
+    UINT GetSceneObjectsCounter() { return SceneObjectsCounter; }
    
 private:
     void BuildScenePrimitives();
-    int SceneObjectsCounter = 0;
+    UINT SceneObjectsCounter = 0;
 };

@@ -73,6 +73,8 @@ private:
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
     PassConstants mMainPassCB;
+    PassConstants mReflectedPassCB;
+
 
     UINT mPassCbvOffset = 0;
 

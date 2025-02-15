@@ -893,7 +893,7 @@ void Graphic::BuildFrameResources()
     for (int i = 0; i < gNumFrameResources; ++i)
     {
         mFrameResources.push_back(
-            std::make_unique<FrameResource>(mDevice.Get(), 1, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount, (UINT)mMaterialCount));
+            std::make_unique<FrameResource>(mDevice.Get(), 2, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount, (UINT)mMaterialCount));
     }
 }
 
@@ -947,7 +947,7 @@ void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject
 
         waveObject->GetWaves()->Disturb(i, j, r);
     }
-
+    
     // Update the wave simulation.
     waveObject->GetWaves()->Update(gt->GetDeltaTime());
 

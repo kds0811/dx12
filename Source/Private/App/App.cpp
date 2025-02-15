@@ -44,12 +44,10 @@ App::App()
     {
         assert(mScene);
         assert(mScene->GetWavesPtr());
-        mGfx->InitResources(mScene->GetSceneObjects().size(), mScene->GetWavesPtr()->GetVertexCount(),
+        mGfx->InitResources(mScene->GetSceneObjectsCounter(), mScene->GetWavesPtr()->GetVertexCount(),
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
-
     mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd(), mResourceManager->GetTextures().size());
-
 }
 
 App::~App()

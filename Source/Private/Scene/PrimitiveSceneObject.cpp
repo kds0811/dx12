@@ -1,7 +1,7 @@
 #include "PrimitiveSceneObject.h"
 #include <cassert>
 
-PrimitiveSceneObject::PrimitiveSceneObject(EPrimitiveType objectType, Transform objectTransformation, int scneneCounter,
+PrimitiveSceneObject::PrimitiveSceneObject(EPrimitiveType objectType, Transform objectTransformation, UINT scneneCounter,
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries, EMaterialType matType,
     std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials, ERenderLayer renderLayer)
 {
@@ -18,7 +18,7 @@ void PrimitiveSceneObject::Update(float dt)
 }
 
 
-void PrimitiveSceneObject::CreateRenderItem(int sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries,
+void PrimitiveSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries,
     std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
     mRenderItem = std::make_unique<RenderItem>();
@@ -29,4 +29,6 @@ void PrimitiveSceneObject::CreateRenderItem(int sceneCounter, std::unordered_map
     mRenderItem->IndexCount = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].IndexCount;
     mRenderItem->StartIndexLocation = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].StartIndexLocation;
     mRenderItem->BaseVertexLocation = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].BaseVertexLocation;
+
+    mObjCBIndexRef = ++mRenderItem->ObjCBIndex;
 }

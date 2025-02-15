@@ -43,4 +43,6 @@ protected:
     EMaterialType mMaterialType;
     ERenderLayer mRenderLayer;
 
+    DirectX::XMFLOAT4X4 mReflectedObjectMatrix = MathHelper::Identity4x4();
+    UINT mObjCBIndexRef;
 };
