@@ -15,6 +15,7 @@ struct SortedSceneObjects
     std::vector<BaseSceneObject*> TransparentObjects;
     std::vector<BaseSceneObject*> AlphaTestObjects;
     std::vector<BaseSceneObject*> MirrorObjects;
+    std::vector<BaseSceneObject*> Models;
 };
 
 struct DataPrimitiveBuild

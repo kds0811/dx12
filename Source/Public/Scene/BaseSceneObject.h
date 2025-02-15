@@ -33,7 +33,12 @@ public:
 
     ERenderLayer& GetRenderLayer() noexcept;
     DirectX::XMFLOAT4X4& GetMatrixReflectedObject() { return mMatrixReflectedObject; }
+    DirectX::XMFLOAT4X4& GetMatrixObjectShadow() { return mMatrixShadowObject; }
     UINT GetReflectedObjCBIndex() { return mObjCBIndexRef; }
+    UINT GetObjCBIndexShadow() { return mObjCBIndexShadow; }
+    Material* GetShadowMaterial() { return mShadowMat; }
+
+    EPrimitiveType GetPrimitiveType() { return mObjectPrimitiveType; } 
 
 
 protected:
@@ -44,9 +49,17 @@ protected:
     EMaterialType mMaterialType;
     ERenderLayer mRenderLayer;
 
+    // reflect object data
     DirectX::XMFLOAT4X4 mMatrixReflectedObject = MathHelper::Identity4x4();
     UINT mObjCBIndexRef;
 
+    //shadow object data
+    DirectX::XMFLOAT4X4 mMatrixShadowObject = MathHelper::Identity4x4();
+    UINT mObjCBIndexShadow;
+    Material* mShadowMat;
+    
+
 private:
     void UpdateReflectedMatrix();
+    void UpdateShadowMatrix();
 };

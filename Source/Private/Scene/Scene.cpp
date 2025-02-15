@@ -60,18 +60,18 @@ void Scene::BuildScenePrimitives()
     std::vector<DataPrimitiveBuild> primitiveData{};
     // add skull
     primitiveData.emplace_back(
-        EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 20.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT, ERenderLayer::Opaque);
+        EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 0.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT, ERenderLayer::Opaque);
     //
     // add rotate spinners
     primitiveData.emplace_back(EPrimitiveType::SPINER,
-        Transform(Vector(10.0f, 25.0f, 20.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::COLDFIRE,
+        Transform(Vector(50.0f, 10.0f, 0.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::COLDFIRE,
         ERenderLayer::Opaque);
     primitiveData.emplace_back(EPrimitiveType::SPINER,
-        Transform(Vector(-10.0f, 25.0f, 20.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::FIREBALL,
+        Transform(Vector(-50.0f, 10.0f, 0.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::FIREBALL,
         ERenderLayer::Opaque);
 
     // add static shapes
-    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(0.0f, 2.5f, 20.0f), Rotator::Zero(), Vector(1.0f, 3.0f, 1.0f)),
+    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(0.0f, 5.0f, 20.0f), Rotator::Zero(), Vector(1.0f, 5.0f, 1.0f)),
         EMaterialType::STONE, ERenderLayer::Opaque);
 
     primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(0.0f, 0.0f, -25.0f), Rotator::Zero(), Vector(2.f, 1.0f, 2.f)),
@@ -87,9 +87,9 @@ void Scene::BuildScenePrimitives()
         ERenderLayer::Opaque);
 
     // textured boxes
-    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(-20.0f, 5.f, -20.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
+    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(-20.0f, 10.f, 10.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
         EMaterialType::FIREBALL, ERenderLayer::Opaque);
-    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(20.0f, 5.f, -20.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
+    primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(20.0f, 10.f, 10.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
         EMaterialType::COLDFIRE, ERenderLayer::Opaque);
 
            // Drone
@@ -112,25 +112,21 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(0.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::MIRROR,
         ERenderLayer::Mirror);
 
-     // mirror Backface 
-       //primitiveData.emplace_back(EPrimitiveType::GRID,
-       //    Transform(Vector(0.0f, 17.5f, -75.1f), Rotator(-90.0f, 0.0f, 0.0f), Vector(2.f, 1.f, 0.7f)), EMaterialType::SKULLMAT,
-       //    ERenderLayer::Opaque);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
-            Transform(Vector(-20.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
+            Transform(Vector(-20.0f, 5.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
             ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
-            Transform(Vector(20.0f, 5.0f, i * 7.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
+            Transform(Vector(20.0f, 5.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
             ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(-20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+            Transform(Vector(-20.0f, 13.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
             ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(20.0f, 13.0f, i * 7.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+            Transform(Vector(20.0f, 13.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
             ERenderLayer::Opaque);
     }
 
@@ -141,15 +137,15 @@ void Scene::BuildScenePrimitives()
 
      // MODELS spiders
      primitiveData.emplace_back(EPrimitiveType::MODELSPIDERFBX,
-         Transform(Vector(30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS,
+         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS,
          ERenderLayer::Opaque);
      primitiveData.emplace_back(EPrimitiveType::MODELSPIDEROBJ,
-         Transform(Vector(-30.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE,
+         Transform(Vector(-90.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE,
          ERenderLayer::Opaque);
 
      //HEUSITOS
      primitiveData.emplace_back(EPrimitiveType::HUESITOS,
-         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER,
+         Transform(Vector(-50.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER,
          ERenderLayer::Opaque);
 
      // Wire Fence
@@ -165,7 +161,7 @@ void Scene::BuildScenePrimitives()
         {
             mSceneObjects.emplace_back(std::make_unique<WavesSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
                 pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
-            SceneObjectsCounter += 2;
+            SceneObjectsCounter += 3;
 
             pWavesObject = static_cast<WavesSceneObject*>(mSceneObjects.back().get());
             assert(pWavesObject);
@@ -174,7 +170,7 @@ void Scene::BuildScenePrimitives()
 
         mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
             pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
-        SceneObjectsCounter += 2;
+        SceneObjectsCounter += 3;
     }
 
 
@@ -197,5 +193,15 @@ void Scene::BuildScenePrimitives()
         {
             mSortedSceneObjects.MirrorObjects.push_back(obj.get());
         }
+        
+        if (obj->GetRenderLayer() == ERenderLayer::Opaque)
+        {
+            if (obj->GetPrimitiveType() != EPrimitiveType::GRID && obj->GetPrimitiveType() != EPrimitiveType::LAND &&
+                obj->GetPrimitiveType() != EPrimitiveType::WAVES)
+            {
+                mSortedSceneObjects.Models.push_back(obj.get());
+            }
+        }
+
     }
 }

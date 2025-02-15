@@ -36,4 +36,6 @@ void WavesSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_map<st
     mRenderItem->BaseVertexLocation = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].BaseVertexLocation;
 
     mObjCBIndexRef = mRenderItem->ObjCBIndex + 1;
+    mObjCBIndexShadow = mRenderItem->ObjCBIndex + 2;
+    mShadowMat = materials[EMaterialType::SHADOW].get();
 }

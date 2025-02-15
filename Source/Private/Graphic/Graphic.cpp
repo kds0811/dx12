@@ -213,7 +213,9 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->SetPipelineState(mPSOs["transparent"].Get());
     DrawRenderItems(sortedSceneObjects.MirrorObjects, false);
 
-
+    // Draw shadows
+    mCommandList->SetPipelineState(mPSOs["shadow"].Get());
+    DrawShadows(sortedSceneObjects.Models);
 }
 
 void Graphic::EndDrawFrame()
@@ -539,6 +541,10 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
             ObjectConstants objConstantsReflected = objConstants;
             XMStoreFloat4x4(&objConstantsReflected.World, XMMatrixTranspose(DirectX::XMLoadFloat4x4(&scObj->GetMatrixReflectedObject())));
             currObjectCB->CopyData(scObj->GetReflectedObjCBIndex(), objConstantsReflected);
+
+            ObjectConstants objConstantsShadows = objConstants;
+            XMStoreFloat4x4(&objConstantsShadows.World, XMMatrixTranspose(DirectX::XMLoadFloat4x4(&scObj->GetMatrixObjectShadow())));
+            currObjectCB->CopyData(scObj->GetObjCBIndexShadow(), objConstantsShadows);
 
             scObj->DecrementNumFrameDirty();
         }
@@ -974,6 +980,41 @@ void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects,
 
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + objCBIndex;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
+
+        mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+        mCommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
+        mCommandList->SetGraphicsRootConstantBufferView(3, matCBAddress);
+        mCommandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+    }
+}
+
+void Graphic::DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects) 
+{
+    UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    UINT matCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+
+    auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+    auto matCB = mCurrFrameResource->MaterialCB->Resource();
+
+    for (size_t i = 0; i < sceneObjects.size(); ++i)
+    {
+        auto ri = sceneObjects[i]->GetRenderItem();
+
+        auto VBView = ri->Geo->VertexBufferView();
+        auto IBView = ri->Geo->IndexBufferView();
+
+        mCommandList->IASetVertexBuffers(0, 1, &VBView);
+        mCommandList->IASetIndexBuffer(&IBView);
+        mCommandList->IASetPrimitiveTopology(ri->PrimitiveType);
+
+        CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
+
+        auto objCBIndex = sceneObjects[i]->GetObjCBIndexShadow() * objCBByteSize;
+
+        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + objCBIndex;
+        D3D12_GPU_VIRTUAL_ADDRESS matCBAddress =
+            matCB->GetGPUVirtualAddress() + sceneObjects[i]->GetShadowMaterial()->MatCBIndex * matCBByteSize;
 
         mCommandList->SetGraphicsRootDescriptorTable(0, tex);
         mCommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);

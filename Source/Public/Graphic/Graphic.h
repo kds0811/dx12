@@ -145,6 +145,7 @@ private:
     void BuildFrameResources();
 
     void DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects, bool isReflectedObjects);
+    void DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects);
 
     void UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject);
 };
