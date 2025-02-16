@@ -30,8 +30,8 @@ struct PassConstants
     DirectX::XMFLOAT4 AmbientLight = {0.15f, 0.15f, 0.25f, 1.0f};
 
     DirectX::XMFLOAT4 FogColor = {0.7f, 0.7f, 0.7f, 1.0f};
-    float gFogStart = 40.0f;
-    float gFogRange = 300.0f;
+    float gFogStart = 60.0f;
+    float gFogRange = 500.0f;
     DirectX::XMFLOAT2 cbPerObjectPad2;
 
     // Indices [0, NUM_DIR_LIGHTS) are directional lights;

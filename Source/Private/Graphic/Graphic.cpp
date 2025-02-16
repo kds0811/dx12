@@ -174,18 +174,17 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 
     UINT passCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(PassConstants));
 
-
     // render opaque objects
     DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
 
-    //render alpha tested objects
+    // render alpha tested objects
     if (!bIsWireframe)
     {
         mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
     }
     DrawRenderItems(sortedSceneObjects.AlphaTestObjects, false);
 
-    //render transparent objects
+    // render transparent objects
     if (!bIsWireframe)
     {
         mCommandList->SetPipelineState(mPSOs["transparent"].Get());
@@ -204,7 +203,6 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     DrawRenderItems(sortedSceneObjects.OpaqueObjects, true);
     DrawRenderItems(sortedSceneObjects.AlphaTestObjects, true);
     DrawRenderItems(sortedSceneObjects.TransparentObjects, true);
-
 
     // Restore main pass constants and stencil ref.
     mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
@@ -792,10 +790,19 @@ void Graphic::BuildShadersAndInputLayout()
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
     mShaders["alphaTestedPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
-    mInputLayout = {
+    mShaders["treeSpriteVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["treeSpriteGS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", nullptr, "GS", "gs_5_1");
+    mShaders["treeSpritePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
+    mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+    };
+
+    mTreeSpriteInputLayout = {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+        {"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
 }
 
@@ -807,7 +814,7 @@ void Graphic::BuildPSOs()
     // PSO for opaque objects.
     //
     ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    opaquePsoDesc.InputLayout = {mInputLayout.data(), (UINT)mInputLayout.size()};
+    opaquePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
     opaquePsoDesc.pRootSignature = mRootSignature.Get();
     opaquePsoDesc.VS = {reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()), mShaders["standardVS"]->GetBufferSize()};
     opaquePsoDesc.PS = {reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()), mShaders["opaquePS"]->GetBufferSize()};
@@ -944,6 +951,22 @@ void Graphic::BuildPSOs()
     D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = transparentPsoDesc;
     shadowPsoDesc.DepthStencilState = shadowDSS;
     mDevice->CreateGraphicsPipelineState(&shadowPsoDesc, IID_PPV_ARGS(&mPSOs["shadow"])) >> Check;
+
+    //
+    // PSO for tree sprites
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
+    treeSpritePsoDesc.VS = {
+        reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()), mShaders["treeSpriteVS"]->GetBufferSize()};
+    treeSpritePsoDesc.GS = {
+        reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()), mShaders["treeSpriteGS"]->GetBufferSize()};
+    treeSpritePsoDesc.PS = {
+        reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()), mShaders["treeSpritePS"]->GetBufferSize()};
+    treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+    treeSpritePsoDesc.InputLayout = {mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size()};
+    treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+    mDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])) >> Check;
+
 }
 
 void Graphic::BuildFrameResources()
@@ -1042,7 +1065,7 @@ void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject
 
         waveObject->GetWaves()->Disturb(i, j, r);
     }
-    
+
     // Update the wave simulation.
     waveObject->GetWaves()->Update(gt->GetDeltaTime());
 

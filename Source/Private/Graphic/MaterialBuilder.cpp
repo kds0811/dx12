@@ -27,7 +27,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     materialsInfo.push_back(grassyInfo);
 
     MaterialInfo waterInfo{.Type = EMaterialType::WATER,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.4f),
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f),
         .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1f),
         .Roughness = 0.0f};
     materialsInfo.push_back(waterInfo);
@@ -98,6 +98,14 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Fresnel = XMFLOAT3(0.001f, 0.001f, 0.001),
         .Roughness = 0.0f};
     materialsInfo.push_back(shadow);
+
+          MaterialInfo three{.Type = EMaterialType::THREE,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01),
+        .Roughness = 0.125f};
+    materialsInfo.push_back(three);
+
+
 
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};
 

@@ -4,7 +4,6 @@
 #include "ResourceManager.h"
 #include "PixProfile.h"
 
-
 #if defined PIXPROFILE
 #define USE_PIX
 #include <pix3.h>
@@ -28,7 +27,6 @@ void Scene::InitScene()
     mSceneObjects[8]->SetContiniusRotation(Rotator(10.0f, 10.0f, 10.0f));
     mSceneObjects[9]->SetContiniusRotation(Rotator(-10.0f, -10.0f, -10.0f));
 
-
     mSceneObjects[4]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
     mSceneObjects[5]->SetTextureScale(Vector(4.0f, 4.0f, 4.0f));
 
@@ -39,7 +37,8 @@ void Scene::InitScene()
 
     // set waves texture scale
     mSceneObjects[12]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
-
+    // set Three land texture scale
+    mSceneObjects[13]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
 }
 
 void Scene::Update()
@@ -59,8 +58,8 @@ void Scene::BuildScenePrimitives()
 {
     std::vector<DataPrimitiveBuild> primitiveData{};
     // add skull
-    primitiveData.emplace_back(
-        EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 0.0f), Rotator::Zero(), Vector::One()), EMaterialType::SKULLMAT, ERenderLayer::Opaque);
+    primitiveData.emplace_back(EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 0.0f), Rotator::Zero(), Vector::One()),
+        EMaterialType::SKULLMAT, ERenderLayer::Opaque);
     //
     // add rotate spinners
     primitiveData.emplace_back(EPrimitiveType::SPINER,
@@ -92,7 +91,7 @@ void Scene::BuildScenePrimitives()
     primitiveData.emplace_back(EPrimitiveType::BOX, Transform(Vector(20.0f, 10.f, 10.0f), Rotator::Zero(), Vector(5.0f, 5.0f, 5.0f)),
         EMaterialType::COLDFIRE, ERenderLayer::Opaque);
 
-           // Drone
+    // Drone
     primitiveData.emplace_back(EPrimitiveType::DRONE,
         Transform(Vector(60.0f, 0.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::METALL,
         ERenderLayer::Opaque);
@@ -102,16 +101,19 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(100.0f, 0.0f, -40.0f), Rotator(0.0f, 0.0f, 180.0f), Vector(15.f, 15.f, 15.f)), EMaterialType::DRONEBASECOLOR,
         ERenderLayer::Opaque);
 
-       // Add Waves
+    // Add Waves
     primitiveData.emplace_back(EPrimitiveType::WAVES,
         Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER,
         ERenderLayer::Transparent);
 
+    // Three Land
+    primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(-205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(5.f, 1.0f, 5.f)),
+        EMaterialType::GRASSX, ERenderLayer::Opaque);
+
     // MIRROR
-       primitiveData.emplace_back(EPrimitiveType::GRID,
+    primitiveData.emplace_back(EPrimitiveType::GRID,
         Transform(Vector(0.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::MIRROR,
         ERenderLayer::Mirror);
-
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
@@ -131,29 +133,27 @@ void Scene::BuildScenePrimitives()
     }
 
     // Model
-     primitiveData.emplace_back(EPrimitiveType::MODEL,
+    primitiveData.emplace_back(EPrimitiveType::MODEL,
         Transform(Vector(0.0f, 10.0f, -40.0f), Rotator(-90.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::COLDFIRE,
         ERenderLayer::Opaque);
 
-     // MODELS spiders
-     primitiveData.emplace_back(EPrimitiveType::MODELSPIDERFBX,
-         Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS,
-         ERenderLayer::Opaque);
-     primitiveData.emplace_back(EPrimitiveType::MODELSPIDEROBJ,
-         Transform(Vector(-90.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE,
-         ERenderLayer::Opaque);
+    // MODELS spiders
+    primitiveData.emplace_back(EPrimitiveType::MODELSPIDERFBX,
+        Transform(Vector(-60.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::GRASS,
+        ERenderLayer::Opaque);
+    primitiveData.emplace_back(EPrimitiveType::MODELSPIDEROBJ,
+        Transform(Vector(-90.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(0.1f, 0.1f, 0.1f)), EMaterialType::STONE,
+        ERenderLayer::Opaque);
 
-     //HEUSITOS
-     primitiveData.emplace_back(EPrimitiveType::HUESITOS,
-         Transform(Vector(-50.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER,
-         ERenderLayer::Opaque);
+    // HEUSITOS
+    primitiveData.emplace_back(EPrimitiveType::HUESITOS,
+        Transform(Vector(-50.0f, 4.0f, -40.0f), Rotator(0.0f, 90.0f, 0.0f), Vector(1.f, 1.f, 1.f)), EMaterialType::WATER,
+        ERenderLayer::Opaque);
 
-     // Wire Fence
-     primitiveData.emplace_back(EPrimitiveType::BOX,
-         Transform(Vector(-45.0f, 1.0f, 45.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::WIREFENCE,
-         ERenderLayer::AlphaTested);
-
-
+    // Wire Fence
+    primitiveData.emplace_back(EPrimitiveType::BOX,
+        Transform(Vector(-45.0f, 1.0f, 45.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(10.f, 10.f, 10.f)), EMaterialType::WIREFENCE,
+        ERenderLayer::AlphaTested);
 
     for (const auto& prim : primitiveData)
     {
@@ -172,7 +172,6 @@ void Scene::BuildScenePrimitives()
             pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
         SceneObjectsCounter += 3;
     }
-
 
     // sort object by render layer
     for (const auto& obj : mSceneObjects)
@@ -193,7 +192,7 @@ void Scene::BuildScenePrimitives()
         {
             mSortedSceneObjects.MirrorObjects.push_back(obj.get());
         }
-        
+
         if (obj->GetRenderLayer() == ERenderLayer::Opaque)
         {
             if (obj->GetPrimitiveType() != EPrimitiveType::GRID && obj->GetPrimitiveType() != EPrimitiveType::LAND &&
@@ -202,6 +201,5 @@ void Scene::BuildScenePrimitives()
                 mSortedSceneObjects.Models.push_back(obj.get());
             }
         }
-
     }
 }

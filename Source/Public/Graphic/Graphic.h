@@ -70,7 +70,9 @@ private:
 
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
     std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
-    std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+
+    std::vector<D3D12_INPUT_ELEMENT_DESC> mStdInputLayout;
+    std::vector<D3D12_INPUT_ELEMENT_DESC> mTreeSpriteInputLayout;
 
     PassConstants mMainPassCB;
     PassConstants mReflectedPassCB;

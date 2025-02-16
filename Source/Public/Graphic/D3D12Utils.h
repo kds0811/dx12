@@ -159,7 +159,8 @@ enum class EMaterialType : std::uint8_t
     DRONEBASECOLOR,
     WIREFENCE,
     MIRROR,
-    SHADOW
+    SHADOW,
+    THREE
 
 };
 
