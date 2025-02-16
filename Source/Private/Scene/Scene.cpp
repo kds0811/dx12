@@ -117,16 +117,16 @@ void Scene::BuildScenePrimitives()
     for (int i = 0; i < 5; ++i)
     {
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
-            Transform(Vector(-20.0f, 5.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
+            Transform(Vector(-20.0f, 6.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
             ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::CYLINDER,
-            Transform(Vector(20.0f, 5.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
+            Transform(Vector(20.0f, 6.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE,
             ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(-20.0f, 13.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+            Transform(Vector(-20.0f, 14.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
             ERenderLayer::Opaque);
         primitiveData.emplace_back(EPrimitiveType::SPHERE,
-            Transform(Vector(20.0f, 13.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
+            Transform(Vector(20.0f, 14.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS,
             ERenderLayer::Opaque);
     }
 

@@ -205,6 +205,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     DrawRenderItems(sortedSceneObjects.AlphaTestObjects, true);
     DrawRenderItems(sortedSceneObjects.TransparentObjects, true);
 
+
     // Restore main pass constants and stencil ref.
     mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
     mCommandList->OMSetStencilRef(0);
@@ -988,7 +989,7 @@ void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects,
     }
 }
 
-void Graphic::DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects) 
+void Graphic::DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects)
 {
     UINT objCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(ObjectConstants));
     UINT matCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(MaterialConstants));
