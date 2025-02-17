@@ -26,27 +26,18 @@ struct ThreeSpriteMeshData
 
 struct GeometryData
 {
-    GeometryGenerator::MeshData mesh;
+    std::variant<GeometryGenerator::MeshData, ThreeSpriteMeshData> meshData;
     EPrimitiveType type;
-    UINT vertexOffset;
-    UINT indexOffset;
+    UINT vertexOffset = 0;
+    UINT indexOffset = 0;
     SubmeshGeometry submesh;
 };
 
-struct GeometryDataThree
-{
-    ThreeSpriteMeshData mesh;
-    EPrimitiveType type;
-    UINT vertexOffset;
-    UINT indexOffset;
-    SubmeshGeometry submesh;
-};
 
 class ShapeGeometryBuilder
 {
 
     std::vector<GeometryData> mGeometries;
-
 
     GeometryGenerator mGeometryGenerator;
     GeometryLoader mGeometryLoader;
@@ -63,12 +54,16 @@ public:
 
 private:
     void AddGeometry(const GeometryGenerator::MeshData& mesh,  EPrimitiveType type);
+    void AddGeometry(const ThreeSpriteMeshData& mesh, EPrimitiveType type);
 
     void CalculateOffsets();
     std::vector<Vertex> CreateVertexBuffer();
     std::vector<std::uint16_t> CreateIndexBuffer();
     void ModifyHeightLandVertices(std::vector<Vertex>& vertices);
     float GetHillsHeight(float x, float z) const;
+
+    ThreeSpriteMeshData GenerateTreePoints(float gridSize, int treeCount);
+
 
     template <typename T>
     std::unique_ptr<MeshGeometry> CreateMeshGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
