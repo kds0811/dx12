@@ -38,6 +38,8 @@ void ResourceManager::CreateStandartShapeGeometry()
     // create geometries
     mGeometries["shapeGeo"] = mShapeGeometryBuilder.BuildShapeGeometry(pDevice, mCommandList.Get());
     mGeometries["waterGeo"] = mShapeGeometryBuilder.BuildWavesGeometry(pDevice, mCommandList.Get());
+    mGeometries["treeGeo"]  = mShapeGeometryBuilder.BuildThreeGeometry(pDevice, mCommandList.Get());
+    
     // load and build textures
     mTextures = mTextureCreator.CreateTextures(pDevice, mCommandList.Get());
 

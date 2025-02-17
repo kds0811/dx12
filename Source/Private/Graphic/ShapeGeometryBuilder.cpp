@@ -67,7 +67,6 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Dev
 
     auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "waterGeo", true);
 
-    // Clear geometries for next use
     mGeometries.clear();
 
     return result;
@@ -75,7 +74,18 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Dev
 
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildThreeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-    return std::unique_ptr<MeshGeometry>();
+    AddGeometry(GenerateTreePoints(100.0f, 30), EPrimitiveType::WAVES);
+
+    CalculateOffsets();
+
+    auto vertices = CreateVertexBuffer();
+    auto indices = CreateIndexBuffer();
+
+    auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "treeGeo", true);
+
+    mGeometries.clear();
+
+    return result;
 }
 
 void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, EPrimitiveType type)
@@ -175,13 +185,16 @@ std::vector<std::uint16_t> ShapeGeometryBuilder::CreateIndexBuffer()
         if (std::holds_alternative<GeometryGenerator::MeshData>(geometry.meshData))
         {
             const auto& meshData = std::get<GeometryGenerator::MeshData>(geometry.meshData);
+
             auto geometryIndices = meshData.Indices32;
             indices.insert(indices.end(), std::begin(geometryIndices), std::end(geometryIndices));
         }
         else if (std::holds_alternative<ThreeSpriteMeshData>(geometry.meshData))
         {
-            
-            
+            const auto& meshData = std::get<ThreeSpriteMeshData>(geometry.meshData);
+
+            auto geometryIndices = meshData.Indices32;
+            indices.insert(indices.end(), std::begin(geometryIndices), std::end(geometryIndices));
         }
 
     }
