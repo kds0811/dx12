@@ -184,6 +184,12 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     }
     DrawRenderItems(sortedSceneObjects.AlphaTestObjects, false);
 
+    // render trees
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["treeSprites"].Get());
+        DrawRenderItems(sortedSceneObjects.GenerateTrees, false);
+    }
     // render transparent objects
     if (!bIsWireframe)
     {
@@ -963,7 +969,7 @@ void Graphic::BuildPSOs()
     treeSpritePsoDesc.PS = {
         reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()), mShaders["treeSpritePS"]->GetBufferSize()};
     treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-    treeSpritePsoDesc.InputLayout = {mTreeSpriteInputLayout.data(), (UINT)mTreeSpriteInputLayout.size()};
+    treeSpritePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
     treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     mDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])) >> Check;
 

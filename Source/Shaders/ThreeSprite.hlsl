@@ -71,8 +71,9 @@ cbuffer cbMaterial : register(b2)
  
 struct VertexIn
 {
-    float3 PosW : POSITION;
-    float2 SizeW : SIZE;
+    float3 PosL : POSITION;
+    float3 NormalL : NORMAL;
+    float2 TexC : TEXCOORD;
 };
 
 struct VertexOut
@@ -95,8 +96,8 @@ VertexOut VS(VertexIn vin)
     VertexOut vout;
 
 	// Just pass data over to geometry shader.
-    vout.CenterW = vin.PosW;
-    vout.SizeW = vin.SizeW;
+    vout.CenterW = mul(float4(vin.PosL, 1.0f), gWorld);
+    vout.SizeW = vin.TexC;
 
     return vout;
 }

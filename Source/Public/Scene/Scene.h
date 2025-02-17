@@ -16,6 +16,7 @@ struct SortedSceneObjects
     std::vector<BaseSceneObject*> AlphaTestObjects;
     std::vector<BaseSceneObject*> MirrorObjects;
     std::vector<BaseSceneObject*> Models;
+    std::vector<BaseSceneObject*> GenerateTrees;
 };
 
 struct DataPrimitiveBuild

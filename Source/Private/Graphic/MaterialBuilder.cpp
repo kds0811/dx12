@@ -99,7 +99,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Roughness = 0.0f};
     materialsInfo.push_back(shadow);
 
-          MaterialInfo three{.Type = EMaterialType::THREE,
+          MaterialInfo three{.Type = EMaterialType::TREES,
         .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
         .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01),
         .Roughness = 0.125f};

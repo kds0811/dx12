@@ -3,6 +3,7 @@
 #include "WavesSceneObject.h"
 #include "ResourceManager.h"
 #include "PixProfile.h"
+#include "TreesSceneObject.h"
 
 #if defined PIXPROFILE
 #define USE_PIX
@@ -106,9 +107,13 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::WATER,
         ERenderLayer::Transparent);
 
-    // Three Land
+    // Trees Land
     primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(-205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(5.f, 1.0f, 5.f)),
         EMaterialType::GRASSX, ERenderLayer::Opaque);
+    // Trees
+     primitiveData.emplace_back(EPrimitiveType::TREES, Transform(Vector(-205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(1.f, 1.0f, 1.f)),
+        EMaterialType::TREES, ERenderLayer::GenerateTrees);
+
 
     // MIRROR
     primitiveData.emplace_back(EPrimitiveType::GRID,
@@ -168,6 +173,14 @@ void Scene::BuildScenePrimitives()
             continue;
         }
 
+        if (prim.ObjectType == EPrimitiveType::TREES)
+        {
+            mSceneObjects.emplace_back(std::make_unique<TreesSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
+                pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
+            SceneObjectsCounter += 3;
+            continue;
+        }
+
         mSceneObjects.emplace_back(std::make_unique<PrimitiveSceneObject>(prim.ObjectType, prim.ObjectTransformation, SceneObjectsCounter,
             pResourceManager->GetGeometries(), prim.MaterialType, pResourceManager->GetMaterials(), prim.RenderLayer));
         SceneObjectsCounter += 3;
@@ -191,6 +204,10 @@ void Scene::BuildScenePrimitives()
         else if (obj->GetRenderLayer() == ERenderLayer::Mirror)
         {
             mSortedSceneObjects.MirrorObjects.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::GenerateTrees)
+        {
+            mSortedSceneObjects.GenerateTrees.push_back(obj.get());
         }
 
         if (obj->GetRenderLayer() == ERenderLayer::Opaque)

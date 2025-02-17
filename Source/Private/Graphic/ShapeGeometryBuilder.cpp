@@ -74,14 +74,14 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Dev
 
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildThreeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-    AddGeometry(GenerateTreePoints(100.0f, 30), EPrimitiveType::WAVES);
+    AddGeometry(GenerateTreePoints(100.0f, 60), EPrimitiveType::WAVES);
 
     CalculateOffsets();
 
     auto vertices = CreateVertexBuffer();
     auto indices = CreateIndexBuffer();
 
-    auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "treeGeo", true);
+    auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "treeGeo", false);
 
     mGeometries.clear();
 

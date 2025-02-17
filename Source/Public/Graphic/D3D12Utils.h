@@ -42,7 +42,7 @@ enum class EPrimitiveType : std::uint8_t
     HUESITOS,
     SPINER,
     DRONE,
-    Threes
+    TREES
 };
 
 struct SubmeshGeometry
@@ -139,7 +139,8 @@ enum class ERenderLayer : std::uint8_t
     Count,
     Mirror,
     Reflected,
-    Shadow
+    Shadow,
+    GenerateTrees
 };
 
 enum class EMaterialType : std::uint8_t
@@ -161,7 +162,7 @@ enum class EMaterialType : std::uint8_t
     WIREFENCE,
     MIRROR,
     SHADOW,
-    THREE
+    TREES
 
 };
 
