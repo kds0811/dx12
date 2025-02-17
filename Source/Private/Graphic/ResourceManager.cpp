@@ -29,9 +29,6 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     mMaterials = mMaterialBuilder.CreateMaterials();
     AddTexturePtrOnMaterial();
 
-    
-
-
 }
 
 void ResourceManager::CreateStandartShapeGeometry() 

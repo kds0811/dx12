@@ -42,6 +42,7 @@ public:
         DirectX::XMFLOAT2 TexC = {0.0f, 0.0f};
     };
 
+
     struct MeshData
     {
         std::vector<Vertex> Vertices;

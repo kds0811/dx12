@@ -41,7 +41,8 @@ enum class EPrimitiveType : std::uint8_t
     MODELSPIDEROBJ,
     HUESITOS,
     SPINER,
-    DRONE
+    DRONE,
+    Threes
 };
 
 struct SubmeshGeometry

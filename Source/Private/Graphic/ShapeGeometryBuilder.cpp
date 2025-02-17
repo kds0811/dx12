@@ -8,51 +8,42 @@ using namespace DirectX;
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // Add geometries
-    AddGeometry(mGeometryGenerator.CreateBox(1.f, 1.0f, 1.0f, 3), XMFLOAT4(DirectX::Colors::DarkGreen), EPrimitiveType::BOX);
-    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), XMFLOAT4(DirectX::Colors::ForestGreen), EPrimitiveType::GRID);
-    AddGeometry(mGeometryGenerator.CreateSphere(1.f, 20, 20), XMFLOAT4(DirectX::Colors::Crimson), EPrimitiveType::SPHERE);
-    AddGeometry(
-        mGeometryGenerator.CreateCylinder(2.0f, 1.f, 3.0f, 20, 20), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::CYLINDER);
+    AddGeometry(mGeometryGenerator.CreateBox(1.f, 1.0f, 1.0f, 3), EPrimitiveType::BOX);
+    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), EPrimitiveType::GRID);
+    AddGeometry(mGeometryGenerator.CreateSphere(1.f, 20, 20), EPrimitiveType::SPHERE);
+    AddGeometry(mGeometryGenerator.CreateCylinder(2.0f, 1.f, 3.0f, 20, 20), EPrimitiveType::CYLINDER);
 
-    //Mounts
-    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), XMFLOAT4(DirectX::Colors::SteelBlue), EPrimitiveType::LAND);
+    // Mounts
+    AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), EPrimitiveType::LAND);
 
-    //skull
-    AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), XMFLOAT4(DirectX::Colors::Gray), EPrimitiveType::MESH);
+    // skull
+    AddGeometry(mGeometryLoader.LoadGeometryFromTXTFile("..//Source//Models//skull.txt"), EPrimitiveType::MESH);
 
-    //assimp load model
-    AddGeometry(
-        mAssimpLoader.LoadGeometryFromFile("..//Source//Models//ironpod.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::MODEL);
+    // assimp load model
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//ironpod.fbx"), EPrimitiveType::MODEL);
 
-   // assimp load model
-    AddGeometry(
-        mAssimpLoader.LoadGeometryFromFile("..//Source//Models//UpgradedKleinerToilet.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::MODEL1);
+    // assimp load model
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//UpgradedKleinerToilet.fbx"), EPrimitiveType::MODEL1);
 
-       // assimp load model
-    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
-        EPrimitiveType::MODELSPIDERFBX);
-    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.obj"), XMFLOAT4(DirectX::Colors::DarkRed),
-        EPrimitiveType::MODELSPIDEROBJ);
-    
+    // assimp load model
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.fbx"), EPrimitiveType::MODELSPIDERFBX);
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spider.obj"), EPrimitiveType::MODELSPIDEROBJ);
+
     // HUESITOS
-     AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//huesitos.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
-        EPrimitiveType::HUESITOS);
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//huesitos.fbx"), EPrimitiveType::HUESITOS);
 
     // SPINER
-     AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spinner.fbx"), XMFLOAT4(DirectX::Colors::DarkRed),
-         EPrimitiveType::SPINER);
-     
-     //DRONE
-     AddGeometry(
-         mAssimpLoader.LoadGeometryFromFile("..//Source//Models//drone_simple.fbx"), XMFLOAT4(DirectX::Colors::DarkRed), EPrimitiveType::DRONE);
-     
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//spinner.fbx"), EPrimitiveType::SPINER);
+
+    // DRONE
+    AddGeometry(mAssimpLoader.LoadGeometryFromFile("..//Source//Models//drone_simple.fbx"), EPrimitiveType::DRONE);
 
     CalculateOffsets();
 
     auto vertices = CreateVertexBuffer();
     auto indices = CreateIndexBuffer();
 
-   // modify height land vertices
+    // modify height land vertices
     ModifyHeightLandVertices(vertices);
 
     auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "shapeGeo", false);
@@ -66,7 +57,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // waves
-    AddGeometry(mGeometryGenerator.CreateGrid(145.0f, 145.0f, 145, 145), XMFLOAT4(DirectX::Colors::Blue), EPrimitiveType::WAVES);
+    AddGeometry(mGeometryGenerator.CreateGrid(145.0f, 145.0f, 145, 145), EPrimitiveType::WAVES);
 
     CalculateOffsets();
 
@@ -81,18 +72,18 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Dev
     return result;
 }
 
+std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildThreeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
+{
+    return std::unique_ptr<MeshGeometry>();
+}
 
-
-void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, const XMFLOAT4& color, EPrimitiveType type)
+void ShapeGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, EPrimitiveType type)
 {
     GeometryData data;
     data.mesh = mesh;
-    data.color = color;
     data.type = type;
     mGeometries.push_back(data);
 }
-
-
 
 void ShapeGeometryBuilder::CalculateOffsets()
 {
@@ -145,59 +136,18 @@ std::vector<std::uint16_t> ShapeGeometryBuilder::CreateIndexBuffer()
     return indices;
 }
 
-std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::CreateMeshGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
-    const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices, std::string meshName, bool isWavesMesh)
-{
-    const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-    const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-    auto geo = std::make_unique<MeshGeometry>();
-    geo->Name = meshName;
-
-    if (!isWavesMesh)
-    {
-        D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Kds::App::Check;
-        CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-        geo->VertexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, vertices.data(), vbByteSize, geo->VertexBufferUploader);
-    }
-    else
-    {
-        // Set dynamically for Waves
-        geo->VertexBufferCPU = nullptr;
-        geo->VertexBufferGPU = nullptr;
-    }
-
-    D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU) >> Kds::App::Check;
-    CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-    geo->IndexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-    geo->VertexByteStride = sizeof(Vertex);
-    geo->VertexBufferByteSize = vbByteSize;
-    geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-    geo->IndexBufferByteSize = ibByteSize;
-
-    // Add DrawArgs
-    for (const auto& geometry : mGeometries)
-    {
-        geo->DrawArgs[geometry.type] = geometry.submesh;
-    }
-
-    return geo;
-}
-
 void ShapeGeometryBuilder::ModifyHeightLandVertices(std::vector<Vertex>& vertices)
 {
     for (auto& geom : mGeometries)
     {
         if (geom.type == EPrimitiveType::LAND)
         {
-            //update vecrtices
+            // update vecrtices
             for (size_t i = geom.vertexOffset; i < geom.vertexOffset + geom.mesh.Vertices.size(); ++i)
             {
                 vertices[i].Pos.y = GetHillsHeight(vertices[i].Pos.x, vertices[i].Pos.z);
             }
-            //update normals
+            // update normals
             const int rows = 160;
             const int cols = 160;
             for (int i = 0; i < rows - 1; ++i)
@@ -220,7 +170,7 @@ float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
 {
     const float gridSize = 160.0f;
     const float halfSize = gridSize * 0.5f;
-    const float borderSize = gridSize * 0.05f;  
+    const float borderSize = gridSize * 0.05f;
 
     float dx = abs(x);
     float dz = abs(z);
@@ -243,7 +193,3 @@ float ShapeGeometryBuilder::GetHillsHeight(float x, float z) const
     float height = 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
     return std::max<float>(-5.0f, height * borderFalloff);
 }
-
-
-
-

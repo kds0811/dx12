@@ -3,6 +3,7 @@
 #include "D3D12Utils.h"
 #include "MathHelper.h"
 #include "UploadBuffer.h"
+#include "cstdint"
 
 struct ObjectConstants
 {
