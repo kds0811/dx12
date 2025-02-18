@@ -47,7 +47,7 @@ App::App()
         mGfx->InitResources(mScene->GetSceneObjectsCounter(), mScene->GetWavesPtr()->GetVertexCount(),
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
-    mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd(), mResourceManager->GetTextures().size());
+    mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd(), mResourceManager->GetTextures().size(), mCamera.get());
 }
 
 App::~App()

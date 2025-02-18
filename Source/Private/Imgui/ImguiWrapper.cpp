@@ -5,6 +5,7 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
 #include "GraphicError.h"
+#include "Camera.h"
 
 ImguiWrapper::ImguiWrapper() {}
 
@@ -16,9 +17,10 @@ ImguiWrapper::~ImguiWrapper()
     ImGui::DestroyContext();
 }
 
-void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures)
+void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures, Camera* cam)
 {
     pGfx = gfx;
+    pCamera = cam;
     g_pd3dSrvDescHeapAlloc.Create(pGfx->GetDevice(), pGfx->GetSrvDescriptorHeap(), numTextures);
 
     // Setup Dear ImGui context
@@ -76,6 +78,13 @@ void ImguiWrapper::StartImguiFrame()
         ImGui::ColorEdit4("Ambient Light", (float*)&pGfx->mAmbientLight);
         ImGui::DragFloat3("Light Direction", &pGfx->mLightsDirection.x, 0.1f, -1.0f, 1.0f);
         ImGui::ColorEdit3("Light Color", (float*)&pGfx->mLightsStrength);
+        ImGui::End();
+    }
+
+    if (ImGui::Begin("Camera Speed", nullptr, ImGuiWindowFlags_NoCollapse))
+    {
+        ImGui::SliderFloat("Camera Speed", &pCamera->GetSpeedCameraRef(), 1.0f, 500.0f);
+        ImGui::SliderFloat("Camera Rotate", &pCamera->GetSpeedRotateCameraRef(), 1.0f, 100.0f);
         ImGui::End();
     }
 }
