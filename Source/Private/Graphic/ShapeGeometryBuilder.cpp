@@ -74,7 +74,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildWavesGeometry(ID3D12Dev
 
 std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildThreeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-    AddGeometry(GenerateTreePoints(100.0f, 60), EPrimitiveType::WAVES);
+    AddGeometry(GenerateTreePoints(200.0f, 60), EPrimitiveType::TREES);
 
     CalculateOffsets();
 
@@ -270,7 +270,7 @@ ThreeSpriteMeshData ShapeGeometryBuilder::GenerateTreePoints(float gridSize, int
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> distX(-gridSize / 2, gridSize / 2);
     std::uniform_real_distribution<float> distZ(-gridSize / 2, gridSize / 2);
-    std::uniform_real_distribution<float> distSize(1.0f, 3.0f);  
+    std::uniform_real_distribution<float> distSize(10.0f, 12.0f);  
 
     for (int i = 0; i < treeCount; ++i)
     {

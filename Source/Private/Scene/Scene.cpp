@@ -111,7 +111,7 @@ void Scene::BuildScenePrimitives()
     primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(-205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(5.f, 1.0f, 5.f)),
         EMaterialType::GRASSX, ERenderLayer::Opaque);
     // Trees
-     primitiveData.emplace_back(EPrimitiveType::TREES, Transform(Vector(-205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(1.f, 1.0f, 1.f)),
+     primitiveData.emplace_back(EPrimitiveType::TREES, Transform(Vector(-205.0f, 5.5f, 150.0f), Rotator::Zero(), Vector(1.f, 1.0f, 1.f)),
         EMaterialType::TREES, ERenderLayer::GenerateTrees);
 
 
