@@ -22,4 +22,5 @@ public:
 private:
     void CreateRenderItem(UINT sceneCounter, std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& geometries,
         std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
+    void AnimateMaterial(float dt);
 };

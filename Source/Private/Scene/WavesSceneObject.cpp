@@ -16,6 +16,7 @@ WavesSceneObject::WavesSceneObject(EPrimitiveType objectType, Transform objectTr
 void WavesSceneObject::Update(float dt)
 {
     BaseSceneObject::Update(dt);
+    AnimateMaterial(dt);
 }
 
 int WavesSceneObject::GetVertexCount()
@@ -38,4 +39,26 @@ void WavesSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_map<st
     mObjCBIndexRef = mRenderItem->ObjCBIndex + 1;
     mObjCBIndexShadow = mRenderItem->ObjCBIndex + 2;
     mShadowMat = materials[EMaterialType::SHADOW].get();
+}
+
+void WavesSceneObject::AnimateMaterial(float dt) 
+{
+    // Scroll the water material texture coordinates.
+    auto waterMat = mRenderItem->Mat;
+
+    float& tu = waterMat->MatTransform(3, 0);
+    float& tv = waterMat->MatTransform(3, 1);
+
+    tu += 0.04f * dt;
+    tv += 0.01f * dt;
+
+    if (tu >= 1.0f) tu -= 1.0f;
+
+    if (tv >= 1.0f) tv -= 1.0f;
+
+    waterMat->MatTransform(3, 0) = tu;
+    waterMat->MatTransform(3, 1) = tv;
+
+    // Material has changed, so need to update cbuffer.
+    waterMat->NumFramesDirty = gNumFrameResources;
 }
