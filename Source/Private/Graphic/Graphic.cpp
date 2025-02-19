@@ -177,6 +177,10 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     // render opaque objects
     DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
 
+    // render geometry sudivided objects
+    DrawRenderItems(sortedSceneObjects.GeometrySubdivide, false);
+
+
     // render alpha tested objects
     if (!bIsWireframe)
     {

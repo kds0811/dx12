@@ -141,7 +141,8 @@ enum class ERenderLayer : std::uint8_t
     Mirror,
     Reflected,
     Shadow,
-    GenerateTrees
+    GenerateTrees,
+    GeometrySubdivide
 };
 
 enum class EMaterialType : std::uint8_t

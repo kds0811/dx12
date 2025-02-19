@@ -17,6 +17,7 @@ struct SortedSceneObjects
     std::vector<BaseSceneObject*> MirrorObjects;
     std::vector<BaseSceneObject*> Models;
     std::vector<BaseSceneObject*> GenerateTrees;
+    std::vector<BaseSceneObject*> GeometrySubdivide;
 };
 
 struct DataPrimitiveBuild

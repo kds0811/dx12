@@ -61,7 +61,7 @@ void Scene::BuildScenePrimitives()
     // add skull
     primitiveData.emplace_back(EPrimitiveType::MESH, Transform(Vector(0.0f, 5.f, 0.0f), Rotator::Zero(), Vector::One()),
         EMaterialType::SKULLMAT, ERenderLayer::Opaque);
-    //
+
     // add rotate spinners
     primitiveData.emplace_back(EPrimitiveType::SPINER,
         Transform(Vector(50.0f, 10.0f, 0.0f), Rotator(0.0f, 180.0f, 90.0f), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::COLDFIRE,
@@ -114,7 +114,6 @@ void Scene::BuildScenePrimitives()
      primitiveData.emplace_back(EPrimitiveType::TREES, Transform(Vector(-205.0f, 5.5f, 150.0f), Rotator::Zero(), Vector(1.f, 1.0f, 1.f)),
         EMaterialType::TREES, ERenderLayer::GenerateTrees);
 
-
     // MIRROR
     primitiveData.emplace_back(EPrimitiveType::GRID,
         Transform(Vector(0.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::MIRROR,
@@ -122,9 +121,8 @@ void Scene::BuildScenePrimitives()
 
     // GEOSPHERE
     primitiveData.emplace_back(EPrimitiveType::GEOSPHERE,
-        Transform(Vector(-80.0f, 17.5f, -60.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(3.f, 3.0f, 3.f)), EMaterialType::CYAN,
-        ERenderLayer::Opaque);
-
+        Transform(Vector(-120.0f, 17.5f, -60.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(3.f, 3.0f, 3.f)), EMaterialType::WHITE,
+        ERenderLayer::GeometrySubdivide);
 
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
@@ -214,6 +212,10 @@ void Scene::BuildScenePrimitives()
         else if (obj->GetRenderLayer() == ERenderLayer::GenerateTrees)
         {
             mSortedSceneObjects.GenerateTrees.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::GeometrySubdivide)
+        {
+            mSortedSceneObjects.GeometrySubdivide.push_back(obj.get());
         }
 
         if (obj->GetRenderLayer() == ERenderLayer::Opaque)
