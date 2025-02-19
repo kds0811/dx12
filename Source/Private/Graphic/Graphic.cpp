@@ -178,8 +178,11 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
 
     // render geometry sudivided objects
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["geometrySubdivide"].Get());
+    }
     DrawRenderItems(sortedSceneObjects.GeometrySubdivide, false);
-
 
     // render alpha tested objects
     if (!bIsWireframe)
@@ -794,8 +797,8 @@ void Graphic::BuildRootSignature()
 void Graphic::BuildShadersAndInputLayout()
 {
     const D3D_SHADER_MACRO defines[] = {"FOG", "1", NULL, NULL};
-
     const D3D_SHADER_MACRO alphaTestDefines[] = {"FOG", "1", "ALPHA_TEST", "1", NULL, NULL};
+
 
     mShaders["standardVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
@@ -804,6 +807,12 @@ void Graphic::BuildShadersAndInputLayout()
     mShaders["treeSpriteVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["treeSpriteGS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", nullptr, "GS", "gs_5_1");
     mShaders["treeSpritePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
+    mShaders["geometrySubdivideVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["geometrySubdivideGS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", nullptr, "GS", "gs_5_1");
+    mShaders["geometrySubdividePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", defines, "PS", "ps_5_1");
+
+
 
     mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -815,6 +824,10 @@ void Graphic::BuildShadersAndInputLayout()
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
+
+
+
+
 }
 
 void Graphic::BuildPSOs()
@@ -977,6 +990,18 @@ void Graphic::BuildPSOs()
     treeSpritePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
     treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     mDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])) >> Check;
+
+      D3D12_GRAPHICS_PIPELINE_STATE_DESC GeometrySubdividePsoDesc = opaquePsoDesc;
+    GeometrySubdividePsoDesc.VS = {
+        reinterpret_cast<BYTE*>(mShaders["geometrySubdivideVS"]->GetBufferPointer()), mShaders["geometrySubdivideVS"]->GetBufferSize()};
+      GeometrySubdividePsoDesc.GS = {
+        reinterpret_cast<BYTE*>(mShaders["geometrySubdivideGS"]->GetBufferPointer()), mShaders["geometrySubdivideGS"]->GetBufferSize()};
+    GeometrySubdividePsoDesc.PS = {
+        reinterpret_cast<BYTE*>(mShaders["geometrySubdividePS"]->GetBufferPointer()), mShaders["geometrySubdividePS"]->GetBufferSize()};
+    GeometrySubdividePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    GeometrySubdividePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
+    GeometrySubdividePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+    mDevice->CreateGraphicsPipelineState(&GeometrySubdividePsoDesc, IID_PPV_ARGS(&mPSOs["geometrySubdivide"])) >> Check;
 
 }
 

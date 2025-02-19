@@ -121,7 +121,11 @@ void Scene::BuildScenePrimitives()
 
     // GEOSPHERE
     primitiveData.emplace_back(EPrimitiveType::GEOSPHERE,
-        Transform(Vector(-120.0f, 17.5f, -60.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(3.f, 3.0f, 3.f)), EMaterialType::WHITE,
+        Transform(Vector(-120.0f, 17.5f, -60.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(5.f, 5.0f, 5.f)), EMaterialType::WHITE,
+        ERenderLayer::Opaque);
+
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE,
+        Transform(Vector(-120.0f, 17.5f, -40.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(5.f, 5.0f, 5.f)), EMaterialType::WHITE,
         ERenderLayer::GeometrySubdivide);
 
     // add colums and spheres
