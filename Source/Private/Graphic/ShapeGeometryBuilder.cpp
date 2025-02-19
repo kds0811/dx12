@@ -13,6 +13,7 @@ std::unique_ptr<MeshGeometry> ShapeGeometryBuilder::BuildShapeGeometry(ID3D12Dev
     AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), EPrimitiveType::GRID);
     AddGeometry(mGeometryGenerator.CreateSphere(1.f, 20, 20), EPrimitiveType::SPHERE);
     AddGeometry(mGeometryGenerator.CreateCylinder(2.0f, 1.f, 3.0f, 20, 20), EPrimitiveType::CYLINDER);
+    AddGeometry(mGeometryGenerator.CreateGeosphere(1.0f, 0), EPrimitiveType::GEOSPHERE);
 
     // Mounts
     AddGeometry(mGeometryGenerator.CreateGrid(160.0f, 160.0f, 160, 160), EPrimitiveType::LAND);

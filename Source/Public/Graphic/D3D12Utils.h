@@ -32,6 +32,7 @@ enum class EPrimitiveType : std::uint8_t
     GRID,
     CYLINDER,
     SPHERE,
+    GEOSPHERE,
     LAND,
     MESH,
     WAVES,
@@ -162,8 +163,17 @@ enum class EMaterialType : std::uint8_t
     WIREFENCE,
     MIRROR,
     SHADOW,
-    TREES
-
+    TREES,
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    PURPLE,
+    CYAN,
+    ORANGE,
+    PINK,
+    GRAY,
+    WHITE
 };
 
 struct Texture;

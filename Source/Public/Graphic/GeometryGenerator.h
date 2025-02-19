@@ -74,7 +74,7 @@ public:
 
     /// Creates a geosphere centered at the origin with the given radius.  The
     /// depth controls the level of tessellation.
-    MeshData CreateGeosphere(float radius, uint32 numSubdivisions);
+    MeshData CreateGeosphere(float radius, int numSubdivisions = 6);
 
     /// Creates a cylinder parallel to the y-axis, and centered about the origin.
     /// The bottom and top radius can vary to form various cone shapes rather than true

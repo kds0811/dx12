@@ -105,6 +105,76 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Roughness = 0.125f};
     materialsInfo.push_back(three);
 
+      // RED
+    MaterialInfo redMaterial{.Type = EMaterialType::RED,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(redMaterial);
+
+    // GREEN
+    MaterialInfo greenMaterial{.Type = EMaterialType::GREEN,
+        .DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(greenMaterial);
+
+    // BLUE
+    MaterialInfo blueMaterial{.Type = EMaterialType::BLUE,
+        .DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(blueMaterial);
+
+    // YELLOW
+    MaterialInfo yellowMaterial{.Type = EMaterialType::YELLOW,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(yellowMaterial);
+
+    // PURPLE
+    MaterialInfo purpleMaterial{.Type = EMaterialType::PURPLE,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(purpleMaterial);
+
+   // CYAN
+    MaterialInfo cyanMaterial{.Type = EMaterialType::CYAN,
+        .DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(cyanMaterial);
+
+    // ORANGE
+    MaterialInfo orangeMaterial{.Type = EMaterialType::ORANGE,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(orangeMaterial);
+
+    // PINK
+    MaterialInfo pinkMaterial{.Type = EMaterialType::PINK,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.5f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(pinkMaterial);
+
+    // GRAY
+    MaterialInfo grayMaterial{.Type = EMaterialType::GRAY,
+        .DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(grayMaterial);
+
+    // WHITE
+    MaterialInfo whiteMaterial{.Type = EMaterialType::WHITE,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
+        .Roughness = 0.001f};
+    materialsInfo.push_back(whiteMaterial);
+
 
 
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};

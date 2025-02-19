@@ -304,12 +304,12 @@ GeometryGenerator::Vertex GeometryGenerator::MidPoint(const Vertex& v0, const Ve
     return v;
 }
 
-GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uint32 numSubdivisions)
+GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, int numSubdivisions)
 {
     MeshData meshData;
 
 	// Put a cap on the number of subdivisions.
-    numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
+   // numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
 
 	// Approximate a sphere by tessellating an icosahedron.
 

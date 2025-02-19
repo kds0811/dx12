@@ -120,6 +120,12 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(0.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::MIRROR,
         ERenderLayer::Mirror);
 
+    // GEOSPHERE
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE,
+        Transform(Vector(-80.0f, 17.5f, -60.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(3.f, 3.0f, 3.f)), EMaterialType::CYAN,
+        ERenderLayer::Opaque);
+
+
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
