@@ -60,6 +60,8 @@ cbuffer cbPass : register(b1)
     // indices [NUM_DIR_LIGHTS+NUM_POINT_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHT+NUM_SPOT_LIGHTS)
     // are spot lights for a maximum of MaxLights per object.
     Light gLights[MaxLights];
+    
+    float4 gBaseColors[32];
 };
 
 cbuffer cbMaterial : register(b2)
@@ -96,11 +98,12 @@ struct GeoOut
     uint PrimID : SV_PrimitiveID;
 };
 
+
 	
 void Subdivide(VertexOut inVerts[3], out VertexOut outVerts[6])
 {
     VertexOut m[3];
-	
+    
 	//	Compute	edge	midpoints.
     m[0].PosL = 0.5f * (inVerts[0].PosL + inVerts[1].PosL);
     m[1].PosL = 0.5f * (inVerts[1].PosL + inVerts[2].PosL);
@@ -141,7 +144,7 @@ void OutputSubdivision(VertexOut v[6], inout TriangleStream<GeoOut> triStream, u
         float4x4 WorldWorldViewProj = mul(gWorld, gViewProj);
         gout[i].PosH = mul(float4(v[i].PosL, 1.0f), WorldWorldViewProj);
         gout[i].TexC = v[i].TexC;
-        gout[i].PrimID = primID;
+        gout[i].PrimID = primID + i * 3;
     }
 			
 	[unroll]
@@ -181,42 +184,6 @@ void GS(triangle VertexOut gin[3],
 
 float4 PS(GeoOut pin) : SV_Target
 {
-    float3 uvw = float3(pin.TexC, pin.PrimID % 3);
-    float4 diffuseAlbedo = gTreeMapArray.Sample(gsamAnisotropicWrap, uvw) * gDiffuseAlbedo;
-	
-#ifdef ALPHA_TEST
-	// Discard pixel if texture alpha < 0.1.  We do this test as soon 
-	// as possible in the shader so that we can potentially exit the
-	// shader early, thereby skipping the rest of the shader code.
-	clip(diffuseAlbedo.a - 0.1f);
-#endif
-
-    // Interpolating normal can unnormalize it, so renormalize it.
-    pin.NormalW = normalize(pin.NormalW);
-
-    // Vector from point being lit to eye. 
-    float3 toEyeW = gEyePosW - pin.PosW;
-    float distToEye = length(toEyeW);
-    toEyeW /= distToEye; // normalize
-
-    // Light terms.
-    float4 ambient = gAmbientLight * diffuseAlbedo;
-
-    const float shininess = 1.0f - gRoughness;
-    Material mat = { diffuseAlbedo, gFresnelR0, shininess };
-    float3 shadowFactor = 1.0f;
-    float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
-        pin.NormalW, toEyeW, shadowFactor);
-
-    float4 litColor = ambient + directLight;
-
-#ifdef FOG
-	float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
-	litColor = lerp(litColor, gFogColor, fogAmount);
-#endif
-
-    // Common convention to take alpha from diffuse albedo.
-    litColor.a = diffuseAlbedo.a;
-
-    return litColor;
+    int ColorIndex = pin.PrimID % 32;
+    return gBaseColors[ColorIndex];
 }

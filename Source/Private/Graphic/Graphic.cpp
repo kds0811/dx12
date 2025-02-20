@@ -182,6 +182,10 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     {
        mCommandList->SetPipelineState(mPSOs["geometrySubdivide"].Get());
     }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["geometrySubdivideWireFrame"].Get());
+    }
     DrawRenderItems(sortedSceneObjects.GeometrySubdivide, false);
 
     // render alpha tested objects
@@ -1009,6 +1013,10 @@ void Graphic::BuildPSOs()
     GeometrySubdividePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
     GeometrySubdividePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
     mDevice->CreateGraphicsPipelineState(&GeometrySubdividePsoDesc, IID_PPV_ARGS(&mPSOs["geometrySubdivide"])) >> Check;
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC GeometrySubdividePsoDescWireFrame = GeometrySubdividePsoDesc;
+    GeometrySubdividePsoDescWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    mDevice->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&mPSOs["geometrySubdivideWireFrame"])) >> Check;
 
 }
 
