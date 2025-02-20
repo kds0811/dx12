@@ -30,6 +30,7 @@ cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
     float4x4 gTexTransform;
+    float4x4 gWorldInvTranspose;
 };
 
 cbuffer cbPass : register(b1)

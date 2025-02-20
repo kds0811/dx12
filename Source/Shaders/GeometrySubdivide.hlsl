@@ -28,6 +28,7 @@ cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
     float4x4 gTexTransform;
+    float4x4 gWorldInvTranspose;
 };
 
 // Constant data that varies per material.
@@ -95,6 +96,65 @@ struct GeoOut
     uint PrimID : SV_PrimitiveID;
 };
 
+	
+void Subdivide(VertexOut inVerts[3], out VertexOut outVerts[6])
+{
+    VertexOut m[3];
+	
+	//	Compute	edge	midpoints.
+    m[0].PosL = 0.5f * (inVerts[0].PosL + inVerts[1].PosL);
+    m[1].PosL = 0.5f * (inVerts[1].PosL + inVerts[2].PosL);
+    m[2].PosL = 0.5f * (inVerts[2].PosL + inVerts[0].PosL);
+	
+	//	Project	onto	unit	sphere
+    m[0].PosL = normalize(m[0].PosL);
+    m[1].PosL = normalize(m[1].PosL);
+    m[2].PosL = normalize(m[2].PosL);
+	
+	//	Derive	normals.
+    m[0].NormalL = m[0].PosL;
+    m[1].NormalL = m[1].PosL;
+    m[2].NormalL = m[2].PosL;
+	
+	//	Interpolate	texture	coordinates.
+    m[0].TexC = 0.5f * (inVerts[0].TexC + inVerts[1].TexC);
+    m[1].TexC = 0.5f * (inVerts[1].TexC + inVerts[2].TexC);
+    m[2].TexC = 0.5f * (inVerts[2].TexC + inVerts[0].TexC);
+	
+    outVerts[0] = inVerts[0];
+    outVerts[1] = m[0];
+    outVerts[2] = m[2];
+    outVerts[3] = m[1];
+    outVerts[4] = inVerts[2];
+    outVerts[5] = inVerts[1];
+};
+
+void OutputSubdivision(VertexOut v[6], inout TriangleStream<GeoOut> triStream)
+{
+    GeoOut gout[6];
+	
+	[unroll]
+    for (int i = 0; i < 6; ++i)
+    {
+        gout[i].PosW = mul(float4(v[i].PosL, 1.0f), gWorld).xyz;
+        gout[i].NormalW = mul(v[i].NormalL, (float3x3)gWorldInvTranspose);
+        float4x4 WorldWorldViewProj = mul(gWorld, gViewProj);
+        gout[i].PosH = mul(float4(v[i].PosL, 1.0f), WorldWorldViewProj);
+        gout[i].TexC = v[i].TexC;
+    }
+			
+	[unroll]
+    for (int j = 0; j < 5; ++j)
+    {
+        triStream.Append(gout[j]);
+    }
+    triStream.RestartStrip();
+			
+    triStream.Append(gout[1]);
+    triStream.Append(gout[5]);
+    triStream.Append(gout[3]);
+}
+
 VertexOut VS(VertexIn vin)
 {
     VertexOut vout;
@@ -108,62 +168,14 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
  
-[maxvertexcount(9)]
+[maxvertexcount(8)]
 void GS(triangle VertexOut gin[3],
         uint primID : SV_PrimitiveID,
-        inout TriangleStream<GeoOut> output)
+        inout TriangleStream<GeoOut> triStream)
 {
-    float3 CenterL = (gin[0].PosL.xyz + gin[1].PosL.xyz + gin[2].PosL.xyz) / 3.0f;
- 
-    float3 CenterW = mul(float4(CenterL, 1.0f), gWorld).xyz;
-    float3 CenterNormalL = (gin[0].NormalL.xyz + gin[1].NormalL.xyz + gin[2].NormalL.xyz) / 3.0f;
-    
-    float3 centerNormalW = mul(float4(CenterNormalL, 0.0f), gWorld).xyz;
-    float4 CenterH = mul(float4(CenterW, 1.0f), gViewProj);
-    float2 CenteTexC = (gin[0].TexC.xy + gin[1].TexC.xy + gin[2].TexC.xy) / 3.0f;
-
-    GeoOut gout0;
-    gout0.NormalW = gin[0].NormalW;
-    gout0.PosH = float4(gin[0].PosH, 1.0f);
-    gout0.PosW    = gin[0].PosW;
-    gout0.TexC    = gin[0].TexC;
-    gout0.PrimID  = primID;
-    
-    GeoOut gout1;
-    gout1.NormalW = gin[1].NormalW;
-    gout1.PosH = float4(gin[1].PosH, 1.0f);
-    gout1.PosW    = gin[1].PosW;
-    gout1.TexC    = gin[1].TexC;
-    gout1.PrimID  = primID;
-    
-    GeoOut gout2;
-    gout2.NormalW = gin[2].NormalW;
-    gout2.PosH = float4(gin[2].PosH, 1.0f);
-    gout2.PosW    = gin[2].PosW;
-    gout2.TexC    = gin[2].TexC;
-    gout2.PrimID  = primID;
-    
-    GeoOut goutCenter;
-    goutCenter.NormalW = centerNormalW;
-    goutCenter.PosH = CenterH;
-    goutCenter.PosW = CenterW;
-    goutCenter.TexC = CenteTexC;
-    goutCenter.PrimID = primID;
-    
-    output.Append(gout0);
-    output.Append(gout1);
-    output.Append(goutCenter);
-    output.RestartStrip();
-
-    output.Append(gout1);
-    output.Append(gout2);
-    output.Append(goutCenter);
-    output.RestartStrip();
-
-    output.Append(gout2);
-    output.Append(gout0);
-    output.Append(goutCenter);
-    output.RestartStrip();
+    VertexOut v[6];
+    Subdivide(gin, v);
+    OutputSubdivision(v, triStream);
 }
 
 float4 PS(GeoOut pin) : SV_Target

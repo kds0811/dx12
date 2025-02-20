@@ -549,6 +549,10 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
             XMMATRIX texTransform = XMLoadFloat4x4(&scObj->GetRenderItem()->TexTransform);
             XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 
+            auto WorldDeterminant = DirectX::XMMatrixDeterminant(scObj->GetWorldMatrix());
+            XMMATRIX WorldInverse = DirectX::XMMatrixInverse(&WorldDeterminant, scObj->GetWorldMatrix());
+            XMStoreFloat4x4(&objConstants.WorldInvTranspose, XMMatrixTranspose(WorldInverse));
+
             currObjectCB->CopyData(scObj->GetRenderItem()->ObjCBIndex, objConstants);
 
             ObjectConstants objConstantsReflected = objConstants;
@@ -556,8 +560,11 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
             currObjectCB->CopyData(scObj->GetReflectedObjCBIndex(), objConstantsReflected);
 
             ObjectConstants objConstantsShadows = objConstants;
+
             XMStoreFloat4x4(&objConstantsShadows.World, XMMatrixTranspose(DirectX::XMLoadFloat4x4(&scObj->GetMatrixObjectShadow())));
             currObjectCB->CopyData(scObj->GetObjCBIndexShadow(), objConstantsShadows);
+
+
 
             scObj->DecrementNumFrameDirty();
         }
