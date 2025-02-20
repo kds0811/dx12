@@ -129,7 +129,7 @@ void Subdivide(VertexOut inVerts[3], out VertexOut outVerts[6])
     outVerts[5] = inVerts[1];
 };
 
-void OutputSubdivision(VertexOut v[6], inout TriangleStream<GeoOut> triStream)
+void OutputSubdivision(VertexOut v[6], inout TriangleStream<GeoOut> triStream, uint primID)
 {
     GeoOut gout[6];
 	
@@ -141,6 +141,7 @@ void OutputSubdivision(VertexOut v[6], inout TriangleStream<GeoOut> triStream)
         float4x4 WorldWorldViewProj = mul(gWorld, gViewProj);
         gout[i].PosH = mul(float4(v[i].PosL, 1.0f), WorldWorldViewProj);
         gout[i].TexC = v[i].TexC;
+        gout[i].PrimID = primID;
     }
 			
 	[unroll]
@@ -175,7 +176,7 @@ void GS(triangle VertexOut gin[3],
 {
     VertexOut v[6];
     Subdivide(gin, v);
-    OutputSubdivision(v, triStream);
+    OutputSubdivision(v, triStream, primID);
 }
 
 float4 PS(GeoOut pin) : SV_Target

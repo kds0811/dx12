@@ -180,7 +180,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     // render geometry sudivided objects
     if (!bIsWireframe)
     {
-        mCommandList->SetPipelineState(mPSOs["geometrySubdivide"].Get());
+       mCommandList->SetPipelineState(mPSOs["geometrySubdivide"].Get());
     }
     DrawRenderItems(sortedSceneObjects.GeometrySubdivide, false);
 
