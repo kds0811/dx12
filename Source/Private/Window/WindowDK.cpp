@@ -77,7 +77,7 @@ std::string Window::GetTitle()
     return titleName;
 }
 
-void Window::SetTitle(const std::string str)
+void Window::SetTitle(const std::string str) const
 {
     if (SetWindowText(hWnd, str.c_str()) == 0)
     {

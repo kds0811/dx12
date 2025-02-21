@@ -119,8 +119,8 @@ public:
     void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
         std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
 
-    DXGI_FORMAT GetBackBufferFormat() { return mBackBufferFormat; }
-    DXGI_FORMAT GetDepthStencilFormat() { return mDepthStencilFormat; }
+    DXGI_FORMAT GetBackBufferFormat() const { return mBackBufferFormat; }
+    DXGI_FORMAT GetDepthStencilFormat() const { return mDepthStencilFormat; }
     ID3D12DescriptorHeap* GetRtvDescriptorHeap() { return mRtvHeap.Get(); }
     ID3D12DescriptorHeap* GetSrvDescriptorHeap() { return mSrvDescriptorHeap.Get(); }
 

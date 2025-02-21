@@ -34,7 +34,7 @@ public:
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
     std::string GetTitle();
-    void SetTitle(const std::string str);
+    void SetTitle(const std::string str) const;
     static std::optional<int> PrecessMessages();
     HWND GetHwnd() const;
 

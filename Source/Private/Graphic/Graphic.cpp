@@ -1002,6 +1002,9 @@ void Graphic::BuildPSOs()
     treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     mDevice->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&mPSOs["treeSprites"])) >> Check;
 
+    //
+    // PSO for subdivide shape
+    //
       D3D12_GRAPHICS_PIPELINE_STATE_DESC GeometrySubdividePsoDesc = opaquePsoDesc;
     GeometrySubdividePsoDesc.VS = {
         reinterpret_cast<BYTE*>(mShaders["geometrySubdivideVS"]->GetBufferPointer()), mShaders["geometrySubdivideVS"]->GetBufferSize()};
