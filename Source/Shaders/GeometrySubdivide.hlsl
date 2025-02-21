@@ -173,9 +173,7 @@ VertexOut VS(VertexIn vin)
 }
  
 [maxvertexcount(8)]
-void GS(triangle VertexOut gin[3],
-        uint primID : SV_PrimitiveID,
-        inout TriangleStream<GeoOut> triStream)
+void GS(triangle VertexOut gin[3], uint primID : SV_PrimitiveID, inout TriangleStream<GeoOut> triStream)
 {
     VertexOut v[6];
     Subdivide(gin, v);
