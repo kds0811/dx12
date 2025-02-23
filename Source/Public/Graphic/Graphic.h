@@ -8,6 +8,8 @@
 #include "PrimitiveSceneObject.h"
 #include "WavesSceneObject.h"
 #include "Scene.h"
+#include "BlurFilter.h"
+
 
 class GameTimerW;
 
@@ -65,7 +67,8 @@ private:
     int mCurrFrameResourceIndex = 0;
 
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
-    ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
+    ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
+
     ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
@@ -89,6 +92,8 @@ private:
     size_t mSceneObjectCount = 0;
     size_t mWavesVerticesCount = 0;
     size_t mMaterialCount = 0;
+
+    std::unique_ptr<BlurFilter> mBlurFilter;
 
 public:
     // Lights
@@ -139,8 +144,10 @@ private:
     void UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
     void BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
-    void BuildConstantBufferViews();
+    //void BuildConstantBufferViews();
     void BuildRootSignature();
+    void BuildPostProcessRootSignature();
+
     void BuildShadersAndInputLayout();
 
     void BuildPSOs();
@@ -150,4 +157,6 @@ private:
     void DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects);
 
     void UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject);
+
+  
 };
