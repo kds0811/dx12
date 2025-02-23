@@ -6,7 +6,6 @@
 #include <cassert>
 #include "PixProfile.h"
 
-
 #if defined PIXPROFILE
 #define USE_PIX
 #include <pix3.h>
@@ -52,8 +51,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     mDepthStencilBuffer.Reset();
 
     // Resize the swap chain.
-    mSwapChain->ResizeBuffers(mSwapChainBufferCount, mClientWidth, mClientHeight, mBackBufferFormat,
-        DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) >>
+    mSwapChain->ResizeBuffers(mSwapChainBufferCount, mClientWidth, mClientHeight, mBackBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) >>
         Check;
 
     mCurrBackBuffer = 0;
@@ -85,8 +83,8 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     optClear.DepthStencil.Depth = 1.0f;
     optClear.DepthStencil.Stencil = 0;
     auto HeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    mDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear,
-        IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
+    mDevice->CreateCommittedResource(
+        &HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
         Check;
 
     // Create descriptor to mip level 0 of entire resource using the format of the resource.
@@ -98,8 +96,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvDesc, GetDepthStencilView());
 
     // Transition the resource from its initial state to be used as a depth buffer.
-    auto ResBar =
-        CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     mCommandList->ResourceBarrier(1, &ResBar);
 
     // Execute the resize commands.
@@ -157,8 +154,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
     // Indicate a state transition on the resource usage.
-    const auto ResBarrPresentToRenderTarget =
-        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
     // Clear the back buffer and depth buffer.
@@ -171,7 +167,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
     // set textures SRV heaps
-    ID3D12DescriptorHeap* descriptorHeaps[] = {mSrvDescriptorHeap.Get()};
+    ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvSrvUavDescriptorHeap.Get()};
     mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
@@ -187,7 +183,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     // render geometry sudivided objects
     if (!bIsWireframe)
     {
-       mCommandList->SetPipelineState(mPSOs["geometrySubdivide"].Get());
+        mCommandList->SetPipelineState(mPSOs["geometrySubdivide"].Get());
     }
     else
     {
@@ -239,6 +235,19 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     // Draw shadows
     mCommandList->SetPipelineState(mPSOs["shadow"].Get());
     DrawShadows(sortedSceneObjects.Models);
+
+    mBlurFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["horzBlur"].Get(), mPSOs["vertBlur"].Get(), CurrentBackBuffer(), 1);
+
+    // Prepare to copy blurred output to the back buffer.
+    auto ResBarCopySourcetoCopydest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+    mCommandList->ResourceBarrier(1, &ResBarCopySourcetoCopydest);
+
+    mCommandList->CopyResource(CurrentBackBuffer(), mBlurFilter->Output());
+
+     // transition back buffer to render target for IMGUI to do their bullshit
+    const auto ResBarrCopeDestToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    mCommandList->ResourceBarrier(1, &ResBarrCopeDestToRenderTarget);
+
 }
 
 void Graphic::EndDrawFrame()
@@ -246,9 +255,8 @@ void Graphic::EndDrawFrame()
 #if defined PIXPROFILE
     PIXScopedEvent(PIX_COLOR(50, 50, 150), L"EndDrawFrame");
 #endif
-    // Indicate a state transition on the resource usage.
-    const auto ResBarrRenderTargetToPresent =
-        CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+     //Indicate a state transition on the resource usage.
+    const auto ResBarrRenderTargetToPresent = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     mCommandList->ResourceBarrier(1, &ResBarrRenderTargetToPresent);
 
     // Done recording commands.
@@ -259,8 +267,8 @@ void Graphic::EndDrawFrame()
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     // Swap the back and front buffers
-    //mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
-    mSwapChain->Present(1, 0) >> Check; // vsync on
+    // mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
+    mSwapChain->Present(1, 0) >> Check;  // vsync on
     mCurrBackBuffer = (mCurrBackBuffer + 1) % mSwapChainBufferCount;
 
     // Advance the fence value to mark commands up to this fence point.
@@ -272,9 +280,8 @@ void Graphic::EndDrawFrame()
     mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue);
 }
 
-void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
-    const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject,
-    std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
+void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects,
+    WavesSceneObject* waveObject, std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
 #if defined PIXPROFILE
     PIXScopedEvent(PIX_COLOR(60, 180, 60), L"Update Buffers");
@@ -387,9 +394,7 @@ void Graphic::InitPipeline()
     queueDesc.NodeMask = 0;
     mDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)) >> Check;
     mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAlloc.GetAddressOf())) >> Check;
-    mDevice->CreateCommandList(
-        0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAlloc.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >>
-        Check;
+    mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAlloc.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >> Check;
     mCommandList->Close();
     assert(mCommandQueue);
     assert(mCommandAlloc);
@@ -461,14 +466,13 @@ void Graphic::InitPipeline()
 
     CD3DX12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE_DEFAULT);
 
-    mDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear,
-        IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
+    mDevice->CreateCommittedResource(
+        &HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
         Check;
 
     mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, GetDepthStencilView());
 
-    auto ResBar =
-        CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
@@ -503,8 +507,7 @@ void Graphic::InitPipeline()
     FlushCommandQueue();
 }
 
-void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
-    std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures)
+void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount, std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures)
 {
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
@@ -519,7 +522,7 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
     BuildDescriptorHeaps(textures);
     BuildShadersAndInputLayout();
     BuildFrameResources();
-   
+
     BuildPSOs();
 
     // Execute the initialization commands.
@@ -576,8 +579,6 @@ void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>
 
             XMStoreFloat4x4(&objConstantsShadows.World, XMMatrixTranspose(DirectX::XMLoadFloat4x4(&scObj->GetMatrixObjectShadow())));
             currObjectCB->CopyData(scObj->GetObjCBIndexShadow(), objConstantsShadows);
-
-
 
             scObj->DecrementNumFrameDirty();
         }
@@ -682,12 +683,12 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
     srvHeapDesc.NumDescriptors = (UINT)textures.size() + 64;
     srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    mDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)) >> Check;
+    mDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mCbvSrvUavDescriptorHeap)) >> Check;
 
     //
     // Fill out the heap with actual descriptors.
     //
-    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mCbvSrvUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
     int index = 0;
 
     for (const auto& [type, TexPtr] : textures)
@@ -712,10 +713,8 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
     //
     // Fill out the heap with the descriptors to the BlurFilter resources.
     //
-
-    //mBlurFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvSrvUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), 3, mCbvSrvUavDescriptorSize),
-    //    CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), 3, mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
-
+    mBlurFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvSrvUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, mCbvSrvUavDescriptorSize),
+        CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), index, mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
 }
 
 void Graphic::BuildRootSignature()
@@ -735,14 +734,12 @@ void Graphic::BuildRootSignature()
     auto staticSamplers = GetStaticSamplers();
 
     // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter, (UINT)staticSamplers.size(), staticSamplers.data(),
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter, (UINT)staticSamplers.size(), staticSamplers.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
     ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr =
-        D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
     if (errorBlob != nullptr)
     {
@@ -750,9 +747,7 @@ void Graphic::BuildRootSignature()
     }
     hr >> Check;
 
-    mDevice->CreateRootSignature(
-        0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >>
-        Check;
+    mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >> Check;
 }
 
 void Graphic::BuildPostProcessRootSignature()
@@ -793,7 +788,6 @@ void Graphic::BuildShadersAndInputLayout()
     const D3D_SHADER_MACRO defines[] = {"FOG", "1", NULL, NULL};
     const D3D_SHADER_MACRO alphaTestDefines[] = {"FOG", "1", "ALPHA_TEST", "1", NULL, NULL};
 
-
     mShaders["standardVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
     mShaders["alphaTestedPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
@@ -806,7 +800,8 @@ void Graphic::BuildShadersAndInputLayout()
     mShaders["geometrySubdivideGS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", nullptr, "GS", "gs_5_1");
     mShaders["geometrySubdividePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", defines, "PS", "ps_5_1");
 
-
+    mShaders["horzBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "HorzBlurCS", "cs_5_1");
+    mShaders["vertBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "VertBlurCS", "cs_5_1");
 
     mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -818,10 +813,6 @@ void Graphic::BuildShadersAndInputLayout()
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
-
-
-
-
 }
 
 void Graphic::BuildPSOs()
@@ -880,8 +871,7 @@ void Graphic::BuildPSOs()
     // PSO for alpha tested objects
     //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC alphaTestedPsoDesc = opaquePsoDesc;
-    alphaTestedPsoDesc.PS = {
-        reinterpret_cast<BYTE*>(mShaders["alphaTestedPS"]->GetBufferPointer()), mShaders["alphaTestedPS"]->GetBufferSize()};
+    alphaTestedPsoDesc.PS = {reinterpret_cast<BYTE*>(mShaders["alphaTestedPS"]->GetBufferPointer()), mShaders["alphaTestedPS"]->GetBufferSize()};
     alphaTestedPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
     mDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])) >> Check;
 
@@ -974,12 +964,9 @@ void Graphic::BuildPSOs()
     // PSO for tree sprites
     //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
-    treeSpritePsoDesc.VS = {
-        reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()), mShaders["treeSpriteVS"]->GetBufferSize()};
-    treeSpritePsoDesc.GS = {
-        reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()), mShaders["treeSpriteGS"]->GetBufferSize()};
-    treeSpritePsoDesc.PS = {
-        reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()), mShaders["treeSpritePS"]->GetBufferSize()};
+    treeSpritePsoDesc.VS = {reinterpret_cast<BYTE*>(mShaders["treeSpriteVS"]->GetBufferPointer()), mShaders["treeSpriteVS"]->GetBufferSize()};
+    treeSpritePsoDesc.GS = {reinterpret_cast<BYTE*>(mShaders["treeSpriteGS"]->GetBufferPointer()), mShaders["treeSpriteGS"]->GetBufferSize()};
+    treeSpritePsoDesc.PS = {reinterpret_cast<BYTE*>(mShaders["treeSpritePS"]->GetBufferPointer()), mShaders["treeSpritePS"]->GetBufferSize()};
     treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
     treeSpritePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
     treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
@@ -988,13 +975,10 @@ void Graphic::BuildPSOs()
     //
     // PSO for subdivide shape
     //
-      D3D12_GRAPHICS_PIPELINE_STATE_DESC GeometrySubdividePsoDesc = opaquePsoDesc;
-    GeometrySubdividePsoDesc.VS = {
-        reinterpret_cast<BYTE*>(mShaders["geometrySubdivideVS"]->GetBufferPointer()), mShaders["geometrySubdivideVS"]->GetBufferSize()};
-      GeometrySubdividePsoDesc.GS = {
-        reinterpret_cast<BYTE*>(mShaders["geometrySubdivideGS"]->GetBufferPointer()), mShaders["geometrySubdivideGS"]->GetBufferSize()};
-    GeometrySubdividePsoDesc.PS = {
-        reinterpret_cast<BYTE*>(mShaders["geometrySubdividePS"]->GetBufferPointer()), mShaders["geometrySubdividePS"]->GetBufferSize()};
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC GeometrySubdividePsoDesc = opaquePsoDesc;
+    GeometrySubdividePsoDesc.VS = {reinterpret_cast<BYTE*>(mShaders["geometrySubdivideVS"]->GetBufferPointer()), mShaders["geometrySubdivideVS"]->GetBufferSize()};
+    GeometrySubdividePsoDesc.GS = {reinterpret_cast<BYTE*>(mShaders["geometrySubdivideGS"]->GetBufferPointer()), mShaders["geometrySubdivideGS"]->GetBufferSize()};
+    GeometrySubdividePsoDesc.PS = {reinterpret_cast<BYTE*>(mShaders["geometrySubdividePS"]->GetBufferPointer()), mShaders["geometrySubdividePS"]->GetBufferSize()};
     GeometrySubdividePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     GeometrySubdividePsoDesc.InputLayout = {mStdInputLayout.data(), (UINT)mStdInputLayout.size()};
     GeometrySubdividePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
@@ -1004,14 +988,30 @@ void Graphic::BuildPSOs()
     GeometrySubdividePsoDescWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&mPSOs["geometrySubdivideWireFrame"])) >> Check;
 
+    //
+    // PSO for horizontal blur
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
+    horzBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
+    horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBlurCS"]->GetBufferPointer()), mShaders["horzBlurCS"]->GetBufferSize()};
+    horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBlur"])) >> Check;
+
+    //
+    // PSO for vertical blur
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
+    vertBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
+    vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBlurCS"]->GetBufferPointer()), mShaders["vertBlurCS"]->GetBufferSize()};
+    vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBlur"])) >> Check;
 }
 
 void Graphic::BuildFrameResources()
 {
     for (int i = 0; i < gNumFrameResources; ++i)
     {
-        mFrameResources.push_back(
-            std::make_unique<FrameResource>(mDevice.Get(), 2, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount, (UINT)mMaterialCount));
+        mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), 2, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount, (UINT)mMaterialCount));
     }
 }
 
@@ -1034,7 +1034,7 @@ void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects,
         mCommandList->IASetIndexBuffer(&IBView);
         mCommandList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-        CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
         tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
 
         auto objCBIndex = isReflectedObjects ? sceneObjects[i]->GetReflectedObjCBIndex() * objCBByteSize : ri->ObjCBIndex * objCBByteSize;
@@ -1068,14 +1068,13 @@ void Graphic::DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects)
         mCommandList->IASetIndexBuffer(&IBView);
         mCommandList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-        CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
         tex.Offset(ri->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
 
         auto objCBIndex = sceneObjects[i]->GetObjCBIndexShadow() * objCBByteSize;
 
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + objCBIndex;
-        D3D12_GPU_VIRTUAL_ADDRESS matCBAddress =
-            matCB->GetGPUVirtualAddress() + sceneObjects[i]->GetShadowMaterial()->MatCBIndex * matCBByteSize;
+        D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + sceneObjects[i]->GetShadowMaterial()->MatCBIndex * matCBByteSize;
 
         mCommandList->SetGraphicsRootDescriptorTable(0, tex);
         mCommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);

@@ -16,7 +16,7 @@ struct DescriptorHeapAllocator
 
     void Create(ID3D12Device* device, ID3D12DescriptorHeap* heap, size_t numTextures)
     {
-        reservedIndexes = (UINT)numTextures;
+        reservedIndexes = (UINT)numTextures + 32;
         assert(Heap == nullptr && FreeIndices.empty());
         Heap = heap;
         assert(Heap);

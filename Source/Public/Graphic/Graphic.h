@@ -69,7 +69,7 @@ private:
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
 
-    ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
+    ComPtr<ID3D12DescriptorHeap> mCbvSrvUavDescriptorHeap = nullptr;
 
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
     std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
@@ -127,7 +127,7 @@ public:
     DXGI_FORMAT GetBackBufferFormat() const { return mBackBufferFormat; }
     DXGI_FORMAT GetDepthStencilFormat() const { return mDepthStencilFormat; }
     ID3D12DescriptorHeap* GetRtvDescriptorHeap() { return mRtvHeap.Get(); }
-    ID3D12DescriptorHeap* GetSrvDescriptorHeap() { return mSrvDescriptorHeap.Get(); }
+    ID3D12DescriptorHeap* GetSrvDescriptorHeap() { return mCbvSrvUavDescriptorHeap.Get(); }
 
     PassConstants& GetMainPassCB() { return mMainPassCB; }
 
@@ -144,7 +144,6 @@ private:
     void UpdateMaterialCBs(std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
     void BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
-    //void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildPostProcessRootSignature();
 

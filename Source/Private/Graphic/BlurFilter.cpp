@@ -57,20 +57,20 @@ void BlurFilter::Execute(
     cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
     cmdList->SetComputeRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1);
 
-    auto ResBarRTtoCS = CD3DX12_RESOURCE_BARRIER::Transition(input, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
-    cmdList->ResourceBarrier(1, &ResBarRTtoCS);
+    auto ResBarRTtoCSINPUT = CD3DX12_RESOURCE_BARRIER::Transition(input, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
+    cmdList->ResourceBarrier(1, &ResBarRTtoCSINPUT);
 
-    auto ResBarComtoCD = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
-    cmdList->ResourceBarrier(1, &ResBarComtoCD);
+    auto ResBarComtoCDBLURMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+    cmdList->ResourceBarrier(1, &ResBarComtoCDBLURMap0);
 
     // Copy the input (back-buffer in this example) to BlurMap0.
     cmdList->CopyResource(mBlurMap0.Get(), input);
 
-    auto ResBarCDtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
-    cmdList->ResourceBarrier(1, &ResBarCDtoGR);
+    auto ResBarCDtoGRBlurMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
+    cmdList->ResourceBarrier(1, &ResBarCDtoGRBlurMap0);
 
-    auto ResBarComtoUA = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap1.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    cmdList->ResourceBarrier(1, &ResBarComtoUA);
+    auto ResBarComtoUABlurMap1 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap1.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    cmdList->ResourceBarrier(1, &ResBarComtoUABlurMap1);
 
     for (int i = 0; i < blurCount; ++i)
     {
@@ -108,9 +108,14 @@ void BlurFilter::Execute(
         UINT numGroupsY = (UINT)ceilf(mHeight / 256.0f);
         cmdList->Dispatch(mWidth, numGroupsY, 1);
 
-        cmdList->ResourceBarrier(1, &ResBarUAtoGR);
-        cmdList->ResourceBarrier(1, &ResBarGRtoUA);
+        auto ResBarMap0UAtoRead = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
+        cmdList->ResourceBarrier(1, &ResBarMap0UAtoRead);
+
+        auto ResBarMap1ReadtoUa = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap1.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        cmdList->ResourceBarrier(1, &ResBarMap1ReadtoUa);
     }
+
+
 }
 
 std::vector<float> BlurFilter::CalcGaussWeights(float sigma)
