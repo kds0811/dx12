@@ -236,18 +236,6 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->SetPipelineState(mPSOs["shadow"].Get());
     DrawShadows(sortedSceneObjects.Models);
 
-    mBlurFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["horzBlur"].Get(), mPSOs["vertBlur"].Get(), CurrentBackBuffer(), 1);
-
-    // Prepare to copy blurred output to the back buffer.
-    auto ResBarCopySourcetoCopydest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-    mCommandList->ResourceBarrier(1, &ResBarCopySourcetoCopydest);
-
-    mCommandList->CopyResource(CurrentBackBuffer(), mBlurFilter->Output());
-
-     // transition back buffer to render target for IMGUI to do their bullshit
-    const auto ResBarrCopeDestToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    mCommandList->ResourceBarrier(1, &ResBarrCopeDestToRenderTarget);
-
 }
 
 void Graphic::EndDrawFrame()
