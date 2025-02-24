@@ -97,17 +97,12 @@ void GpuWaves::BuildResources(ID3D12GraphicsCommandList* cmdList)
     texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
-    md3dDevice->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mPrevSol)) >>
-        Kds::App::Check;
+    auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    md3dDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mPrevSol)) >> Kds::App::Check;
 
-    md3dDevice->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mCurrSol)) >>
-        Kds::App::Check;
+    md3dDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mCurrSol)) >> Kds::App::Check;
 
-    md3dDevice->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mNextSol)) >>
-        Kds::App::Check;
+    md3dDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mNextSol)) >> Kds::App::Check;
 
     //
     // In order to copy CPU memory data into our default buffer, we need to create
@@ -117,11 +112,15 @@ void GpuWaves::BuildResources(ID3D12GraphicsCommandList* cmdList)
     const UINT num2DSubresources = texDesc.DepthOrArraySize * texDesc.MipLevels;
     const UINT64 uploadBufferSize = GetRequiredIntermediateSize(mCurrSol.Get(), 0, num2DSubresources);
 
-    md3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mPrevUploadBuffer.GetAddressOf())) >> Kds::App::Check;
+    auto HeapPropUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto UploadResourceDescriptor = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
+    md3dDevice->CreateCommittedResource(
+        &HeapPropUpload, D3D12_HEAP_FLAG_NONE, &UploadResourceDescriptor, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mPrevUploadBuffer.GetAddressOf())) >>
+        Kds::App::Check;
 
-    md3dDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize),
-        D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mCurrUploadBuffer.GetAddressOf())) >> Kds::App::Check;
+    md3dDevice->CreateCommittedResource(
+        &HeapPropUpload, D3D12_HEAP_FLAG_NONE, &UploadResourceDescriptor, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mCurrUploadBuffer.GetAddressOf())) >>
+        Kds::App::Check;
 
     // Describe the data we want to copy into the default buffer.
     std::vector<float> initData(mNumRows * mNumCols, 0.0f);
@@ -138,16 +137,22 @@ void GpuWaves::BuildResources(ID3D12GraphicsCommandList* cmdList)
     // Note that mCurrSol is put in the GENERIC_READ state so it can be
     // read by a shader.
     //
-
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mPrevSol.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+    auto ResBarPrevSolCommtoCopy = CD3DX12_RESOURCE_BARRIER::Transition(mPrevSol.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+    cmdList->ResourceBarrier(1, &ResBarPrevSolCommtoCopy);
     UpdateSubresources(cmdList, mPrevSol.Get(), mPrevUploadBuffer.Get(), 0, 0, num2DSubresources, &subResourceData);
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mPrevSol.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+    auto ResBarPrevSolCopyDestToUA = CD3DX12_RESOURCE_BARRIER::Transition(mPrevSol.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    cmdList->ResourceBarrier(1, &ResBarPrevSolCopyDestToUA);
+
+    auto ResBarCurSol1 = CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+    cmdList->ResourceBarrier(1, &ResBarCurSol1);
     UpdateSubresources(cmdList, mCurrSol.Get(), mCurrUploadBuffer.Get(), 0, 0, num2DSubresources, &subResourceData);
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
 
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mNextSol.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+    auto ResBarCursol2 = CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
+    cmdList->ResourceBarrier(1, &ResBarCursol2);
+
+    auto ResBarNextSol1 = CD3DX12_RESOURCE_BARRIER::Transition(mNextSol.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    cmdList->ResourceBarrier(1, &ResBarNextSol1);
 }
 
 void GpuWaves::BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuDescriptor, CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuDescriptor, UINT descriptorSize)
@@ -234,7 +239,8 @@ void GpuWaves::Update(const GameTimerW& gt, ID3D12GraphicsCommandList* cmdList, 
         t = 0.0f;  // reset time
 
         // The current solution needs to be able to be read by the vertex shader, so change its state to GENERIC_READ.
-        cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ));
+        auto ResBarCurSol1 = CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
+        cmdList->ResourceBarrier(1, &ResBarCurSol1);
     }
 }
 
@@ -253,7 +259,8 @@ void GpuWaves::Disturb(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature* 
     // The current solution is in the GENERIC_READ state so it can be read by the vertex shader.
     // Change it to UNORDERED_ACCESS for the compute shader.  Note that a UAV can still be
     // read in a compute shader.
-    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+    auto ResBarCurSol2 = CD3DX12_RESOURCE_BARRIER::Transition(mCurrSol.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    cmdList->ResourceBarrier(1, &ResBarCurSol2);
 
     // One thread group kicks off one thread, which displaces the height of one
     // vertex and its neighbors.
