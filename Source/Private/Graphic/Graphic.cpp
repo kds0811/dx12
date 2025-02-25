@@ -255,7 +255,7 @@ void Graphic::EndDrawFrame()
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     // Swap the back and front buffers
-    // mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
+    //mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
     mSwapChain->Present(1, 0) >> Check;  // vsync on
     mCurrBackBuffer = (mCurrBackBuffer + 1) % mSwapChainBufferCount;
 
