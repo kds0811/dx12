@@ -341,13 +341,13 @@ void Graphic::InitPipeline()
 
     // Create DEVICE
     // try create hardware device
-    HRESULT hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&mDevice));
+    HRESULT hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice));
     // if create hardware device is failed, try create WARP device
     if (FAILED(hr))
     {
         ComPtr<IDXGIAdapter> pWarpAdapter;
         mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
-        D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&mDevice)) >> Check;
+        D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice)) >> Check;
     }
     assert(mDevice);
 

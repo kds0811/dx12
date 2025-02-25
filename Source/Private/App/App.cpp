@@ -15,13 +15,11 @@
 #include <pix3.h>
 #endif
 
-
-
 App::App()
 {
+    mTimer = std::make_unique<GameTimerW>();
     mWnd = std::make_unique<Window>(mWidth, mHeight, this);
     mGfx = std::make_unique<Graphic>(mWidth, mHeight, mWnd->GetHwnd());
-    mTimer = std::make_unique<GameTimerW>();
     mCamera = std::make_unique<Camera>(this);
     mCameraController = std::make_unique<CameraController>(mWnd.get(), mCamera.get(), mTimer.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
