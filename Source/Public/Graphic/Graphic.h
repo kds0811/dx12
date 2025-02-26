@@ -9,6 +9,8 @@
 #include "WavesSceneObject.h"
 #include "Scene.h"
 #include "BlurFilter.h"
+#include "SobelFilter.h"
+#include "RenderTarget.h"
 
 
 class GameTimerW;
