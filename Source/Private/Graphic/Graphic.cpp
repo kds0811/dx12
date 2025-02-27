@@ -340,14 +340,29 @@ void Graphic::InitPipeline()
     CreateDXGIFactory2(CreateFactoryFlags, IID_PPV_ARGS(&mFactory)) >> Check;
 
     // Create DEVICE
+    // 
+    D3D_FEATURE_LEVEL featureLevels[] = {D3D_FEATURE_LEVEL_12_1, D3D_FEATURE_LEVEL_12_0, D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0};
+
     // try create hardware device
-    HRESULT hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice));
-    // if create hardware device is failed, try create WARP device
+    HRESULT hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&mDevice));
+    
     if (FAILED(hr))
     {
-        ComPtr<IDXGIAdapter> pWarpAdapter;
-        mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
-        D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&mDevice)) >> Check;
+        for (const auto& fLevel : featureLevels)
+        {
+            hr = D3D12CreateDevice(nullptr, fLevel, IID_PPV_ARGS(&mDevice));
+            if (SUCCEEDED(hr))
+            {
+                break;
+            }
+        }
+        // if create hardware device is failed, try create WARP device
+        if (FAILED(hr))
+        {
+            ComPtr<IDXGIAdapter> pWarpAdapter;
+            mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
+            D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice)) >> Check;
+        }
     }
     assert(mDevice);
 
