@@ -18,6 +18,8 @@ Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mCli
 {
     InitPipeline();
     mBlurFilter = std::make_unique<BlurFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+    mSobelFilter = std::make_unique<SobelFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+    mOffscreenRT = std::make_unique<RenderTarget>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
 }
 
 Graphic::~Graphic()
@@ -424,7 +426,7 @@ void Graphic::InitPipeline()
 
     // Create RTV Descriptor Heap
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
-    rtvHeapDesc.NumDescriptors = mSwapChainBufferCount;
+    rtvHeapDesc.NumDescriptors = mSwapChainBufferCount + 1;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     rtvHeapDesc.NodeMask = 0;

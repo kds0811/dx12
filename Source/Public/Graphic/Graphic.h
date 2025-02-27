@@ -12,7 +12,6 @@
 #include "SobelFilter.h"
 #include "RenderTarget.h"
 
-
 class GameTimerW;
 
 using namespace Microsoft::WRL;
@@ -82,7 +81,6 @@ private:
     PassConstants mMainPassCB;
     PassConstants mReflectedPassCB;
 
-
     UINT mPassCbvOffset = 0;
 
     bool bIsWireframe = false;
@@ -96,6 +94,10 @@ private:
     size_t mMaterialCount = 0;
 
     std::unique_ptr<BlurFilter> mBlurFilter;
+
+    std::unique_ptr<RenderTarget> mOffscreenRT = nullptr;
+
+    std::unique_ptr<SobelFilter> mSobelFilter = nullptr;
 
 public:
     // Lights
@@ -114,17 +116,15 @@ public:
     void StartDrawFrame(const SortedSceneObjects& sortedSceneObjects);
     void EndDrawFrame();
 
-    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt,
-        const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects, WavesSceneObject* waveObject,
-        std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
+    void Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects,
+        WavesSceneObject* waveObject, std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
     void SetWireframe(bool state);
     ID3D12Device8* GetDevice() { return mDevice.Get(); }
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
     ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
-    void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount,
-        std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
+    void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount, std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
 
     DXGI_FORMAT GetBackBufferFormat() const { return mBackBufferFormat; }
     DXGI_FORMAT GetDepthStencilFormat() const { return mDepthStencilFormat; }
@@ -158,6 +158,4 @@ private:
     void DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects);
 
     void UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject);
-
-  
 };
