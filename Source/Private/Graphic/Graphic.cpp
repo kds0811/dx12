@@ -1075,6 +1075,57 @@ void Graphic::BuildPSOs()
     vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBlurCS"]->GetBufferPointer()), mShaders["vertBlurCS"]->GetBufferSize()};
     vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
     mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBlur"])) >> Check;
+
+
+
+    //
+    // PSO for drawing waves
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC wavesRenderPSO = transparentPsoDesc;
+    wavesRenderPSO.VS = {reinterpret_cast<BYTE*>(mShaders["wavesVS"]->GetBufferPointer()), mShaders["wavesVS"]->GetBufferSize()};
+    mDevice->CreateGraphicsPipelineState(&wavesRenderPSO, IID_PPV_ARGS(&mPSOs["wavesRender"])) >> Check;
+
+    //
+    // PSO for compositing post process
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC compositePSO = opaquePsoDesc;
+    compositePSO.pRootSignature = mPostProcessRootSignature.Get();
+
+    // Disable depth test.
+    compositePSO.DepthStencilState.DepthEnable = false;
+    compositePSO.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+    compositePSO.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+    compositePSO.VS = {reinterpret_cast<BYTE*>(mShaders["compositeVS"]->GetBufferPointer()), mShaders["compositeVS"]->GetBufferSize()};
+    compositePSO.PS = {reinterpret_cast<BYTE*>(mShaders["compositePS"]->GetBufferPointer()), mShaders["compositePS"]->GetBufferSize()};
+    mDevice->CreateGraphicsPipelineState(&compositePSO, IID_PPV_ARGS(&mPSOs["composite"])) >> Check;
+
+    //
+    // PSO for disturbing waves
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC wavesDisturbPSO = {};
+    wavesDisturbPSO.pRootSignature = mWavesRootSignature.Get();
+    wavesDisturbPSO.CS = {reinterpret_cast<BYTE*>(mShaders["wavesDisturbCS"]->GetBufferPointer()), mShaders["wavesDisturbCS"]->GetBufferSize()};
+    wavesDisturbPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&wavesDisturbPSO, IID_PPV_ARGS(&mPSOs["wavesDisturb"])) >> Check;
+
+    //
+    // PSO for updating waves
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC wavesUpdatePSO = {};
+    wavesUpdatePSO.pRootSignature = mWavesRootSignature.Get();
+    wavesUpdatePSO.CS = {reinterpret_cast<BYTE*>(mShaders["wavesUpdateCS"]->GetBufferPointer()), mShaders["wavesUpdateCS"]->GetBufferSize()};
+    wavesUpdatePSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&wavesUpdatePSO, IID_PPV_ARGS(&mPSOs["wavesUpdate"])) >> Check;
+
+    //
+    // PSO for sobel
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC sobelPSO = {};
+    sobelPSO.pRootSignature = mPostProcessRootSignature.Get();
+    sobelPSO.CS = {reinterpret_cast<BYTE*>(mShaders["sobelCS"]->GetBufferPointer()), mShaders["sobelCS"]->GetBufferSize()};
+    sobelPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&sobelPSO, IID_PPV_ARGS(&mPSOs["sobel"])) >> Check;
 }
 
 void Graphic::BuildFrameResources()
