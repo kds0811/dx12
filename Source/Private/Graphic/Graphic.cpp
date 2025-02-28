@@ -17,9 +17,7 @@ using namespace Kds::App;
 Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mClientHeight(Height), mWindowHandle(hwnd)
 {
     InitPipeline();
-    mBlurFilter = std::make_unique<BlurFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
-    mSobelFilter = std::make_unique<SobelFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
-    mOffscreenRT = std::make_unique<RenderTarget>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+
 }
 
 Graphic::~Graphic()
@@ -517,13 +515,19 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
 
+
+    mBlurFilter = std::make_unique<BlurFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+    mSobelFilter = std::make_unique<SobelFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+    mOffscreenRT = std::make_unique<RenderTarget>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+    mWaves = std::make_unique<GpuWaves>(mDevice.Get(), mCommandList.Get(), 256, 256, 0.25f, 0.03f, 2.0f, 0.2f);
+
     mSceneObjectCount = sceneObjectCount;
     mWavesVerticesCount = wavesVertCount;
     mMaterialCount = materialsCount;
 
     BuildRootSignature();
     BuildPostProcessRootSignature();
-
+    BuildWavesRootSignature();
     BuildDescriptorHeaps(textures);
     BuildShadersAndInputLayout();
     BuildFrameResources();
@@ -715,11 +719,22 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
         hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
     }
 
-    //
-    // Fill out the heap with the descriptors to the BlurFilter resources.
-    //
-    mBlurFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvSrvUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), index, mCbvSrvUavDescriptorSize),
-        CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart(), index, mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
+  	auto srvCpuStart = mCbvSrvUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    auto srvGpuStart = mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+    int rtvOffset = mSwapChainBufferCount;
+    auto rtvCpuStart = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
+
+    mWaves->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index, mCbvSrvUavDescriptorSize),
+        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index, mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
+
+    mSobelFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mWaves->DescriptorCount(), mCbvSrvUavDescriptorSize),
+        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mWaves->DescriptorCount(), mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
+
+    mOffscreenRT->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mWaves->DescriptorCount() + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
+        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mWaves->DescriptorCount() + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
+        CD3DX12_CPU_DESCRIPTOR_HANDLE(rtvCpuStart, rtvOffset, mRtvDescriptorSize));
+
 }
 
 void Graphic::BuildRootSignature()
@@ -727,19 +742,23 @@ void Graphic::BuildRootSignature()
     CD3DX12_DESCRIPTOR_RANGE texTable;
     texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
+    CD3DX12_DESCRIPTOR_RANGE displacementMapTable;
+    displacementMapTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
+
     // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
     // Perfomance TIP: Order from most frequent to least frequent.
     slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
     slotRootParameter[1].InitAsConstantBufferView(0);
     slotRootParameter[2].InitAsConstantBufferView(1);
     slotRootParameter[3].InitAsConstantBufferView(2);
+    slotRootParameter[4].InitAsDescriptorTable(1, &displacementMapTable, D3D12_SHADER_VISIBILITY_ALL);
 
     auto staticSamplers = GetStaticSamplers();
 
     // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter, (UINT)staticSamplers.size(), staticSamplers.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter, (UINT)staticSamplers.size(), staticSamplers.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
     // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -753,6 +772,43 @@ void Graphic::BuildRootSignature()
     hr >> Check;
 
     mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >> Check;
+}
+
+void Graphic::BuildWavesRootSignature() 
+{
+    CD3DX12_DESCRIPTOR_RANGE uavTable0;
+    uavTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
+
+    CD3DX12_DESCRIPTOR_RANGE uavTable1;
+    uavTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
+
+    CD3DX12_DESCRIPTOR_RANGE uavTable2;
+    uavTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2);
+
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+
+    // Perfomance TIP: Order from most frequent to least frequent.
+    slotRootParameter[0].InitAsConstants(6, 0);
+    slotRootParameter[1].InitAsDescriptorTable(1, &uavTable0);
+    slotRootParameter[2].InitAsDescriptorTable(1, &uavTable1);
+    slotRootParameter[3].InitAsDescriptorTable(1, &uavTable2);
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+    if (errorBlob != nullptr)
+    {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    hr >> Check;
+
+    mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mWavesRootSignature.GetAddressOf())) >> Check;
 }
 
 void Graphic::BuildPostProcessRootSignature()
@@ -792,6 +848,7 @@ void Graphic::BuildShadersAndInputLayout()
 {
     const D3D_SHADER_MACRO defines[] = {"FOG", "1", NULL, NULL};
     const D3D_SHADER_MACRO alphaTestDefines[] = {"FOG", "1", "ALPHA_TEST", "1", NULL, NULL};
+    const D3D_SHADER_MACRO waveDefines[] = {"DISPLACEMENT_MAP", "1", NULL, NULL};
 
     mShaders["standardVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
@@ -807,6 +864,14 @@ void Graphic::BuildShadersAndInputLayout()
 
     mShaders["horzBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "HorzBlurCS", "cs_5_1");
     mShaders["vertBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "VertBlurCS", "cs_5_1");
+
+    mShaders["wavesVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", waveDefines, "VS", "vs_5_1");
+    mShaders["wavesUpdateCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\WaveSim.hlsl", nullptr, "UpdateWavesCS", "cs_5_1");
+    mShaders["wavesDisturbCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\WaveSim.hlsl", nullptr, "DisturbWavesCS", "cs_5_1");
+
+    mShaders["compositeVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Composite.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["compositePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Composite.hlsl", nullptr, "PS", "ps_5_1");
+    mShaders["sobelCS"] =     D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sobel.hlsl", nullptr, "SobelCS", "cs_5_1");
 
     mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},

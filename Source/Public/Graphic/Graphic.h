@@ -11,6 +11,7 @@
 #include "BlurFilter.h"
 #include "SobelFilter.h"
 #include "RenderTarget.h"
+#include "GpuWaves.h"
 
 class GameTimerW;
 
@@ -69,6 +70,7 @@ private:
 
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
+    ComPtr<ID3D12RootSignature> mWavesRootSignature = nullptr;
 
     ComPtr<ID3D12DescriptorHeap> mCbvSrvUavDescriptorHeap = nullptr;
 
@@ -98,6 +100,8 @@ private:
     std::unique_ptr<RenderTarget> mOffscreenRT = nullptr;
 
     std::unique_ptr<SobelFilter> mSobelFilter = nullptr;
+
+    std::unique_ptr<GpuWaves> mWaves;
 
 public:
     // Lights
@@ -147,6 +151,7 @@ private:
 
     void BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
     void BuildRootSignature();
+    void BuildWavesRootSignature();
     void BuildPostProcessRootSignature();
 
     void BuildShadersAndInputLayout();
