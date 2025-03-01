@@ -76,6 +76,14 @@ void RenderTarget::BuildResource()
     // could be bound as an UnorderedAccessView.  Therefore this format
     // does not support D3D11_BIND_UNORDERED_ACCESS.
 
+    D3D12_CLEAR_VALUE optimizedClearValue = {};
+    optimizedClearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;                
+    optimizedClearValue.Color[0] = 0.7f; 
+    optimizedClearValue.Color[1] = 0.7f; 
+    optimizedClearValue.Color[2] = 0.7f; 
+    optimizedClearValue.Color[3] = 1.0f;  
+
+
     D3D12_RESOURCE_DESC texDesc;
     ZeroMemory(&texDesc, sizeof(D3D12_RESOURCE_DESC));
     texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -91,6 +99,6 @@ void RenderTarget::BuildResource()
     texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
     auto HeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    md3dDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&mOffscreenTex)) >>
+    md3dDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, &optimizedClearValue, IID_PPV_ARGS(&mOffscreenTex)) >>
         Kds::App::Check;
 }

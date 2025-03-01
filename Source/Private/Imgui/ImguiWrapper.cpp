@@ -84,7 +84,7 @@ void ImguiWrapper::StartImguiFrame()
     if (ImGui::Begin("Camera Speed", nullptr, ImGuiWindowFlags_NoCollapse))
     {
         ImGui::SliderFloat("Camera Speed", &pCamera->GetSpeedCameraRef(), 1.0f, 500.0f);
-        ImGui::SliderFloat("Camera Rotate", &pCamera->GetSpeedRotateCameraRef(), 1.0f, 100.0f);
+        ImGui::SliderFloat("Camera Rotate", &pCamera->GetSpeedRotateCameraRef(), 1.0f, 200.0f);
         ImGui::End();
     }
 }

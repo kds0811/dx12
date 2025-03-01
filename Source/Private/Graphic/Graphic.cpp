@@ -162,18 +162,28 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->RSSetViewports(1, &mScreenViewport);
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
-    // Indicate a state transition on the resource usage.
-    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
-    // Clear the back buffer and depth buffer.
-    mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    // Change offscreen texture to be used as a a render target output.
+    auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
+
+    //// Indicate a state transition on the resource usage.
+    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    //mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+
+    //// Clear the back buffer and depth buffer.
+    //mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
+
     mCommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     // Specify the buffers we are going to render to.
     auto CurBackBuferView = GetCurrentBackBufferView();
+    auto OffScreeRTV = mOffscreenRT->Rtv();
     auto DSV = GetDepthStencilView();
-    mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    //mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
+
 
     // set textures SRV heaps
     ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvSrvUavDescriptorHeap.Get()};
@@ -244,6 +254,30 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     // Draw shadows
     mCommandList->SetPipelineState(mPSOs["shadow"].Get());
     DrawShadows(sortedSceneObjects.Models);
+
+    // Change offscreen texture to be used as an input.
+    auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+    mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
+
+    mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
+
+    //
+    // Switching back to back buffer rendering.
+    //
+
+    // Indicate a state transition on the resource usage.
+
+    mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+
+    // Specify the buffers we are going to render to.
+    mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+
+    mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
+    mCommandList->SetPipelineState(mPSOs["composite"].Get());
+    mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
+    mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
+    DrawFullscreenQuad(mCommandList.Get());
+
 }
 
 void Graphic::EndDrawFrame()
@@ -263,8 +297,8 @@ void Graphic::EndDrawFrame()
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     // Swap the back and front buffers
-    // mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
-    mSwapChain->Present(1, 0) >> Check;  // vsync on
+    mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
+    //mSwapChain->Present(1, 0) >> Check;  // vsync on
     mCurrBackBuffer = (mCurrBackBuffer + 1) % mSwapChainBufferCount;
 
     // Advance the fence value to mark commands up to this fence point.
@@ -1062,7 +1096,7 @@ void Graphic::BuildPSOs()
     compositePSO.DepthStencilState.DepthEnable = false;
     compositePSO.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
     compositePSO.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-
+    compositePSO.InputLayout = {nullptr, 0};
     compositePSO.VS = {reinterpret_cast<BYTE*>(mShaders["compositeVS"]->GetBufferPointer()), mShaders["compositeVS"]->GetBufferSize()};
     compositePSO.PS = {reinterpret_cast<BYTE*>(mShaders["compositePS"]->GetBufferPointer()), mShaders["compositePS"]->GetBufferSize()};
     mDevice->CreateGraphicsPipelineState(&compositePSO, IID_PPV_ARGS(&mPSOs["composite"])) >> Check;
