@@ -124,6 +124,16 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     {
         mBlurFilter->OnResize(mClientWidth, mClientHeight);
     }
+
+    if (mSobelFilter != nullptr)
+    {
+        mSobelFilter->OnResize(mClientWidth, mClientHeight);
+    }
+
+    if (mOffscreenRT != nullptr)
+    {
+        mOffscreenRT->OnResize(mClientWidth, mClientHeight);
+    }
 }
 
 void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
@@ -516,7 +526,6 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
     mBlurFilter = std::make_unique<BlurFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
     mSobelFilter = std::make_unique<SobelFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
     mOffscreenRT = std::make_unique<RenderTarget>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
-    mWaves = std::make_unique<GpuWaves>(mDevice.Get(), mCommandList.Get(), 256, 256, 0.25f, 0.03f, 2.0f, 0.2f);
 
     mSceneObjectCount = sceneObjectCount;
     mWavesVerticesCount = wavesVertCount;
@@ -524,7 +533,6 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
 
     BuildRootSignature();
     BuildPostProcessRootSignature();
-    BuildWavesRootSignature();
     BuildDescriptorHeaps(textures);
     BuildShadersAndInputLayout();
     BuildFrameResources();
@@ -722,14 +730,11 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
     int rtvOffset = mSwapChainBufferCount;
     auto rtvCpuStart = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
 
-    mWaves->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index, mCbvSrvUavDescriptorSize),
+    mSobelFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index, mCbvSrvUavDescriptorSize),
         CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index, mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
 
-    mSobelFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mWaves->DescriptorCount(), mCbvSrvUavDescriptorSize),
-        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mWaves->DescriptorCount(), mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
-
-    mOffscreenRT->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mWaves->DescriptorCount() + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
-        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mWaves->DescriptorCount() + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
+    mOffscreenRT->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
+        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
         CD3DX12_CPU_DESCRIPTOR_HANDLE(rtvCpuStart, rtvOffset, mRtvDescriptorSize));
 }
 
@@ -768,43 +773,6 @@ void Graphic::BuildRootSignature()
     hr >> Check;
 
     mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mRootSignature.GetAddressOf())) >> Check;
-}
-
-void Graphic::BuildWavesRootSignature()
-{
-    CD3DX12_DESCRIPTOR_RANGE uavTable0;
-    uavTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
-
-    CD3DX12_DESCRIPTOR_RANGE uavTable1;
-    uavTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
-
-    CD3DX12_DESCRIPTOR_RANGE uavTable2;
-    uavTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2);
-
-    // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
-
-    // Perfomance TIP: Order from most frequent to least frequent.
-    slotRootParameter[0].InitAsConstants(6, 0);
-    slotRootParameter[1].InitAsDescriptorTable(1, &uavTable0);
-    slotRootParameter[2].InitAsDescriptorTable(1, &uavTable1);
-    slotRootParameter[3].InitAsDescriptorTable(1, &uavTable2);
-
-    // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
-
-    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-    ComPtr<ID3DBlob> serializedRootSig = nullptr;
-    ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-    if (errorBlob != nullptr)
-    {
-        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-    }
-    hr >> Check;
-
-    mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mWavesRootSignature.GetAddressOf())) >> Check;
 }
 
 void Graphic::BuildPostProcessRootSignature()
@@ -1062,20 +1030,20 @@ void Graphic::BuildPSOs()
     ////
     //// PSO for horizontal blur
     ////
-    //D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
-    //horzBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
-    //horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBlurCS"]->GetBufferPointer()), mShaders["horzBlurCS"]->GetBufferSize()};
-    //horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    //mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBlur"])) >> Check;
+    // D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
+    // horzBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
+    // horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBlurCS"]->GetBufferPointer()), mShaders["horzBlurCS"]->GetBufferSize()};
+    // horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    // mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBlur"])) >> Check;
 
     ////
     //// PSO for vertical blur
     ////
-    //D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
-    //vertBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
-    //vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBlurCS"]->GetBufferPointer()), mShaders["vertBlurCS"]->GetBufferSize()};
-    //vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    //mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBlur"])) >> Check;
+    // D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
+    // vertBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
+    // vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBlurCS"]->GetBufferPointer()), mShaders["vertBlurCS"]->GetBufferSize()};
+    // vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    // mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBlur"])) >> Check;
 
     //
     // PSO for drawing waves
@@ -1098,24 +1066,6 @@ void Graphic::BuildPSOs()
     compositePSO.VS = {reinterpret_cast<BYTE*>(mShaders["compositeVS"]->GetBufferPointer()), mShaders["compositeVS"]->GetBufferSize()};
     compositePSO.PS = {reinterpret_cast<BYTE*>(mShaders["compositePS"]->GetBufferPointer()), mShaders["compositePS"]->GetBufferSize()};
     mDevice->CreateGraphicsPipelineState(&compositePSO, IID_PPV_ARGS(&mPSOs["composite"])) >> Check;
-
-    //
-    // PSO for disturbing waves
-    //
-    D3D12_COMPUTE_PIPELINE_STATE_DESC wavesDisturbPSO = {};
-    wavesDisturbPSO.pRootSignature = mWavesRootSignature.Get();
-    wavesDisturbPSO.CS = {reinterpret_cast<BYTE*>(mShaders["wavesDisturbCS"]->GetBufferPointer()), mShaders["wavesDisturbCS"]->GetBufferSize()};
-    wavesDisturbPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    mDevice->CreateComputePipelineState(&wavesDisturbPSO, IID_PPV_ARGS(&mPSOs["wavesDisturb"])) >> Check;
-
-    //
-    // PSO for updating waves
-    //
-    D3D12_COMPUTE_PIPELINE_STATE_DESC wavesUpdatePSO = {};
-    wavesUpdatePSO.pRootSignature = mWavesRootSignature.Get();
-    wavesUpdatePSO.CS = {reinterpret_cast<BYTE*>(mShaders["wavesUpdateCS"]->GetBufferPointer()), mShaders["wavesUpdateCS"]->GetBufferSize()};
-    wavesUpdatePSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    mDevice->CreateComputePipelineState(&wavesUpdatePSO, IID_PPV_ARGS(&mPSOs["wavesUpdate"])) >> Check;
 
     //
     // PSO for sobel
@@ -1243,4 +1193,14 @@ void Graphic::UpdateWavesMesh(const GameTimerW* gt, WavesSceneObject* waveObject
 
     // Set the dynamic VB of the wave renderitem to the current frame VB.
     waveObject->GetRenderItem()->Geo->VertexBufferGPU = currWavesVB->Resource();
+}
+
+void Graphic::DrawFullscreenQuad(ID3D12GraphicsCommandList* cmdList)
+{
+    // Null-out IA stage since we build the vertex off the SV_VertexID in the shader.
+    cmdList->IASetVertexBuffers(0, 1, nullptr);
+    cmdList->IASetIndexBuffer(nullptr);
+    cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    cmdList->DrawInstanced(6, 1, 0, 0);
 }
