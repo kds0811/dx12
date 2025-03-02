@@ -17,7 +17,9 @@ cbuffer cbSettings : register(b0)
     float w10;
     
     float sigmaColor; 
-    float3 padding;
+    float padding1;
+    float padding2;
+    float padding3;
 };
 
 static const int gMaxBlurRadius = 5;
@@ -37,7 +39,7 @@ float ComputeColorWeight(float4 color1, float4 color2, float sigmaColor)
 groupshared float4 gCache[CacheSize];
 
 [numthreads(N, 1, 1)]
-void HorzBlurCS(int3 groupThreadID : SV_GroupThreadID,
+void HorzBilateralCS(int3 groupThreadID : SV_GroupThreadID,
 				int3 dispatchThreadID : SV_DispatchThreadID)
 {
 	// Put in an array for each indexing.
@@ -89,7 +91,7 @@ void HorzBlurCS(int3 groupThreadID : SV_GroupThreadID,
 }
 
 [numthreads(1, N, 1)]
-void VertBlurCS(int3 groupThreadID : SV_GroupThreadID,
+void VertBilateralCS(int3 groupThreadID : SV_GroupThreadID,
 				int3 dispatchThreadID : SV_DispatchThreadID)
 {
 	// Put in an array for each indexing.

@@ -70,7 +70,7 @@ private:
 
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
-    
+    ComPtr<ID3D12RootSignature> mPostBilateralRootSignature = nullptr;
 
     ComPtr<ID3D12DescriptorHeap> mCbvSrvUavDescriptorHeap = nullptr;
 
@@ -95,7 +95,7 @@ private:
     size_t mWavesVerticesCount = 0;
     size_t mMaterialCount = 0;
 
-    std::unique_ptr<BlurFilter> mBlurFilter;
+    std::unique_ptr<BlurFilter> mBilateralFilter;
 
     std::unique_ptr<RenderTarget> mOffscreenRT = nullptr;
 
@@ -151,6 +151,7 @@ private:
     void BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
     void BuildRootSignature();
     void BuildPostProcessRootSignature();
+    void BuildBilateralRootSignature();
 
     void BuildShadersAndInputLayout();
 

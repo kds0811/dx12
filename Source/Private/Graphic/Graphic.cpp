@@ -120,9 +120,9 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 
-    if (mBlurFilter != nullptr)
+    if (mBilateralFilter != nullptr)
     {
-        mBlurFilter->OnResize(mClientWidth, mClientHeight);
+        mBilateralFilter->OnResize(mClientWidth, mClientHeight);
     }
 
     if (mSobelFilter != nullptr)
@@ -162,17 +162,16 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->RSSetViewports(1, &mScreenViewport);
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
-
     // Change offscreen texture to be used as a a render target output.
     auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
     mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
 
     //// Indicate a state transition on the resource usage.
-    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    //mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+    // const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    // mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
     //// Clear the back buffer and depth buffer.
-    //mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    // mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
     mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
 
     mCommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
@@ -181,9 +180,8 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     auto CurBackBuferView = GetCurrentBackBufferView();
     auto OffScreeRTV = mOffscreenRT->Rtv();
     auto DSV = GetDepthStencilView();
-    //mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    // mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
     mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
-
 
     // set textures SRV heaps
     ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvSrvUavDescriptorHeap.Get()};
@@ -266,7 +264,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     //
 
     // Indicate a state transition on the resource usage.
-
+    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
     mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
     // Specify the buffers we are going to render to.
@@ -278,6 +276,16 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
     DrawFullscreenQuad(mCommandList.Get());
 
+    mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 0.1f);
+
+    // Prepare to copy blurred output to the back buffer.
+    auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+    mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
+
+    mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
+
+    auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    mCommandList->ResourceBarrier(1, &ResBar1488);
 }
 
 void Graphic::EndDrawFrame()
@@ -297,8 +305,8 @@ void Graphic::EndDrawFrame()
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     // Swap the back and front buffers
-    mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check; // vsync off
-    //mSwapChain->Present(1, 0) >> Check;  // vsync on
+    mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check;  // vsync off
+    // mSwapChain->Present(1, 0) >> Check;  // vsync on
     mCurrBackBuffer = (mCurrBackBuffer + 1) % mSwapChainBufferCount;
 
     // Advance the fence value to mark commands up to this fence point.
@@ -557,7 +565,7 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
     // Reset the command list to prep for initialization commands.
     mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
 
-    mBlurFilter = std::make_unique<BlurFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
+    mBilateralFilter = std::make_unique<BlurFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
     mSobelFilter = std::make_unique<SobelFilter>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
     mOffscreenRT = std::make_unique<RenderTarget>(mDevice.Get(), mClientWidth, mClientHeight, mBackBufferFormat);
 
@@ -567,6 +575,7 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
 
     BuildRootSignature();
     BuildPostProcessRootSignature();
+    BuildBilateralRootSignature();
     BuildDescriptorHeaps(textures);
     BuildShadersAndInputLayout();
     BuildFrameResources();
@@ -770,6 +779,9 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
     mOffscreenRT->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
         CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mSobelFilter->DescriptorCount(), mCbvSrvUavDescriptorSize),
         CD3DX12_CPU_DESCRIPTOR_HANDLE(rtvCpuStart, rtvOffset, mRtvDescriptorSize));
+
+    mBilateralFilter->BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, index + mSobelFilter->DescriptorCount() + 1, mCbvSrvUavDescriptorSize),
+        CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, index + mSobelFilter->DescriptorCount() + 1, mCbvSrvUavDescriptorSize), mCbvSrvUavDescriptorSize);
 }
 
 void Graphic::BuildRootSignature()
@@ -847,6 +859,39 @@ void Graphic::BuildPostProcessRootSignature()
     mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mPostProcessRootSignature.GetAddressOf())) >> Check;
 }
 
+void Graphic::BuildBilateralRootSignature()
+{
+    CD3DX12_DESCRIPTOR_RANGE srvTable;
+    srvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+    CD3DX12_DESCRIPTOR_RANGE uavTable;
+    uavTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
+
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[3];
+
+    // Perfomance TIP: Order from most frequent to least frequent.
+    slotRootParameter[0].InitAsConstants(16, 0);
+    slotRootParameter[1].InitAsDescriptorTable(1, &srvTable);
+    slotRootParameter[2].InitAsDescriptorTable(1, &uavTable);
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+    if (errorBlob != nullptr)
+    {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    hr >> Check;
+
+    mDevice->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(mPostBilateralRootSignature.GetAddressOf())) >> Check;
+}
+
 void Graphic::BuildShadersAndInputLayout()
 {
     const D3D_SHADER_MACRO defines[] = {"FOG", "1", NULL, NULL};
@@ -867,6 +912,9 @@ void Graphic::BuildShadersAndInputLayout()
 
     mShaders["horzBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "HorzBlurCS", "cs_5_1");
     mShaders["vertBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "VertBlurCS", "cs_5_1");
+
+    mShaders["horzBilateralCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\BilateralFilter.hlsl", nullptr, "HorzBilateralCS", "cs_5_1");
+    mShaders["vertBilateralCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\BilateralFilter.hlsl", nullptr, "VertBilateralCS", "cs_5_1");
 
     mShaders["wavesVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", waveDefines, "VS", "vs_5_1");
     mShaders["wavesUpdateCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\WaveSim.hlsl", nullptr, "UpdateWavesCS", "cs_5_1");
@@ -1061,23 +1109,23 @@ void Graphic::BuildPSOs()
     GeometrySubdividePsoDescWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&mPSOs["geometrySubdivideWireFrame"])) >> Check;
 
-    ////
-    //// PSO for horizontal blur
-    ////
-    // D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
-    // horzBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
-    // horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBlurCS"]->GetBufferPointer()), mShaders["horzBlurCS"]->GetBufferSize()};
-    // horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    // mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBlur"])) >> Check;
+    //
+    // PSO for horizontal blur
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
+    horzBlurPSO.pRootSignature = mPostBilateralRootSignature.Get();
+    horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBilateralCS"]->GetBufferPointer()), mShaders["horzBilateralCS"]->GetBufferSize()};
+    horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBilateral"])) >> Check;
 
-    ////
-    //// PSO for vertical blur
-    ////
-    // D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
-    // vertBlurPSO.pRootSignature = mPostProcessRootSignature.Get();
-    // vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBlurCS"]->GetBufferPointer()), mShaders["vertBlurCS"]->GetBufferSize()};
-    // vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    // mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBlur"])) >> Check;
+    //
+    // PSO for vertical blur
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
+    vertBlurPSO.pRootSignature = mPostBilateralRootSignature.Get();
+    vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBilateralCS"]->GetBufferPointer()), mShaders["vertBilateralCS"]->GetBufferSize()};
+    vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBilateral"])) >> Check;
 
     //
     // PSO for drawing waves

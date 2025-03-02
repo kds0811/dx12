@@ -23,8 +23,8 @@ public:
     ///< summary>
     /// Blurs the input texture blurCount times.
     ///</summary>
-    void Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature* rootSig, ID3D12PipelineState* horzBlurPSO,
-        ID3D12PipelineState* vertBlurPSO, ID3D12Resource* input, int blurCount);
+    void Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature* rootSig, ID3D12PipelineState* horzBlurPSO, ID3D12PipelineState* vertBlurPSO, ID3D12Resource* input,
+        int blurCount, float sigmaColor);
 
 private:
     std::vector<float> CalcGaussWeights(float sigma);

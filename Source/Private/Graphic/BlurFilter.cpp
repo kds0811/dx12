@@ -1,4 +1,5 @@
 #include "BlurFilter.h"
+#include <DirectXMath.h>
 
 BlurFilter::BlurFilter(ID3D12Device* device, UINT width, UINT height, DXGI_FORMAT format)
 {
@@ -46,16 +47,20 @@ void BlurFilter::OnResize(UINT newWidth, UINT newHeight)
     }
 }
 
-void BlurFilter::Execute(
-    ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature* rootSig, ID3D12PipelineState* horzBlurPSO, ID3D12PipelineState* vertBlurPSO, ID3D12Resource* input, int blurCount)
+void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature* rootSig, ID3D12PipelineState* horzBlurPSO, ID3D12PipelineState* vertBlurPSO,
+    ID3D12Resource* input, int blurCount, float sigmaColor)
 {
     auto weights = CalcGaussWeights(2.5f);
     int blurRadius = (int)weights.size() / 2;
+    float SigmaColor = sigmaColor;
+    float padding[3] = {1.0f, 1.0f, 1.0f};
 
     cmdList->SetComputeRootSignature(rootSig);
 
     cmdList->SetComputeRoot32BitConstants(0, 1, &blurRadius, 0);
     cmdList->SetComputeRoot32BitConstants(0, (UINT)weights.size(), weights.data(), 1);
+    cmdList->SetComputeRoot32BitConstants(0, 1, &SigmaColor, (UINT)weights.size() + 1);
+    cmdList->SetComputeRoot32BitConstants(0, 3, &padding, (UINT)weights.size() + 2);
 
     auto ResBarRTtoCSINPUT = CD3DX12_RESOURCE_BARRIER::Transition(input, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
     cmdList->ResourceBarrier(1, &ResBarRTtoCSINPUT);
