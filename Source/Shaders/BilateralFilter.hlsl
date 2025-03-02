@@ -26,7 +26,7 @@ static const int gMaxBlurRadius = 5;
 Texture2D gInput : register(t0);
 RWTexture2D<float4> gOutput : register(u0);
 
-float ComputeColorWeight(float3 color1, float3 color2, float sigmaColor)
+float ComputeColorWeight(float4 color1, float4 color2, float sigmaColor)
 {
     float diff = length(color1 - color2); 
     return exp(-diff * diff / (2 * sigmaColor * sigmaColor)); 
@@ -80,7 +80,9 @@ void HorzBlurCS(int3 groupThreadID : SV_GroupThreadID,
     {
         int k = groupThreadID.x + gBlurRadius + i;
 		
-        blurColor += weights[i + gBlurRadius] * gCache[k];
+        float ColorWeight = ComputeColorWeight(gCache[k], gCache[i + gBlurRadius], sigmaColor);
+        
+        blurColor += weights[i + gBlurRadius] * gCache[k] * ColorWeight;
     }
 	
     gOutput[dispatchThreadID.xy] = blurColor;
@@ -130,8 +132,10 @@ void VertBlurCS(int3 groupThreadID : SV_GroupThreadID,
     for (int i = -gBlurRadius; i <= gBlurRadius; ++i)
     {
         int k = groupThreadID.y + gBlurRadius + i;
+        
+        float ColorWeight = ComputeColorWeight(gCache[k], gCache[i + gBlurRadius], sigmaColor);
 		
-        blurColor += weights[i + gBlurRadius] * gCache[k];
+        blurColor += weights[i + gBlurRadius] * gCache[k] * ColorWeight;
     }
 	
     gOutput[dispatchThreadID.xy] = blurColor;
