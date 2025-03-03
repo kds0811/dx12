@@ -77,16 +77,17 @@ void HorzBilateralCS(int3 groupThreadID : SV_GroupThreadID,
 	//
 
     float4 blurColor = float4(0, 0, 0, 0);
-	
+    float totalWeight = 0.0;
+    
     for (int i = -gBlurRadius; i <= gBlurRadius; ++i)
     {
         int k = groupThreadID.x + gBlurRadius + i;
-		
+       
         float ColorWeight = ComputeColorWeight(gCache[k], gCache[i + gBlurRadius], sigmaColor);
-        
+        totalWeight += weights[i + gBlurRadius] * ColorWeight;
         blurColor += weights[i + gBlurRadius] * gCache[k];
     }
-	
+    //blurColor /= totalWeight;
     gOutput[dispatchThreadID.xy] = blurColor;
 }
 
@@ -130,15 +131,16 @@ void VertBilateralCS(int3 groupThreadID : SV_GroupThreadID,
 	//
 
     float4 blurColor = float4(0, 0, 0, 0);
-	
+    float totalWeight = 0.0;
+    
     for (int i = -gBlurRadius; i <= gBlurRadius; ++i)
     {
         int k = groupThreadID.y + gBlurRadius + i;
         
         float ColorWeight = ComputeColorWeight(gCache[k], gCache[i + gBlurRadius], sigmaColor);
-		
+        totalWeight += weights[i + gBlurRadius] * ColorWeight;
         blurColor += weights[i + gBlurRadius] * gCache[k];
     }
-	
+    //blurColor /= totalWeight;
     gOutput[dispatchThreadID.xy] = blurColor;
 }
