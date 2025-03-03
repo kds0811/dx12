@@ -276,16 +276,16 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
     DrawFullscreenQuad(mCommandList.Get());
 
-    mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 1.0f);
+    //mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 1.0f);
 
-    // Prepare to copy blurred output to the back buffer.
-    auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-    mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
+    //// Prepare to copy blurred output to the back buffer.
+    //auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+    //mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
 
-    mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
+    //mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
 
-    auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    mCommandList->ResourceBarrier(1, &ResBar1488);
+    //auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    //mCommandList->ResourceBarrier(1, &ResBar1488);
 }
 
 void Graphic::EndDrawFrame()
