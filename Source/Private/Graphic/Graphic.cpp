@@ -496,6 +496,9 @@ void Graphic::InitPipeline()
     {
         mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])) >> Check;
         mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+        
+        std::wstring Name = L"SwapChainBuffer " + i;
+        mSwapChainBuffer[i]->SetName(Name.c_str());
         rtvHeapHandle.Offset(1, mRtvDescriptorSize);
     }
 
@@ -522,6 +525,8 @@ void Graphic::InitPipeline()
     mDevice->CreateCommittedResource(
         &HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
         Check;
+
+    mDepthStencilBuffer->SetName(L"DepthStencilBuffer") >> Check;
 
     mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, GetDepthStencilView());
 

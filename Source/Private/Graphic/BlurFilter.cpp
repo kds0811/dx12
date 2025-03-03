@@ -65,7 +65,7 @@ void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature
     auto ResBarRTtoCSINPUT = CD3DX12_RESOURCE_BARRIER::Transition(input, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
     cmdList->ResourceBarrier(1, &ResBarRTtoCSINPUT);
 
-    auto ResBarComtoCDBLURMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+    auto ResBarComtoCDBLURMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
     cmdList->ResourceBarrier(1, &ResBarComtoCDBLURMap0);
 
     // Copy the input (back-buffer in this example) to BlurMap0.
@@ -74,8 +74,6 @@ void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature
     auto ResBarCDtoGRBlurMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
     cmdList->ResourceBarrier(1, &ResBarCDtoGRBlurMap0);
 
-    auto ResBarComtoUABlurMap1 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap1.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    cmdList->ResourceBarrier(1, &ResBarComtoUABlurMap1);
 
     for (int i = 0; i < blurCount; ++i)
     {
@@ -120,6 +118,9 @@ void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature
         cmdList->ResourceBarrier(1, &ResBarMap1ReadtoUa);
     }
 
+
+    auto ResBarGRtoCopySOURCE = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_SOURCE);
+    cmdList->ResourceBarrier(1, &ResBarGRtoCopySOURCE);
 
 }
 
@@ -200,7 +201,11 @@ void BlurFilter::BuildResources()
     texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
     auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    mDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mBlurMap0)) >> Kds::App::Check;
+    mDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, IID_PPV_ARGS(&mBlurMap0)) >> Kds::App::Check;
 
-    mDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mBlurMap1)) >> Kds::App::Check;
+    mDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&mBlurMap1)) >> Kds::App::Check;
+
+    mBlurMap0->SetName(L"mBlurMap0") >> Kds::App::Check;
+
+    mBlurMap1->SetName(L"mBlurMap1") >> Kds::App::Check;
 }

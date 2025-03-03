@@ -101,4 +101,6 @@ void RenderTarget::BuildResource()
     auto HeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     md3dDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, &optimizedClearValue, IID_PPV_ARGS(&mOffscreenTex)) >>
         Kds::App::Check;
+
+    mOffscreenTex->SetName(L"OffscreenTex") >> Kds::App::Check;
 }
