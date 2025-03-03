@@ -208,6 +208,8 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     }
     DrawRenderItems(sortedSceneObjects.GeometrySubdivide, false);
 
+    // Draw Tesselation Demo
+    // Integer tesselation
     if (!bIsWireframe)
     {
         mCommandList->SetPipelineState(mPSOs["tess"].Get());
@@ -216,8 +218,37 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     {
         mCommandList->SetPipelineState(mPSOs["tessWireframe"].Get());
     }
-    DrawRenderItems(sortedSceneObjects.Tesselation, false);
-
+    DrawRenderItems(sortedSceneObjects.TesselationInteger, false);
+    // FractionalOdd Tesselation
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["tessFracOdd"].Get());
+    }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["tessFracOddWireframe"].Get());
+    }
+    DrawRenderItems(sortedSceneObjects.TesselationFracOdd, false);
+    // Fractional even Tesselation
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["tessFracEven"].Get());
+    }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["tessFracEvenWireframe"].Get());
+    }
+    DrawRenderItems(sortedSceneObjects.TesselationFracEven, false);
+    // Pow2 Tesselation
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["tessPow"].Get());
+    }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["tessPowWireframe"].Get());
+    }
+    DrawRenderItems(sortedSceneObjects.TesselationPow2, false);
 
     // render alpha tested objects
     if (!bIsWireframe)
@@ -949,7 +980,20 @@ void Graphic::BuildShadersAndInputLayout()
     mShaders["tessDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "DS", "ds_5_1");
     mShaders["tessPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "PS", "ps_5_1");
 
+    mShaders["tessFracOddVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["tessFracOddHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "HS", "hs_5_1");
+    mShaders["tessFracOddDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "DS", "ds_5_1");
+    mShaders["tessFracOddPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "PS", "ps_5_1");
 
+    mShaders["tessFracEvenVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["tessFracEvenHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "HS", "hs_5_1");
+    mShaders["tessFracEvenDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "DS", "ds_5_1");
+    mShaders["tessFracEvenPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "PS", "ps_5_1");
+
+    mShaders["tessPowVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["tessPowHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "HS", "hs_5_1");
+    mShaders["tessPowDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "DS", "ds_5_1");
+    mShaders["tessPowPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "PS", "ps_5_1");
 
     mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -1200,6 +1244,45 @@ void Graphic::BuildPSOs()
     D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationWireFramePSO = tesselationPSO;
     tesselationWireFramePSO.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&tesselationWireFramePSO, IID_PPV_ARGS(&mPSOs["tessWireframe"])) >> Check;
+
+    // Tesselation Fractional ODD
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOFracOdd = tesselationPSO;
+    tesselationPSOFracOdd.VS = {reinterpret_cast<BYTE*>(mShaders["tessFracOddVS"]->GetBufferPointer()), mShaders["tessFracOddVS"]->GetBufferSize()};
+    tesselationPSOFracOdd.HS = {reinterpret_cast<BYTE*>(mShaders["tessFracOddHS"]->GetBufferPointer()), mShaders["tessFracOddHS"]->GetBufferSize()};
+    tesselationPSOFracOdd.DS = {reinterpret_cast<BYTE*>(mShaders["tessFracOddDS"]->GetBufferPointer()), mShaders["tessFracOddDS"]->GetBufferSize()};
+    tesselationPSOFracOdd.PS = {reinterpret_cast<BYTE*>(mShaders["tessFracOddPS"]->GetBufferPointer()), mShaders["tessFracOddPS"]->GetBufferSize()};
+    tesselationPSOFracOdd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSOFracOdd, IID_PPV_ARGS(&mPSOs["tessFracOdd"])) >> Check;
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOFracOddWireFrame = tesselationPSO;
+    tesselationPSOFracOddWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSOFracOddWireFrame, IID_PPV_ARGS(&mPSOs["tessFracOddWireframe"])) >> Check;
+
+    // Tesselation Fractional Even
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOFracEven = tesselationPSO;
+    tesselationPSOFracEven.VS = {reinterpret_cast<BYTE*>(mShaders["tessFracEvenVS"]->GetBufferPointer()), mShaders["tessFracEvenVS"]->GetBufferSize()};
+    tesselationPSOFracEven.HS = {reinterpret_cast<BYTE*>(mShaders["tessFracEvenHS"]->GetBufferPointer()), mShaders["tessFracEvenHS"]->GetBufferSize()};
+    tesselationPSOFracEven.DS = {reinterpret_cast<BYTE*>(mShaders["tessFracEvenDS"]->GetBufferPointer()), mShaders["tessFracEvenDS"]->GetBufferSize()};
+    tesselationPSOFracEven.PS = {reinterpret_cast<BYTE*>(mShaders["tessFracEvenPS"]->GetBufferPointer()), mShaders["tessFracEvenPS"]->GetBufferSize()};
+    tesselationPSOFracEven.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSOFracEven, IID_PPV_ARGS(&mPSOs["tessFracEven"])) >> Check;
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOFracEvenWireFrame = tesselationPSOFracEven;
+    tesselationPSOFracEvenWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSOFracEvenWireFrame, IID_PPV_ARGS(&mPSOs["tessFracEvenWireframe"])) >> Check;
+
+    //Tesselation Pow2
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOPow = tesselationPSO;
+    tesselationPSOPow.VS = {reinterpret_cast<BYTE*>(mShaders["tessPowVS"]->GetBufferPointer()), mShaders["tessPowVS"]->GetBufferSize()};
+    tesselationPSOPow.HS = {reinterpret_cast<BYTE*>(mShaders["tessPowHS"]->GetBufferPointer()), mShaders["tessPowHS"]->GetBufferSize()};
+    tesselationPSOPow.DS = {reinterpret_cast<BYTE*>(mShaders["tessPowDS"]->GetBufferPointer()), mShaders["tessPowDS"]->GetBufferSize()};
+    tesselationPSOPow.PS = {reinterpret_cast<BYTE*>(mShaders["tessPowPS"]->GetBufferPointer()), mShaders["tessPowPS"]->GetBufferSize()};
+    tesselationPSOPow.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSOPow, IID_PPV_ARGS(&mPSOs["tessPow"])) >> Check;
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOPowWireFrame = tesselationPSOPow;
+    tesselationPSOPowWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSOPowWireFrame, IID_PPV_ARGS(&mPSOs["tessPowWireframe"])) >> Check;
 }
 
 void Graphic::BuildFrameResources()

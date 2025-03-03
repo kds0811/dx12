@@ -34,7 +34,8 @@ void PrimitiveSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_ma
     mObjCBIndexShadow = mRenderItem->ObjCBIndex + 2;
     mShadowMat = materials[EMaterialType::SHADOW].get();
 
-    if (mRenderLayer == ERenderLayer::Tesselation)
+    if (mRenderLayer == ERenderLayer::TesselationInteger || mRenderLayer == ERenderLayer::TesselationFracEven || mRenderLayer == ERenderLayer::TesselationFracOdd ||
+        mRenderLayer == ERenderLayer::TesselationPow2)
     {
         mRenderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
     }

@@ -18,7 +18,10 @@ struct SortedSceneObjects
     std::vector<BaseSceneObject*> Models;
     std::vector<BaseSceneObject*> GenerateTrees;
     std::vector<BaseSceneObject*> GeometrySubdivide;
-    std::vector<BaseSceneObject*> Tesselation;
+    std::vector<BaseSceneObject*> TesselationInteger;
+    std::vector<BaseSceneObject*> TesselationFracOdd;
+    std::vector<BaseSceneObject*> TesselationFracEven;
+    std::vector<BaseSceneObject*> TesselationPow2;
 };
 
 struct DataPrimitiveBuild

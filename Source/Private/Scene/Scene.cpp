@@ -38,8 +38,9 @@ void Scene::InitScene()
 
     // set waves texture scale
     mSceneObjects[12]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
-    // set Three land texture scale
+    // set Three land and tesselation land texture scale
     mSceneObjects[13]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
+    mSceneObjects[14]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
 }
 
 void Scene::Update()
@@ -110,6 +111,10 @@ void Scene::BuildScenePrimitives()
     // Trees Land
     primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(-205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(5.f, 1.0f, 5.f)),
         EMaterialType::GRASSX, ERenderLayer::Opaque);
+
+    // Tesselation demo Land
+    primitiveData.emplace_back(EPrimitiveType::GRID, Transform(Vector(205.0f, 0.0f, 150.0f), Rotator::Zero(), Vector(5.f, 1.0f, 5.f)), EMaterialType::GRASSX, ERenderLayer::Opaque);
+
     // Trees
      primitiveData.emplace_back(EPrimitiveType::TREES, Transform(Vector(-205.0f, 5.5f, 150.0f), Rotator::Zero(), Vector(1.f, 1.0f, 1.f)),
         EMaterialType::TREES, ERenderLayer::GenerateTrees);
@@ -128,8 +133,17 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(-120.0f, 17.5f, -40.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(5.f, 5.0f, 5.f)), EMaterialType::WHITE,
         ERenderLayer::GeometrySubdivide);
 
-    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(-120.0f, 17.5f, -20.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(10.f, 10.0f, 10.f)), EMaterialType::WHITE,
-        ERenderLayer::Tesselation);
+    // Tesselation DEMO
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(100.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
+        ERenderLayer::TesselationInteger);
+    primitiveData.emplace_back(
+        EPrimitiveType::GEOSPHERE, Transform(Vector(130.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE, ERenderLayer::TesselationFracOdd);
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(160.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
+        ERenderLayer::TesselationFracEven);
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(190.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
+        ERenderLayer::TesselationPow2);
+
+
 
 
     // add colums and spheres
@@ -225,9 +239,21 @@ void Scene::BuildScenePrimitives()
         {
             mSortedSceneObjects.GeometrySubdivide.push_back(obj.get());
         }
-        else if (obj->GetRenderLayer() == ERenderLayer::Tesselation)
+        else if (obj->GetRenderLayer() == ERenderLayer::TesselationInteger)
         {
-            mSortedSceneObjects.Tesselation.push_back(obj.get());
+            mSortedSceneObjects.TesselationInteger.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::TesselationFracOdd)
+        {
+            mSortedSceneObjects.TesselationFracOdd.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::TesselationFracEven)
+        {
+            mSortedSceneObjects.TesselationFracEven.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::TesselationPow2)
+        {
+            mSortedSceneObjects.TesselationPow2.push_back(obj.get());
         }
 
 

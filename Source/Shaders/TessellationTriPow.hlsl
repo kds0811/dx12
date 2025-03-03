@@ -122,7 +122,7 @@ struct HullOut
 };
 
 [domain("tri")]
-[partitioning("integer")]
+[partitioning("pow2")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("ConstantHS")]
