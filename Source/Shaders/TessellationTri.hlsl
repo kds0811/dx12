@@ -1,6 +1,9 @@
 #include "LightingUtil.hlsl"
 #include "BarycentricInterpolate.hlsl"
 
+
+static const float MaxTessFactor = 24.0f;
+
 Texture2D    gDiffuseMap : register(t0);
 
 
@@ -98,8 +101,8 @@ PatchTess ConstantHS(InputPatch<VertexOut, 3> patch, uint patchID : SV_Primitive
 	// [d0, d1] defines the range we tessellate in.
 	
 	const float d0 = 20.0f;
-	const float d1 = 100.0f;
-	float tess = 64.0f*saturate( (d1-d)/(d1-d0) );
+	const float d1 = 300.0f;
+    float tess = MaxTessFactor * saturate((d1 - d) / (d1 - d0));
 
 	// Uniformly tessellate the patch.
 
@@ -115,15 +118,16 @@ PatchTess ConstantHS(InputPatch<VertexOut, 3> patch, uint patchID : SV_Primitive
 struct HullOut
 {
 	float3 PosL : POSITION;
+    float4 Color : COLOR;
 };
 
 [domain("tri")]
-[partitioning("integer")]
+[partitioning("pow2")]
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(3)]
 [patchconstantfunc("ConstantHS")]
-[maxtessfactor(64.0f)]
-HullOut HS(InputPatch<VertexOut, 4> p, 
+[maxtessfactor(MaxTessFactor)]
+HullOut HS(InputPatch<VertexOut, 3> p, 
            uint i : SV_OutputControlPointID,
            uint patchId : SV_PrimitiveID)
 {
@@ -131,12 +135,17 @@ HullOut HS(InputPatch<VertexOut, 4> p,
 	
 	hout.PosL = p[i].PosL;
 	
+    int ColorIndex = patchId % 32;
+	
+    hout.Color = gBaseColors[ColorIndex];
+	
 	return hout;
 }
 
 struct DomainOut
 {
 	float4 PosH : SV_POSITION;
+    float4 Color : COLOR;
 };
 
 // The domain shader is called for every vertex created by the tessellator.  
@@ -147,14 +156,17 @@ DomainOut DS(PatchTess patchTess, float3 barycentricCoords : SV_DomainLocation, 
 	DomainOut dout;
 	
     float3 p = BarycentricInterpolate(patch[0].PosL, patch[1].PosL, patch[2].PosL, barycentricCoords);
+    p = normalize(p);
 	
 	float4 posW = mul(float4(p, 1.0f), gWorld);
 	dout.PosH = mul(posW, gViewProj);
+	
+    dout.Color = BarycentricInterpolate(patch[0].Color, patch[1].Color, patch[2].Color, barycentricCoords);
 	
 	return dout;
 }
 
 float4 PS(DomainOut pin) : SV_Target
 {
-    return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    return pin.Color;
 }

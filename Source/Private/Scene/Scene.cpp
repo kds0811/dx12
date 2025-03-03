@@ -128,6 +128,10 @@ void Scene::BuildScenePrimitives()
         Transform(Vector(-120.0f, 17.5f, -40.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(5.f, 5.0f, 5.f)), EMaterialType::WHITE,
         ERenderLayer::GeometrySubdivide);
 
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(-120.0f, 17.5f, -20.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(10.f, 10.0f, 10.f)), EMaterialType::WHITE,
+        ERenderLayer::Tesselation);
+
+
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
@@ -221,6 +225,11 @@ void Scene::BuildScenePrimitives()
         {
             mSortedSceneObjects.GeometrySubdivide.push_back(obj.get());
         }
+        else if (obj->GetRenderLayer() == ERenderLayer::Tesselation)
+        {
+            mSortedSceneObjects.Tesselation.push_back(obj.get());
+        }
+
 
         if (obj->GetRenderLayer() == ERenderLayer::Opaque)
         {

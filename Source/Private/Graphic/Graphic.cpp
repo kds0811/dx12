@@ -208,10 +208,25 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     }
     DrawRenderItems(sortedSceneObjects.GeometrySubdivide, false);
 
+    if (!bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["tess"].Get());
+    }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["tessWireframe"].Get());
+    }
+    DrawRenderItems(sortedSceneObjects.Tesselation, false);
+
+
     // render alpha tested objects
     if (!bIsWireframe)
     {
         mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
+    }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["opaque_wireframe"].Get());
     }
     DrawRenderItems(sortedSceneObjects.AlphaTestObjects, false);
 
@@ -929,6 +944,13 @@ void Graphic::BuildShadersAndInputLayout()
     mShaders["compositePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Composite.hlsl", nullptr, "PS", "ps_5_1");
     mShaders["sobelCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sobel.hlsl", nullptr, "SobelCS", "cs_5_1");
 
+    mShaders["tessVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["tessHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "HS", "hs_5_1");
+    mShaders["tessDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "DS", "ds_5_1");
+    mShaders["tessPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "PS", "ps_5_1");
+
+
+
     mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -1162,6 +1184,22 @@ void Graphic::BuildPSOs()
     sobelPSO.CS = {reinterpret_cast<BYTE*>(mShaders["sobelCS"]->GetBufferPointer()), mShaders["sobelCS"]->GetBufferSize()};
     sobelPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
     mDevice->CreateComputePipelineState(&sobelPSO, IID_PPV_ARGS(&mPSOs["sobel"])) >> Check;
+
+
+    //
+    // PSO for Tesselation
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSO = opaquePsoDesc;
+    tesselationPSO.VS = {reinterpret_cast<BYTE*>(mShaders["tessVS"]->GetBufferPointer()), mShaders["tessVS"]->GetBufferSize()};
+    tesselationPSO.HS = {reinterpret_cast<BYTE*>(mShaders["tessHS"]->GetBufferPointer()), mShaders["tessHS"]->GetBufferSize()};
+    tesselationPSO.DS = {reinterpret_cast<BYTE*>(mShaders["tessDS"]->GetBufferPointer()), mShaders["tessDS"]->GetBufferSize()};
+    tesselationPSO.PS = {reinterpret_cast<BYTE*>(mShaders["tessPS"]->GetBufferPointer()), mShaders["tessPS"]->GetBufferSize()};
+    tesselationPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    mDevice->CreateGraphicsPipelineState(&tesselationPSO, IID_PPV_ARGS(&mPSOs["tess"])) >> Check;
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationWireFramePSO = tesselationPSO;
+    tesselationWireFramePSO.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    mDevice->CreateGraphicsPipelineState(&tesselationWireFramePSO, IID_PPV_ARGS(&mPSOs["tessWireframe"])) >> Check;
 }
 
 void Graphic::BuildFrameResources()
