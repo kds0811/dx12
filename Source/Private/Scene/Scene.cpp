@@ -134,13 +134,13 @@ void Scene::BuildScenePrimitives()
         ERenderLayer::GeometrySubdivide);
 
     // Tesselation DEMO
-    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(100.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(150.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
         ERenderLayer::TesselationInteger);
     primitiveData.emplace_back(
-        EPrimitiveType::GEOSPHERE, Transform(Vector(130.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE, ERenderLayer::TesselationFracOdd);
-    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(160.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
+        EPrimitiveType::GEOSPHERE, Transform(Vector(180.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE, ERenderLayer::TesselationFracOdd);
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(210.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
         ERenderLayer::TesselationFracEven);
-    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(190.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
+    primitiveData.emplace_back(EPrimitiveType::GEOSPHERE, Transform(Vector(240.0f, 17.5f, 50.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(12.f, 12.0f, 12.f)), EMaterialType::WHITE,
         ERenderLayer::TesselationPow2);
 
 
