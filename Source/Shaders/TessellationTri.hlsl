@@ -100,7 +100,7 @@ PatchTess ConstantHS(InputPatch<VertexOut, 3> patch, uint patchID : SV_Primitive
 	// the tessellation is 0 if d >= d1 and 64 if d <= d0.  The interval
 	// [d0, d1] defines the range we tessellate in.
 	
-	const float d0 = 5.0f;
+	const float d0 = 1.0f;
 	const float d1 = 300.0f;
     float tess = MaxTessFactor * saturate((d1 - d) / (d1 - d0));
 

@@ -1254,7 +1254,7 @@ void Graphic::BuildPSOs()
     tesselationPSOFracOdd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     mDevice->CreateGraphicsPipelineState(&tesselationPSOFracOdd, IID_PPV_ARGS(&mPSOs["tessFracOdd"])) >> Check;
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOFracOddWireFrame = tesselationPSO;
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOFracOddWireFrame = tesselationPSOFracOdd;
     tesselationPSOFracOddWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&tesselationPSOFracOddWireFrame, IID_PPV_ARGS(&mPSOs["tessFracOddWireframe"])) >> Check;
 
