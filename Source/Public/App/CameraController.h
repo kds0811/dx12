@@ -4,24 +4,23 @@
 
 class Window;
 class Camera;
-class GameTimerW;
+class MainInputController;
 
 class CameraController
 {
-    Window* pWnd = nullptr;
+    MainInputController* pController = nullptr;
     Camera* pCam = nullptr;
-    GameTimerW* pTimer = nullptr;
-    DirectX::XMFLOAT2 PrevMousePosition = {0.0f, 0.0f};
-    bool bMouseRightButtonIsPressed = false;
+
+
 
 public:
-    CameraController(Window* wnd, Camera* cam, GameTimerW* timer);
+    CameraController(Camera* cam, MainInputController* controller);
     void UpdateInput();
 
 private:
     void UpdateKeyboardInput();
     void UpdateMouseInput();
 
-    void CheckMouseRightButtonIsPressed();
+   // void CheckMouseRightButtonIsPressed();
 
 };

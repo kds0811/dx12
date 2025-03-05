@@ -20,9 +20,8 @@ App::App()
     mTimer = std::make_unique<GameTimerW>();
     mWnd = std::make_unique<Window>(mWidth, mHeight, this);
     mGfx = std::make_unique<Graphic>(mWidth, mHeight, mWnd->GetHwnd());
-    mCamera = std::make_unique<Camera>();
     mMainInputController = std::make_unique<MainInputController>(mWnd.get());
-    mCameraController = std::make_unique<CameraController>(mWnd.get(), mCamera.get(), mTimer.get());
+    mCamera = std::make_unique<Camera>(mMainInputController.get(), mTimer.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
     mScene = std::make_unique<Scene>(mTimer.get(), mResourceManager.get());
     mImguiWrapper = std::make_unique<ImguiWrapper>();
@@ -32,7 +31,7 @@ App::App()
     assert(mTimer);
     assert(mCamera);
     assert(mMainInputController);
-    assert(mCameraController);
+
     assert(mScene);
     assert(mResourceManager);
 
@@ -113,7 +112,7 @@ void App::Update()
 
 
     mMainInputController->Update();
-    mCameraController->UpdateInput();
+    mCamera->UpdateInput();
     UpdateWireframeInput();
     mScene->Update();
     mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects(), mScene->GetWavesPtr(),

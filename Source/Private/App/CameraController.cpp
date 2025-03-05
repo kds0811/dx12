@@ -3,6 +3,8 @@
 #include "WindowDK.h"
 #include "GameTimerW.h"
 #include "PixProfile.h"
+#include "MainController.h"
+#include <DirectXMath.h>
 
 
 #if defined PIXPROFILE
@@ -10,14 +12,10 @@
 #include <pix3.h>
 #endif
 
-CameraController::CameraController(Window* wnd, Camera* cam, GameTimerW* timer)
+CameraController::CameraController(Camera* cam, MainInputController* controller)
 {
-    assert(wnd);
-    assert(cam);
-    assert(timer);
-    pWnd = wnd;
     pCam = cam;
-    pTimer = timer;
+    pController = controller;
 }
 
 void CameraController::UpdateInput()
@@ -33,61 +31,55 @@ void CameraController::UpdateInput()
 
 void CameraController::UpdateKeyboardInput()
 {
-    const float dt = pTimer->GetDeltaTime();
-
-    if (pWnd->kbd.KeyIsPressed('W'))
+    if (pController->KeyboardKeyIsPressed('W'))
     {
-        pCam->MoveForward(1.0f, dt);
+        pCam->MoveForward(1.0f);
     }
-    if (pWnd->kbd.KeyIsPressed('S'))
+    if (pController->KeyboardKeyIsPressed('S'))
     {
-        pCam->MoveForward(-1.0f, dt);
+        pCam->MoveForward(-1.0f);
     }
-    if (pWnd->kbd.KeyIsPressed('D'))
+    if (pController->KeyboardKeyIsPressed('D'))
     {
-        pCam->MoveRight(1.0f, dt);
+        pCam->MoveRight(1.0f);
     }
-    if (pWnd->kbd.KeyIsPressed('A'))
+    if (pController->KeyboardKeyIsPressed('A'))
     {
-        pCam->MoveRight(-1.0f, dt);
+        pCam->MoveRight(-1.0f);
     }
-    if (pWnd->kbd.KeyIsPressed('E'))
+    if (pController->KeyboardKeyIsPressed('E'))
     {
-        pCam->MoveAbsoluteUp(1.f, dt);
+        pCam->MoveAbsoluteUp(1.f);
     }
-    if (pWnd->kbd.KeyIsPressed('Q'))
+    if (pController->KeyboardKeyIsPressed('Q'))
     {
-        pCam->MoveAbsoluteUp(-1.f, dt);
+        pCam->MoveAbsoluteUp(-1.f);
     }
 }
 
 void CameraController::UpdateMouseInput()
 {
-    CheckMouseRightButtonIsPressed();
+   // CheckMouseRightButtonIsPressed();
 
-    if (bMouseRightButtonIsPressed)
+    if (pController->MouseButtonIsPressed(VK_RBUTTON))
     {
-        DirectX::XMFLOAT2 CurrentMousePos = pWnd->mouse.GetPosVec();
-        float Xofsset = CurrentMousePos.x - PrevMousePosition.x;
-        float Yofsset = CurrentMousePos.y - PrevMousePosition.y;
-        pCam->RotateCamera(Xofsset, Yofsset, pTimer->GetDeltaTime());
-        PrevMousePosition = CurrentMousePos;
-    }
-
-}
-
-void CameraController::CheckMouseRightButtonIsPressed()
-{
-
-    if (pWnd->mouse.RIsPressed() && !bMouseRightButtonIsPressed)
-    {
-        bMouseRightButtonIsPressed = true;
-        PrevMousePosition = pWnd->mouse.GetPosVec();
-    }
-    
-    if (bMouseRightButtonIsPressed && !pWnd->mouse.RIsPressed())
-    {
-        bMouseRightButtonIsPressed = false;
-        PrevMousePosition = {0.0f, 0.0f};
+        auto MouseOfsset = pController->GetMousePositionOffset();
+        pCam->RotateCamera(MouseOfsset.x, MouseOfsset.y);
     }
 }
+//
+//void CameraController::CheckMouseRightButtonIsPressed()
+//{
+//
+//    if (pWnd->mouse.RIsPressed() && !bMouseRightButtonIsPressed)
+//    {
+//        bMouseRightButtonIsPressed = true;
+//        PrevMousePosition = pWnd->mouse.GetPosVec();
+//    }
+//    
+//    if (bMouseRightButtonIsPressed && !pWnd->mouse.RIsPressed())
+//    {
+//        bMouseRightButtonIsPressed = false;
+//        PrevMousePosition = {0.0f, 0.0f};
+//    }
+//}
