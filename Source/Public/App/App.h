@@ -8,11 +8,27 @@
 #include <memory>
 #include "ResourceManager.h"
 #include "ImguiWrapper.h"
+#include "MainController.h"
 
 
 
 class App
 {
+    UINT mWidth = 2000;
+    UINT mHeight = 1200;
+    std::unique_ptr<GameTimerW> mTimer = nullptr;
+    std::unique_ptr<Window> mWnd = nullptr;
+    std::unique_ptr<Graphic> mGfx = nullptr;
+    std::unique_ptr<Camera> mCamera = nullptr;
+    std::unique_ptr<MainInputController> mMainInputController = nullptr;
+    std::unique_ptr<CameraController> mCameraController = nullptr;
+    std::unique_ptr<ResourceManager> mResourceManager = nullptr;
+    std::unique_ptr<Scene> mScene = nullptr;
+    std::unique_ptr<ImguiWrapper> mImguiWrapper = nullptr;
+    bool bAppPaused = false;
+    std::uint64_t mFrameCount = 0;
+
+
 public:
     App();
     ~App();
@@ -31,19 +47,6 @@ public:
     void SetWireframe(bool wireframeIsEnabled);
 
 private:
-    UINT mWidth = 2000;
-    UINT mHeight = 1200;
-    std::unique_ptr<GameTimerW> mTimer = nullptr;
-    std::unique_ptr<Window> mWnd = nullptr;
-    std::unique_ptr<Graphic> mGfx = nullptr;
-    std::unique_ptr<Camera> mCamera = nullptr;
-    std::unique_ptr<CameraController> mCameraController = nullptr;
-    std::unique_ptr<ResourceManager> mResourceManager = nullptr;
-    std::unique_ptr<Scene> mScene = nullptr;
-    std::unique_ptr<ImguiWrapper> mImguiWrapper = nullptr;
-    bool bAppPaused = false;
-    std::uint64_t mFrameCount = 0;
-
     void CalculateFrameStats();
 
 };

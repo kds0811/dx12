@@ -21,7 +21,9 @@ public:
             Move,
             Enter,
             Leave,
-            Invalid
+            Invalid,
+            MPress,
+            MRelease
         };
 
     private:
@@ -51,6 +53,7 @@ public:
     bool IsInWindow() const;
     bool LIsPressed() const;
     bool RIsPressed() const;
+    bool MIsPressed() const;
     Mouse::EventM Read();
     bool IsEmpty();
     void Flush();
@@ -61,6 +64,10 @@ private:
     void OnLeftIsReleased();
     void OnRightIsPressed();
     void OnRightIsReleased();
+
+    void OnWheelIsPressed();
+    void OnWheelIsReleased();
+
     void OnwheelUP();
     void OnWheelDown();
     void OnMouseLeave();
@@ -74,6 +81,8 @@ private:
     int y = 0;
     bool bLPressed = false;
     bool bRPressed = false;
+    bool bMPressed = false;
+
     bool isInWindow = false;
     int wheelDeltaCarry = 0;
     std::queue<EventM> buffer;

@@ -33,6 +33,11 @@ bool Mouse::RIsPressed() const
     return bRPressed;
 }
 
+bool Mouse::MIsPressed() const
+{
+    return bMPressed;
+}
+
 Mouse::EventM Mouse::Read()
 {
     if (buffer.size() > 0)
@@ -90,6 +95,20 @@ void Mouse::OnRightIsReleased()
 {
     bRPressed = false;
     buffer.push(Mouse::EventM(EventM::Type::RRelease, *this));
+    TrimBuffer();
+}
+
+void Mouse::OnWheelIsPressed() 
+{
+    bMPressed = true;
+    buffer.push(Mouse::EventM(EventM::Type::MPress, *this));
+    TrimBuffer();
+}
+
+void Mouse::OnWheelIsReleased()
+{
+    bMPressed = false;
+    buffer.push(Mouse::EventM(EventM::Type::MRelease, *this));
     TrimBuffer();
 }
 

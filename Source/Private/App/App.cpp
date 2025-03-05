@@ -21,6 +21,7 @@ App::App()
     mWnd = std::make_unique<Window>(mWidth, mHeight, this);
     mGfx = std::make_unique<Graphic>(mWidth, mHeight, mWnd->GetHwnd());
     mCamera = std::make_unique<Camera>(this);
+    mMainInputController = std::make_unique<MainInputController>(mWnd.get());
     mCameraController = std::make_unique<CameraController>(mWnd.get(), mCamera.get(), mTimer.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
     mScene = std::make_unique<Scene>(mTimer.get(), mResourceManager.get());
@@ -30,6 +31,7 @@ App::App()
     assert(mGfx);
     assert(mTimer);
     assert(mCamera);
+    assert(mMainInputController);
     assert(mCameraController);
     assert(mScene);
     assert(mResourceManager);

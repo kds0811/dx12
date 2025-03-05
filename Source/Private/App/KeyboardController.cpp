@@ -114,5 +114,9 @@ void KeyboardController::UpdateInput()
 
 bool KeyboardController::KeyIsPressed(unsigned char keyCode)
 {
-    return mCurrentInput[keyCode];
+    if (mCurrentInput.contains(keyCode))
+    {
+        return mCurrentInput[keyCode];
+    }
+    return false;
 }
