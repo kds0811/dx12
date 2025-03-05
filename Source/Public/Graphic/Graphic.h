@@ -12,6 +12,7 @@
 #include "SobelFilter.h"
 #include "RenderTarget.h"
 #include "GpuWaves.h"
+#include "DirectXCollision.h"
 
 class GameTimerW;
 
@@ -21,7 +22,6 @@ class Graphic
 {
 private:
     // Main Fields
-
     ComPtr<IDXGIFactory7> mFactory;
     ComPtr<ID3D12Device8> mDevice;
 
