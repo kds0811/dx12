@@ -12,11 +12,8 @@ class alignas(16) Camera
     float mSpeedRotateCamera = 100.0f;
 
 public:
-    inline Camera(App* owner) noexcept : Trans(Vector{0.f, 50.f, -50.f}, Rotator(45.0f, 0.0f, 0.0f), Vector(1.f, 1.f, 1.f))
-    {
-        assert(owner);
-        pOwner = owner;
-    }
+    inline Camera() noexcept : Trans(Vector{0.f, 50.f, -50.f}, Rotator(45.0f, 0.0f, 0.0f), Vector(1.f, 1.f, 1.f))
+    {}
 
     [[nodiscard]] inline DirectX::XMFLOAT3 GetCameraPos() const noexcept
     {

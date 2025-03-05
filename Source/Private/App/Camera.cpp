@@ -26,8 +26,3 @@ void Camera::RotateCamera(float xOffset, float yOffset, float dt)
     Rotator RotOffset(NewPitch, NewYaw, 0.0f);
     Trans.AddRotation(RotOffset);
 }
-
-void Camera::SetWireframeMode(bool wireframeIsEnabled) 
-{
-    pOwner->SetWireframe(wireframeIsEnabled);
-}

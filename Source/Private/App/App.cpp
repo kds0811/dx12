@@ -20,7 +20,7 @@ App::App()
     mTimer = std::make_unique<GameTimerW>();
     mWnd = std::make_unique<Window>(mWidth, mHeight, this);
     mGfx = std::make_unique<Graphic>(mWidth, mHeight, mWnd->GetHwnd());
-    mCamera = std::make_unique<Camera>(this);
+    mCamera = std::make_unique<Camera>();
     mMainInputController = std::make_unique<MainInputController>(mWnd.get());
     mCameraController = std::make_unique<CameraController>(mWnd.get(), mCamera.get(), mTimer.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
@@ -111,7 +111,10 @@ void App::Update()
     PIXScopedEvent(PIX_COLOR(0, 255, 0), L"Update");
 #endif
 
+
+    mMainInputController->Update();
     mCameraController->UpdateInput();
+    UpdateWireframeInput();
     mScene->Update();
     mGfx->Update(mCamera->GetViewMatrix(), mCamera->GetCameraPos(), mTimer.get(), mScene->GetSceneObjects(), mScene->GetWavesPtr(),
         mResourceManager->GetMaterials());
@@ -131,11 +134,6 @@ void App::Draw()
 #if defined PIXPROFILE
     PIXEndEvent(mGfx->GetCommandQueue());
 #endif
-}
-
-void App::SetWireframe(bool wireframeIsEnabled)
-{
-    mGfx->SetWireframe(wireframeIsEnabled);
 }
 
 void App::CalculateFrameStats()
@@ -161,6 +159,18 @@ void App::CalculateFrameStats()
 
         frameCnt = 0;
         timeElapsed += 1.0;
+    }
+}
+
+void App::UpdateWireframeInput() 
+{
+    if (mMainInputController->KeyboardKeyIsPressed('1'))
+    {
+        mGfx->SetWireframe(false);
+    }
+    if (mMainInputController->KeyboardKeyIsPressed('2'))
+    {
+        mGfx->SetWireframe(true);
     }
 }
 

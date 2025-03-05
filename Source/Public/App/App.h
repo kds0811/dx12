@@ -44,9 +44,9 @@ public:
     void OnStart();
     void Update();
     void Draw();
-    void SetWireframe(bool wireframeIsEnabled);
 
 private:
     void CalculateFrameStats();
+    void UpdateWireframeInput();
 
 };
