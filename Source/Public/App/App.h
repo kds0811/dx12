@@ -20,7 +20,6 @@ class App
     std::unique_ptr<Graphic> mGfx = nullptr;
     std::unique_ptr<Camera> mCamera = nullptr;
     std::unique_ptr<MainInputController> mMainInputController = nullptr;
-
     std::unique_ptr<ResourceManager> mResourceManager = nullptr;
     std::unique_ptr<Scene> mScene = nullptr;
     std::unique_ptr<ImguiWrapper> mImguiWrapper = nullptr;

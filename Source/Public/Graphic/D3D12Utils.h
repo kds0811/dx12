@@ -75,6 +75,10 @@ struct MeshGeometry
     DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
     UINT IndexBufferByteSize = 0;
 
+    // max and min vertices for create Bounding box
+    DirectX::XMFLOAT3 VertexMax{-FLT_MAX, -FLT_MAX, -FLT_MAX};
+    DirectX::XMFLOAT3 VertexMin{FLT_MAX, FLT_MAX, FLT_MAX};
+
     // A MeshGeometry may store multiple geometries in one vertex/index buffer.
     // Use this container to define the Submesh geometries so we can draw
     // the Submeshes individually.
