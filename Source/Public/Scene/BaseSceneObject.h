@@ -3,6 +3,7 @@
 #include "RenderItem.h"
 #include "MovementComponent.h"
 #include <memory>
+#include "BoundComponent.h"
 
 class alignas(16) BaseSceneObject
 {
@@ -48,6 +49,7 @@ protected:
     EPrimitiveType mObjectPrimitiveType;
     EMaterialType mMaterialType;
     ERenderLayer mRenderLayer;
+    BoundComponent mBoundComponent;
 
     // reflect object data
     DirectX::XMFLOAT4X4 mMatrixReflectedObject = MathHelper::Identity4x4();

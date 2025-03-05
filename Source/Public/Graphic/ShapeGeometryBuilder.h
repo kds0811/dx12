@@ -72,7 +72,7 @@ private:
         auto geo = std::make_unique<MeshGeometry>();
         geo->Name = meshName;
 
-        CalculateMinMaxVertices(geo->VertexMin, geo->VertexMax, vertices);
+       
 
         if (!isWavesMesh)
         {

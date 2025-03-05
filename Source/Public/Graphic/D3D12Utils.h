@@ -10,6 +10,8 @@
 #include "SceneComponent.h"
 #include <cstdint>
 #include <array>
+#include "Vector.h"
+
 
 class D3D12Utils
 {
@@ -51,6 +53,10 @@ struct SubmeshGeometry
     UINT IndexCount = 0;
     UINT StartIndexLocation = 0;
     INT BaseVertexLocation = 0;
+
+    // max and min vertices for create Bounding box
+    Vector VertexMax{-FLT_MAX, -FLT_MAX, -FLT_MAX};
+    Vector VertexMin{FLT_MAX, FLT_MAX, FLT_MAX};
 };
 
 struct MeshGeometry
@@ -74,10 +80,6 @@ struct MeshGeometry
     UINT VertexBufferByteSize = 0;
     DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
     UINT IndexBufferByteSize = 0;
-
-    // max and min vertices for create Bounding box
-    DirectX::XMFLOAT3 VertexMax{-FLT_MAX, -FLT_MAX, -FLT_MAX};
-    DirectX::XMFLOAT3 VertexMin{FLT_MAX, FLT_MAX, FLT_MAX};
 
     // A MeshGeometry may store multiple geometries in one vertex/index buffer.
     // Use this container to define the Submesh geometries so we can draw

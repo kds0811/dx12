@@ -3,6 +3,7 @@
 #include <string>
 #include "Transform.h"
 #include <random>
+#include "Vector.h"
 
 using namespace DirectX;
 
@@ -147,24 +148,32 @@ std::vector<Vertex> ShapeGeometryBuilder::CreateVertexBuffer()
     std::vector<Vertex> vertices;
     vertices.reserve(mVertexBufferSize);
 
-    for (const auto& geometry : mGeometries)
+    for (auto& geometry : mGeometries)
     {
+        // Calculate minx max vertices for create bound volume
+        DirectX::XMVECTOR vMax = geometry.submesh.VertexMax.ToSIMD();
+        DirectX::XMVECTOR vMin = geometry.submesh.VertexMin.ToSIMD();
+
         if (std::holds_alternative<GeometryGenerator::MeshData>(geometry.meshData))
         {
-            const auto& meshData = std::get<GeometryGenerator::MeshData>(geometry.meshData);
-            for (const auto& vertex : meshData.Vertices)
+            auto& meshData = std::get<GeometryGenerator::MeshData>(geometry.meshData);
+            for (auto& vertex : meshData.Vertices)
             {
                 Vertex v;
                 v.Pos = vertex.Position;
                 v.Normal = vertex.Normal;
                 v.TexC = vertex.TexC;
                 vertices.push_back(v);
+
+                auto vPosVec = DirectX::XMLoadFloat3(&v.Pos);
+                vMax = DirectX::XMVectorMax(vMax, vPosVec);
+                vMin = DirectX::XMVectorMin(vMin, vPosVec);
             }
         }
         else if (std::holds_alternative<ThreeSpriteMeshData>(geometry.meshData))
         {
-            const auto& treeMesh = std::get<ThreeSpriteMeshData>(geometry.meshData);
-            for (const auto& treeVertex : treeMesh.Vertices)
+            auto& treeMesh = std::get<ThreeSpriteMeshData>(geometry.meshData);
+            for (auto& treeVertex : treeMesh.Vertices)
             {
                 Vertex v;
                 v.Pos = treeVertex.Pos;
@@ -172,6 +181,8 @@ std::vector<Vertex> ShapeGeometryBuilder::CreateVertexBuffer()
                 vertices.push_back(v);
             }
         }
+        geometry.submesh.VertexMax = Vector{vMax};
+        geometry.submesh.VertexMin = Vector{vMin};
     }
 
     return vertices;

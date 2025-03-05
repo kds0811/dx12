@@ -10,6 +10,7 @@ PrimitiveSceneObject::PrimitiveSceneObject(EPrimitiveType objectType, Transform 
     mRenderLayer = renderLayer;
     mSceneComponent.SetTransformation(objectTransformation);
     CreateRenderItem(scneneCounter, geometries, materials);
+
 }
 
 void PrimitiveSceneObject::Update(float dt) 
@@ -40,4 +41,10 @@ void PrimitiveSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_ma
         mRenderItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
     }
 
+
+    // INIT BOUNDING COMPONENT
+    Vector vMax = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].VertexMax;
+    Vector vMin = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].VertexMin;
+
+    mBoundComponent.Init(vMin, vMax);
 }
