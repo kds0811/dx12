@@ -42,7 +42,7 @@ void PrimitiveSceneObject::CreateRenderItem(UINT sceneCounter, std::unordered_ma
     }
 
 
-    // INIT BOUNDING COMPONENT
+    // INIT BOUND COMPONENT
     Vector vMax = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].VertexMax;
     Vector vMin = mRenderItem->Geo->DrawArgs[mObjectPrimitiveType].VertexMin;
 
