@@ -120,17 +120,17 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
     XMStoreFloat4x4(&mProj, P);
 
-    if (mBilateralFilter != nullptr)
+    if (mBilateralFilter)
     {
         mBilateralFilter->OnResize(mClientWidth, mClientHeight);
     }
 
-    if (mSobelFilter != nullptr)
+    if (mSobelFilter)
     {
         mSobelFilter->OnResize(mClientWidth, mClientHeight);
     }
 
-    if (mOffscreenRT != nullptr)
+    if (mOffscreenRT)
     {
         mOffscreenRT->OnResize(mClientWidth, mClientHeight);
     }
