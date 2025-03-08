@@ -14,7 +14,7 @@
 class App
 {
     UINT mWidth = 2000;
-    UINT mHeight = 1200;
+    UINT mHeight = 1000;
     std::unique_ptr<GameTimerW> mTimer = nullptr;
     std::unique_ptr<Window> mWnd = nullptr;
     std::unique_ptr<Graphic> mGfx = nullptr;

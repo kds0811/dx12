@@ -14,7 +14,7 @@
 // Include structures and functions for lighting.
 #include "LightingUtil.hlsl"
 
-Texture2DArray gTreeMapArray : register(t0);
+Texture2DArray gTreeMapArray : register(t1);
 
 SamplerState gsamPointWrap : register(s0);
 SamplerState gsamPointClamp : register(s1);

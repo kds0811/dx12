@@ -18,9 +18,11 @@
 // Include structures and functions for lighting.
 #include "LightingUtil.hlsl"
 
-Texture2D gDiffuseMap : register(t0);
+TextureCube gCubeMap : register(t0);
 
-TextureCube gCubeMap : register(t1);
+Texture2D gDiffuseMap : register(t1);
+
+
 
 SamplerState gsamPointWrap : register(s0);
 SamplerState gsamPointClamp : register(s1);

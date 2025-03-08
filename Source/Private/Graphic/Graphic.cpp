@@ -117,7 +117,7 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
     mScissorRect = {0, 0, static_cast<LONG>(mClientWidth), static_cast<LONG>(mClientHeight)};
 
     // The window resized, so update the aspect ratio and recompute the projection matrix.
-    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
+    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 100000.0f);
     XMStoreFloat4x4(&mProj, P);
 
     if (mBilateralFilter)
@@ -152,27 +152,27 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     // Reusing the command list reuses memory.
     if (bIsWireframe)
     {
-        mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque_wireframe"].Get()) >> Check;
+        mCommandList->Reset(cmdListAlloc.Get(), mPSOs["skyWireframe"].Get()) >> Check;
     }
     else
     {
-        mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()) >> Check;
+        mCommandList->Reset(cmdListAlloc.Get(), mPSOs["sky"].Get()) >> Check;
     }
 
     mCommandList->RSSetViewports(1, &mScreenViewport);
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
     // Change offscreen texture to be used as a a render target output.
-    //auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
-   // mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
+    // auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    // mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
 
     // Indicate a state transition on the resource usage.
-     const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-     mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
     //// Clear the back buffer and depth buffer.
-     mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-    //mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
+    mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    // mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
 
     mCommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
@@ -180,8 +180,8 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     auto CurBackBuferView = GetCurrentBackBufferView();
     auto OffScreeRTV = mOffscreenRT->Rtv();
     auto DSV = GetDepthStencilView();
-     mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
-    //mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
+    mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    // mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
 
     // set textures SRV heaps
     ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvSrvUavDescriptorHeap.Get()};
@@ -194,16 +194,22 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 
     UINT passCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(PassConstants));
 
-    // render opaque objects
-    DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
-
-
-    mCommandList->SetPipelineState(mPSOs["sky"].Get());
+    // mCommandList->SetPipelineState(mPSOs["sky"].Get());
     CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     skyTexDescriptor.Offset(sortedSceneObjects.SkyBox[0]->GetRenderItem()->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
-    mCommandList->SetGraphicsRootDescriptorTable(4, skyTexDescriptor);
-
+    mCommandList->SetGraphicsRootDescriptorTable(0, skyTexDescriptor);
     DrawRenderItems(sortedSceneObjects.SkyBox, false);
+
+    if (bIsWireframe)
+    {
+        mCommandList->SetPipelineState(mPSOs["opaque_wireframe"].Get());
+    }
+    else
+    {
+        mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+    }
+    // render opaque objects
+    DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
 
     // render geometry sudivided objects
     if (!bIsWireframe)
@@ -282,11 +288,6 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     }
     DrawRenderItems(sortedSceneObjects.TransparentObjects, false);
 
-
-    
-
-
-
     // Mark the visible mirror pixels in the stencil buffer with the value 1
     mCommandList->OMSetStencilRef(1);
     mCommandList->SetPipelineState(mPSOs["markStencilMirrors"].Get());
@@ -313,38 +314,38 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     DrawShadows(sortedSceneObjects.Models);
 
     // Change offscreen texture to be used as an input.
-   // auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
-    //mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
+    // auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+    // mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
 
-   // mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
+    // mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
 
     //
     // Switching back to back buffer rendering.
     //
 
     // Indicate a state transition on the resource usage.
-    //const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    //mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+    // const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    // mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
     //// Specify the buffers we are going to render to.
-    //mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    // mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
-    //mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
-    //mCommandList->SetPipelineState(mPSOs["composite"].Get());
-    //mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
-    //mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
-    //DrawFullscreenQuad(mCommandList.Get());
+    // mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
+    // mCommandList->SetPipelineState(mPSOs["composite"].Get());
+    // mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
+    // mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
+    // DrawFullscreenQuad(mCommandList.Get());
 
-    //mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 1.0f);
+    // mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 1.0f);
 
     //// Prepare to copy blurred output to the back buffer.
-    //auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-    //mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
+    // auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+    // mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
 
-    //mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
+    // mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
 
-    //auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    //mCommandList->ResourceBarrier(1, &ResBar1488);
+    // auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    // mCommandList->ResourceBarrier(1, &ResBar1488);
 }
 
 void Graphic::EndDrawFrame()
@@ -555,7 +556,7 @@ void Graphic::InitPipeline()
     {
         mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])) >> Check;
         mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
-        
+
         std::wstring Name = L"SwapChainBuffer " + i;
         mSwapChainBuffer[i]->SetName(Name.c_str());
         rtvHeapHandle.Offset(1, mRtvDescriptorSize);
@@ -612,7 +613,7 @@ void Graphic::InitPipeline()
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
     // Init Projection matrix
-    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 1000.0f);
+    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 100000.0f);
     XMStoreFloat4x4(&mProj, P);
 
     // Execute the initialization commands.
@@ -826,6 +827,12 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
         srvDesc.Texture2D.MipLevels = texRes->GetDesc().MipLevels;
         srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
+        if (type == EMaterialType::SKYBOX)
+        {
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+
+        }
+
         mDevice->CreateShaderResourceView(texRes.Get(), &srvDesc, hDescriptor);
         ++index;
         hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
@@ -850,21 +857,21 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
 
 void Graphic::BuildRootSignature()
 {
-    CD3DX12_DESCRIPTOR_RANGE texTable;
-    texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+    CD3DX12_DESCRIPTOR_RANGE texTable0;
+    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-    CD3DX12_DESCRIPTOR_RANGE displacementMapTable;
-    displacementMapTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
+    CD3DX12_DESCRIPTOR_RANGE texTable1;
+    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
     // Root parameter can be a table, root descriptor or root constants.
     CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
     // Perfomance TIP: Order from most frequent to least frequent.
-    slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+    slotRootParameter[0].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
     slotRootParameter[1].InitAsConstantBufferView(0);
     slotRootParameter[2].InitAsConstantBufferView(1);
     slotRootParameter[3].InitAsConstantBufferView(2);
-    slotRootParameter[4].InitAsDescriptorTable(1, &displacementMapTable, D3D12_SHADER_VISIBILITY_ALL);
+    slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
 
     auto staticSamplers = GetStaticSamplers();
 
@@ -1021,8 +1028,6 @@ void Graphic::BuildShadersAndInputLayout()
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
-
-
 }
 
 void Graphic::BuildPSOs()
@@ -1247,7 +1252,6 @@ void Graphic::BuildPSOs()
     sobelPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
     mDevice->CreateComputePipelineState(&sobelPSO, IID_PPV_ARGS(&mPSOs["sobel"])) >> Check;
 
-
     //
     // PSO for Tesselation
     //
@@ -1289,7 +1293,7 @@ void Graphic::BuildPSOs()
     tesselationPSOFracEvenWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&tesselationPSOFracEvenWireFrame, IID_PPV_ARGS(&mPSOs["tessFracEvenWireframe"])) >> Check;
 
-    //Tesselation Pow2
+    // Tesselation Pow2
     D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOPow = tesselationPSO;
     tesselationPSOPow.VS = {reinterpret_cast<BYTE*>(mShaders["tessPowVS"]->GetBufferPointer()), mShaders["tessPowVS"]->GetBufferSize()};
     tesselationPSOPow.HS = {reinterpret_cast<BYTE*>(mShaders["tessPowHS"]->GetBufferPointer()), mShaders["tessPowHS"]->GetBufferSize()};
@@ -1301,7 +1305,6 @@ void Graphic::BuildPSOs()
     D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOPowWireFrame = tesselationPSOPow;
     tesselationPSOPowWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&tesselationPSOPowWireFrame, IID_PPV_ARGS(&mPSOs["tessPowWireframe"])) >> Check;
-
 
     //
     // PSO for sky.
@@ -1319,6 +1322,10 @@ void Graphic::BuildPSOs()
     skyPsoDesc.VS = {reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()), mShaders["skyVS"]->GetBufferSize()};
     skyPsoDesc.PS = {reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()), mShaders["skyPS"]->GetBufferSize()};
     mDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])) >> Check;
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDescwireframe = skyPsoDesc;
+    skyPsoDescwireframe.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+    mDevice->CreateGraphicsPipelineState(&skyPsoDescwireframe, IID_PPV_ARGS(&mPSOs["skyWireframe"])) >> Check;
 }
 
 void Graphic::BuildFrameResources()
@@ -1356,7 +1363,7 @@ void Graphic::DrawRenderItems(const std::vector<BaseSceneObject*>& sceneObjects,
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + objCBIndex;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
 
-        mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+        mCommandList->SetGraphicsRootDescriptorTable(4, tex);
         mCommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
         mCommandList->SetGraphicsRootConstantBufferView(3, matCBAddress);
         mCommandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
@@ -1390,7 +1397,7 @@ void Graphic::DrawShadows(const std::vector<BaseSceneObject*>& sceneObjects)
         D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + objCBIndex;
         D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + sceneObjects[i]->GetShadowMaterial()->MatCBIndex * matCBByteSize;
 
-        mCommandList->SetGraphicsRootDescriptorTable(0, tex);
+        mCommandList->SetGraphicsRootDescriptorTable(4, tex);
         mCommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
         mCommandList->SetGraphicsRootConstantBufferView(3, matCBAddress);
         mCommandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
