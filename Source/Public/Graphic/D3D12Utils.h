@@ -152,7 +152,8 @@ enum class ERenderLayer : std::uint8_t
     TesselationInteger,
     TesselationFracOdd,
     TesselationFracEven,
-    TesselationPow2
+    TesselationPow2,
+    Skybox
 };
 
 enum class EMaterialType : std::uint8_t
@@ -184,7 +185,8 @@ enum class EMaterialType : std::uint8_t
     ORANGE,
     PINK,
     GRAY,
-    WHITE
+    WHITE,
+    SKYBOX
 };
 
 struct Texture;

@@ -175,6 +175,13 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
         .Roughness = 0.001f};
     materialsInfo.push_back(whiteMaterial);
 
+    //SKYBOX
+    MaterialInfo skyBox{.Type = EMaterialType::SKYBOX,
+        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
+        .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1f),
+        .Roughness = 1.0f};
+    materialsInfo.push_back(skyBox);
+
 
 
     std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};

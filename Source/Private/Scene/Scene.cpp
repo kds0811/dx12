@@ -144,6 +144,10 @@ void Scene::BuildScenePrimitives()
         ERenderLayer::TesselationPow2);
 
 
+    // SKY BOX
+    primitiveData.emplace_back(EPrimitiveType::SPHERE, Transform(Vector(0.0f, 0.0f, 0.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(5000.f, 5000.0f, 5000.f)), EMaterialType::SKYBOX,
+        ERenderLayer::Skybox);
+
 
 
     // add colums and spheres
@@ -254,6 +258,10 @@ void Scene::BuildScenePrimitives()
         else if (obj->GetRenderLayer() == ERenderLayer::TesselationPow2)
         {
             mSortedSceneObjects.TesselationPow2.push_back(obj.get());
+        }
+        else if (obj->GetRenderLayer() == ERenderLayer::Skybox)
+        {
+            mSortedSceneObjects.SkyBox.push_back(obj.get());
         }
 
 

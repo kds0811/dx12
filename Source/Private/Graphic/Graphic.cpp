@@ -163,16 +163,16 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
     // Change offscreen texture to be used as a a render target output.
-    auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
+    //auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
+   // mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
 
-    //// Indicate a state transition on the resource usage.
-    // const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    // mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+    // Indicate a state transition on the resource usage.
+     const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+     mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
     //// Clear the back buffer and depth buffer.
-    // mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-    mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
+     mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    //mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
 
     mCommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
@@ -180,8 +180,8 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     auto CurBackBuferView = GetCurrentBackBufferView();
     auto OffScreeRTV = mOffscreenRT->Rtv();
     auto DSV = GetDepthStencilView();
-    // mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
-    mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
+     mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    //mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
 
     // set textures SRV heaps
     ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvSrvUavDescriptorHeap.Get()};
@@ -196,6 +196,14 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 
     // render opaque objects
     DrawRenderItems(sortedSceneObjects.OpaqueObjects, false);
+
+
+    mCommandList->SetPipelineState(mPSOs["sky"].Get());
+    CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+    skyTexDescriptor.Offset(sortedSceneObjects.SkyBox[0]->GetRenderItem()->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
+    mCommandList->SetGraphicsRootDescriptorTable(4, skyTexDescriptor);
+
+    DrawRenderItems(sortedSceneObjects.SkyBox, false);
 
     // render geometry sudivided objects
     if (!bIsWireframe)
@@ -274,6 +282,11 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     }
     DrawRenderItems(sortedSceneObjects.TransparentObjects, false);
 
+
+    
+
+
+
     // Mark the visible mirror pixels in the stencil buffer with the value 1
     mCommandList->OMSetStencilRef(1);
     mCommandList->SetPipelineState(mPSOs["markStencilMirrors"].Get());
@@ -300,27 +313,27 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     DrawShadows(sortedSceneObjects.Models);
 
     // Change offscreen texture to be used as an input.
-    auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
-    mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
+   // auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+    //mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
 
-    mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
+   // mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
 
     //
     // Switching back to back buffer rendering.
     //
 
     // Indicate a state transition on the resource usage.
-    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+    //const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    //mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
-    // Specify the buffers we are going to render to.
-    mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    //// Specify the buffers we are going to render to.
+    //mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
-    mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
-    mCommandList->SetPipelineState(mPSOs["composite"].Get());
-    mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
-    mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
-    DrawFullscreenQuad(mCommandList.Get());
+    //mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
+    //mCommandList->SetPipelineState(mPSOs["composite"].Get());
+    //mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
+    //mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
+    //DrawFullscreenQuad(mCommandList.Get());
 
     //mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 1.0f);
 
@@ -995,6 +1008,9 @@ void Graphic::BuildShadersAndInputLayout()
     mShaders["tessPowDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "DS", "ds_5_1");
     mShaders["tessPowPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "PS", "ps_5_1");
 
+    mShaders["skyVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_5_1");
+    mShaders["skyPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_5_1");
+
     mStdInputLayout = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -1005,6 +1021,8 @@ void Graphic::BuildShadersAndInputLayout()
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         {"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     };
+
+
 }
 
 void Graphic::BuildPSOs()
@@ -1283,6 +1301,24 @@ void Graphic::BuildPSOs()
     D3D12_GRAPHICS_PIPELINE_STATE_DESC tesselationPSOPowWireFrame = tesselationPSOPow;
     tesselationPSOPowWireFrame.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
     mDevice->CreateGraphicsPipelineState(&tesselationPSOPowWireFrame, IID_PPV_ARGS(&mPSOs["tessPowWireframe"])) >> Check;
+
+
+    //
+    // PSO for sky.
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
+
+    // The camera is inside the sky sphere, so just turn off culling.
+    skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+
+    // Make sure the depth function is LESS_EQUAL and not just LESS.
+    // Otherwise, the normalized depth values at z = 1 (NDC) will
+    // fail the depth test if the depth buffer was cleared to 1.
+    skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    skyPsoDesc.pRootSignature = mRootSignature.Get();
+    skyPsoDesc.VS = {reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()), mShaders["skyVS"]->GetBufferSize()};
+    skyPsoDesc.PS = {reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()), mShaders["skyPS"]->GetBufferSize()};
+    mDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])) >> Check;
 }
 
 void Graphic::BuildFrameResources()

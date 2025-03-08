@@ -22,6 +22,7 @@ struct SortedSceneObjects
     std::vector<BaseSceneObject*> TesselationFracOdd;
     std::vector<BaseSceneObject*> TesselationFracEven;
     std::vector<BaseSceneObject*> TesselationPow2;
+    std::vector<BaseSceneObject*> SkyBox;
 };
 
 struct DataPrimitiveBuild
