@@ -105,7 +105,7 @@ private:
 public:
     // Lights
     DirectX::XMFLOAT4 mAmbientLight = {0.2f, 0.2f, 0.25f, 1.0f};
-    DirectX::XMFLOAT3 mLightsDirection = {0.57735f, -0.57735f, 0.57735f};
+    DirectX::XMFLOAT3 mLightsDirection = {0.57735f, -0.57735f, -0.57735f};
     DirectX::XMFLOAT3 mLightsStrength = {0.5f, 0.5f, 0.5f};
 
 public:

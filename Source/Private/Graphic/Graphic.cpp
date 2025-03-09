@@ -830,7 +830,6 @@ void Graphic::BuildDescriptorHeaps(std::unordered_map<EMaterialType, std::unique
         if (type == EMaterialType::SKYBOX)
         {
             srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-
         }
 
         mDevice->CreateShaderResourceView(texRes.Get(), &srvDesc, hDescriptor);
