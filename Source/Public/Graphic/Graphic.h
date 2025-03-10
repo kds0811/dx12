@@ -85,6 +85,8 @@ private:
     UINT mPassCbvOffset = 0;
 
     bool bIsWireframe = false;
+    bool bIsSobelEnabled = false;
+    bool bIsBlurEnabled = false;
 
     DirectX::XMFLOAT3 mEyePos = {0.0f, 0.0f, 0.0f};
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
@@ -122,6 +124,9 @@ public:
         WavesSceneObject* waveObject, std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials);
 
     void SetWireframe(bool state);
+    void SetSobel(bool state);
+    void SetBlur(bool state);
+
     ID3D12Device8* GetDevice() { return mDevice.Get(); }
     ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
     ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }

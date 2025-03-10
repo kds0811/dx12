@@ -45,6 +45,6 @@ public:
 
 private:
     void CalculateFrameStats();
-    void UpdateWireframeInput();
+    void UpdateInput();
 
 };

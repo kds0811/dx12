@@ -163,17 +163,24 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->RSSetViewports(1, &mScreenViewport);
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
-    // Change offscreen texture to be used as a a render target output.
-    // auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    // mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
+    if (bIsSobelEnabled)
+    {
+        // Change offscreen texture to be used as a a render target output.
+        auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);
 
-    // Indicate a state transition on the resource usage.
-    const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+        mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
+    }
+    else
+    {
+        // Indicate a state transition on the resource usage.
+        const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+        //// Clear the back buffer and depth buffer.
+        mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    }
 
-    //// Clear the back buffer and depth buffer.
-    mCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-    // mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
+   
 
     mCommandList->ClearDepthStencilView(GetDepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
@@ -181,9 +188,16 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     auto CurBackBuferView = GetCurrentBackBufferView();
     auto OffScreeRTV = mOffscreenRT->Rtv();
     auto DSV = GetDepthStencilView();
-    mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
-    // mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
 
+    if (bIsSobelEnabled)
+    {
+        mCommandList->OMSetRenderTargets(1, &OffScreeRTV, true, &DSV);
+    }
+    else
+    {
+        mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+    }
+    
     // set textures SRV heaps
     ID3D12DescriptorHeap* descriptorHeaps[] = {mCbvSrvUavDescriptorHeap.Get()};
     mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
@@ -195,7 +209,6 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 
     UINT passCBByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(PassConstants));
 
-    // mCommandList->SetPipelineState(mPSOs["sky"].Get());
     CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(mCbvSrvUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     skyTexDescriptor.Offset(sortedSceneObjects.SkyBox[0]->GetRenderItem()->Mat->Tex->DiffuseSrvHeapIndex, mCbvSrvUavDescriptorSize);
     mCommandList->SetGraphicsRootDescriptorTable(0, skyTexDescriptor);
@@ -314,39 +327,43 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     mCommandList->SetPipelineState(mPSOs["shadow"].Get());
     DrawShadows(sortedSceneObjects.Models);
 
-    // Change offscreen texture to be used as an input.
-    // auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
-    // mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
+    if (bIsSobelEnabled)
+    {
+        // Change offscreen texture to be used as an input.
+        auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
+        mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
 
-    // mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
+        mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
 
-    //
-    // Switching back to back buffer rendering.
-    //
+        // Switching back to back buffer rendering.
+        // Indicate a state transition on the resource usage.
+        const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
 
-    // Indicate a state transition on the resource usage.
-    // const auto ResBarrPresentToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    // mCommandList->ResourceBarrier(1, &ResBarrPresentToRenderTarget);
+        // Specify the buffers we are going to render to.
+        mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
 
-    //// Specify the buffers we are going to render to.
-    // mCommandList->OMSetRenderTargets(1, &CurBackBuferView, true, &DSV);
+        mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
+        mCommandList->SetPipelineState(mPSOs["composite"].Get());
+        mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
+        mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
+        DrawFullscreenQuad(mCommandList.Get());
+    }
+    
+    if (bIsBlurEnabled)
+    {
+         mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(),
+         1, 1.0f);
 
-    // mCommandList->SetGraphicsRootSignature(mPostProcessRootSignature.Get());
-    // mCommandList->SetPipelineState(mPSOs["composite"].Get());
-    // mCommandList->SetGraphicsRootDescriptorTable(0, mOffscreenRT->Srv());
-    // mCommandList->SetGraphicsRootDescriptorTable(1, mSobelFilter->OutputSrv());
-    // DrawFullscreenQuad(mCommandList.Get());
+         //Prepare to copy blurred output to the back buffer.
+         auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+         mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
 
-    // mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(), 1, 1.0f);
+         mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
 
-    //// Prepare to copy blurred output to the back buffer.
-    // auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-    // mCommandList->ResourceBarrier(1, &ResBarCurBufCopeSRCtoCopeDest);
-
-    // mCommandList->CopyResource(CurrentBackBuffer(), mBilateralFilter->Output());
-
-    // auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    // mCommandList->ResourceBarrier(1, &ResBar1488);
+         auto ResBar1488 = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+         mCommandList->ResourceBarrier(1, &ResBar1488);
+    }
 }
 
 void Graphic::EndDrawFrame()
@@ -416,6 +433,22 @@ void Graphic::SetWireframe(bool state)
     if (state != bIsWireframe)
     {
         bIsWireframe = state;
+    }
+}
+
+void Graphic::SetSobel(bool state)
+{
+    if (state != bIsSobelEnabled)
+    {
+        bIsSobelEnabled = state;
+    }
+}
+
+void Graphic::SetBlur(bool state)
+{
+    if (state != bIsBlurEnabled)
+    {
+        bIsBlurEnabled = state;
     }
 }
 
