@@ -41,6 +41,11 @@ void Scene::InitScene()
     // set Three land and tesselation land texture scale
     mSceneObjects[13]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
     mSceneObjects[14]->SetTextureScale(Vector(10.0f, 10.0f, 10.0f));
+
+
+
+    // set briks wall texture scale
+    mSceneObjects[24]->SetTextureScale(Vector(3.0f, 3.0f, 3.0f));
 }
 
 void Scene::Update()
@@ -134,17 +139,22 @@ void Scene::BuildScenePrimitives()
     primitiveData.emplace_back(
         EPrimitiveType::SPHERE, Transform(Vector(0.0f, 0.0f, 0.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(5000.f, 5000.0f, 5000.f)), EMaterialType::SKYBOX, ERenderLayer::Skybox);
 
+    // brick wall
+    primitiveData.emplace_back(
+        EPrimitiveType::GRID, Transform(Vector(-100.0f, 17.5f, -75.0f), Rotator(90.0f, 0.0f, 0.0f), Vector(2.f, 1.0f, 0.7f)), EMaterialType::BRICKS, ERenderLayer::Opaque);
+
+
     // add colums and spheres
     for (int i = 0; i < 5; ++i)
     {
         primitiveData.emplace_back(
-            EPrimitiveType::CYLINDER, Transform(Vector(-20.0f, 6.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE, ERenderLayer::Opaque);
+            EPrimitiveType::CYLINDER, Transform(Vector(-20.0f, 6.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::BRICKS, ERenderLayer::Opaque);
         primitiveData.emplace_back(
-            EPrimitiveType::CYLINDER, Transform(Vector(20.0f, 6.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::STONE, ERenderLayer::Opaque);
+            EPrimitiveType::CYLINDER, Transform(Vector(20.0f, 6.0f, i * -10.0f), Rotator::Zero(), Vector(1.0f, 4.0f, 1.0f)), EMaterialType::BRICKS, ERenderLayer::Opaque);
         primitiveData.emplace_back(
-            EPrimitiveType::SPHERE, Transform(Vector(-20.0f, 14.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS, ERenderLayer::Opaque);
+            EPrimitiveType::SPHERE, Transform(Vector(-20.0f, 14.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::STONE, ERenderLayer::Opaque);
         primitiveData.emplace_back(
-            EPrimitiveType::SPHERE, Transform(Vector(20.0f, 14.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::BRICKS, ERenderLayer::Opaque);
+            EPrimitiveType::SPHERE, Transform(Vector(20.0f, 14.0f, i * -10.0f), Rotator::Zero(), Vector(2.0f, 2.0f, 2.0f)), EMaterialType::STONE, ERenderLayer::Opaque);
     }
 
     // Model

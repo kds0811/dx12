@@ -35,7 +35,7 @@ std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::Cr
     MaterialInfo bricksInfo{.Type = EMaterialType::BRICKS,
         .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
         .Fresnel = XMFLOAT3(0.02f, 0.02f, 0.02f),
-        .Roughness = 0.1f};
+        .Roughness = 0.5f};
     materialsInfo.push_back(bricksInfo);
 
     MaterialInfo stoneInfo{.Type = EMaterialType::STONE,

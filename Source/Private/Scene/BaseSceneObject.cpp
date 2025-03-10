@@ -86,7 +86,7 @@ void BaseSceneObject::UpdateReflectedMatrix()
 void BaseSceneObject::UpdateShadowMatrix() 
 {
     DirectX::XMVECTOR shadowPlane = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);  // xz plane
-    auto LightDirection = DirectX::XMFLOAT3{-0.57735f, 0.57735f, -0.57735f};
+    auto LightDirection = DirectX::XMFLOAT3{-0.57735f, 0.57735f, 0.57735f};
     DirectX::XMVECTOR toMainLight = DirectX::XMLoadFloat3(&LightDirection);
     DirectX::XMMATRIX S = DirectX::XMMatrixShadow(shadowPlane, toMainLight);
     DirectX::XMMATRIX shadowOffsetY = DirectX::XMMatrixTranslation(0.0f, 0.01f, 0.0f);

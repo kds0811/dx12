@@ -13,6 +13,7 @@
 
 using namespace DirectX;
 using namespace Kds::App;
+using namespace Microsoft::WRL;
 
 Graphic::Graphic(UINT Width, UINT Height, HWND hwnd) : mClientWidth(Width), mClientHeight(Height), mWindowHandle(hwnd)
 {

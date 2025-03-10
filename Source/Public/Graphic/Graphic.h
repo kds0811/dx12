@@ -16,36 +16,35 @@
 
 class GameTimerW;
 
-using namespace Microsoft::WRL;
 
 class Graphic
 {
 private:
     // Main Fields
-    ComPtr<IDXGIFactory7> mFactory;
-    ComPtr<ID3D12Device8> mDevice;
+    Microsoft::WRL::ComPtr<IDXGIFactory7> mFactory;
+    Microsoft::WRL::ComPtr<ID3D12Device8> mDevice;
 
     // Command Stuff
-    ComPtr<ID3D12Fence1> mFence;
+    Microsoft::WRL::ComPtr<ID3D12Fence1> mFence;
     UINT64 mCurrentFenceValue = 0;
-    ComPtr<ID3D12CommandQueue> mCommandQueue;
-    ComPtr<ID3D12CommandAllocator> mCommandAlloc;
-    ComPtr<ID3D12GraphicsCommandList6> mCommandList;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAlloc;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> mCommandList;
 
     // SwapChain and Backbuffer Fields
     static constexpr UINT mSwapChainBufferCount = 2;
-    ComPtr<IDXGISwapChain4> mSwapChain;
-    ComPtr<ID3D12Resource> mSwapChainBuffer[mSwapChainBufferCount];
+    Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
+    Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[mSwapChainBufferCount];
     DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     int mCurrBackBuffer = 0;
 
     // Depth Stencil Fields
-    ComPtr<ID3D12Resource> mDepthStencilBuffer;
+    Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
     DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     // Decriptor Heaps
-    ComPtr<ID3D12DescriptorHeap> mRtvHeap;
-    ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
 
     // Decriptor Sizes
     UINT mRtvDescriptorSize = 0u;
@@ -68,14 +67,14 @@ private:
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;
 
-    ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
-    ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
-    ComPtr<ID3D12RootSignature> mPostBilateralRootSignature = nullptr;
+   Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
+   Microsoft::WRL::ComPtr<ID3D12RootSignature> mPostBilateralRootSignature = nullptr;
 
-    ComPtr<ID3D12DescriptorHeap> mCbvSrvUavDescriptorHeap = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvSrvUavDescriptorHeap = nullptr;
 
-    std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
-    std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mShaders;
+    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> mPSOs;
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> mStdInputLayout;
     std::vector<D3D12_INPUT_ELEMENT_DESC> mTreeSpriteInputLayout;
