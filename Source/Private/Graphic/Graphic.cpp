@@ -353,7 +353,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     if (bIsBlurEnabled)
     {
          mBilateralFilter->Execute(mCommandList.Get(), mPostBilateralRootSignature.Get(), mPSOs["horzBilateral"].Get(), mPSOs["vertBilateral"].Get(), CurrentBackBuffer(),
-         1, 1.0f);
+            mBlurCount, mBlurSigma, mBlurWeights);
 
          //Prepare to copy blurred output to the back buffer.
          auto ResBarCurBufCopeSRCtoCopeDest = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);

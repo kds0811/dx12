@@ -48,9 +48,9 @@ void BlurFilter::OnResize(UINT newWidth, UINT newHeight)
 }
 
 void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature* rootSig, ID3D12PipelineState* horzBlurPSO, ID3D12PipelineState* vertBlurPSO,
-    ID3D12Resource* input, int blurCount, float sigmaColor)
+    ID3D12Resource* input, int blurCount, float sigmaColor, float blurWeiqhts)
 {
-    auto weights = CalcGaussWeights(2.5f);
+    auto weights = CalcGaussWeights(blurWeiqhts);
     int blurRadius = (int)weights.size() / 2;
     float SigmaColor = sigmaColor;
     float padding[3] = {1.0f, 1.0f, 1.0f};

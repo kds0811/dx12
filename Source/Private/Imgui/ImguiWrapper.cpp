@@ -87,6 +87,14 @@ void ImguiWrapper::StartImguiFrame()
         ImGui::SliderFloat("Camera Rotate", &pCamera->GetSpeedRotateCameraRef(), 1.0f, 200.0f);
         ImGui::End();
     }
+
+    if (ImGui::Begin("Blur Settings", nullptr, ImGuiWindowFlags_NoCollapse))
+    {
+        ImGui::SliderInt("Blur Count", &pGfx->mBlurCount, 0, 10);
+        ImGui::SliderFloat("Blur Weights", &pGfx->mBlurWeights, 0.1f, 2.5f);
+        ImGui::End();
+    }
+
 }
 
 void ImguiWrapper::EndImguiFrame()
