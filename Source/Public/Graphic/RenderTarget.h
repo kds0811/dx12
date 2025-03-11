@@ -1,18 +1,12 @@
-//***************************************************************************************
-// RenderTarget.h by Frank Luna (C) 2015 All Rights Reserved.
-//***************************************************************************************
-
 #pragma once
-
 #include "D3D12Utils.h"
+#include "GpuResource.h"
+#include "memory"
+
 
 class RenderTarget
 {
 public:
-    ///< summary>
-    /// The width and height should match the dimensions of the input texture to blur.
-    /// Recreate when the screen is resized.
-    ///</summary>
     RenderTarget(ID3D12Device* device, UINT width, UINT height, DXGI_FORMAT format);
 
     RenderTarget(const RenderTarget& rhs) = delete;
@@ -29,10 +23,9 @@ public:
 
 private:
     void BuildDescriptors();
-    void BuildResource();
 
 private:
-    ID3D12Device* md3dDevice = nullptr;
+    ID3D12Device* mDevice = nullptr;
 
     UINT mWidth = 0;
     UINT mHeight = 0;
@@ -42,6 +35,6 @@ private:
     CD3DX12_GPU_DESCRIPTOR_HANDLE mhGpuSrv;
     CD3DX12_CPU_DESCRIPTOR_HANDLE mhCpuRtv;
 
-    // Two for ping-ponging the textures.
-    Microsoft::WRL::ComPtr<ID3D12Resource> mOffscreenTex = nullptr;
+    //Microsoft::WRL::ComPtr<ID3D12Resource> mOffscreenTex = nullptr;
+    std::unique_ptr<GpuResource> mTexture;
 };

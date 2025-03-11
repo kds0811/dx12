@@ -1,13 +1,15 @@
 #include "GpuResource.h"
 #include "cassert"
 
-GpuResource::GpuResource(ID3D12Device* device, UINT width, UINT height, std::wstring name, D3D12_RESOURCE_STATES createState, DXGI_FORMAT format)
+GpuResource::GpuResource(
+    ID3D12Device* device, UINT width, UINT height, std::wstring name, D3D12_RESOURCE_STATES createState, DXGI_FORMAT format, DirectX::XMFLOAT4 clearColor)
 {
     mDevice = device;
     mWidth = width;
     mHeight = height;
     mFormat = format;
     mCurrenState = createState;
+    mClearColor = clearColor;
     mName = std::move(name);
 
     BuildResource();
@@ -61,6 +63,10 @@ void GpuResource::BuildResource()
 {
     D3D12_CLEAR_VALUE optimizedClearValue = {};
     optimizedClearValue.Format = mFormat;
+    optimizedClearValue.Color[0] = mClearColor.x;
+    optimizedClearValue.Color[1] = mClearColor.y;
+    optimizedClearValue.Color[2] = mClearColor.z;
+    optimizedClearValue.Color[3] = mClearColor.w;
 
     D3D12_RESOURCE_DESC texDesc;
     ZeroMemory(&texDesc, sizeof(D3D12_RESOURCE_DESC));

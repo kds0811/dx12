@@ -83,7 +83,7 @@ void Scene::BuildScenePrimitives()
 
     // add Mounts
     primitiveData.emplace_back(
-        EPrimitiveType::LAND, Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASS, ERenderLayer::Opaque);
+        EPrimitiveType::LAND, Transform(Vector(0.0f, 0.0f, 105.0f), Rotator(0.0f, 0.0f, 0.0f), Vector(1.0f, 1.0f, 1.0f)), EMaterialType::GRASSX, ERenderLayer::Opaque);
 
     // textured boxes
     primitiveData.emplace_back(
