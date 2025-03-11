@@ -13,6 +13,7 @@ public:
     RenderTarget& operator=(const RenderTarget& rhs) = delete;
     ~RenderTarget() = default;
 
+    GpuResource* GetGpuResource();
     ID3D12Resource* Resource();
     CD3DX12_GPU_DESCRIPTOR_HANDLE Srv();
     CD3DX12_CPU_DESCRIPTOR_HANDLE Rtv();
