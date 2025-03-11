@@ -6,13 +6,14 @@
 
 SobelFilter::SobelFilter(ID3D12Device* device, UINT width, UINT height, DXGI_FORMAT format)
 {
-    md3dDevice = device;
+    mDevice = device;
 
     mWidth = width;
     mHeight = height;
     mFormat = format;
 
-    BuildResource();
+    mOutput =
+        std::make_unique<GpuResource>(mDevice, mWidth, mHeight, L"SobelFilterResource", D3D12_RESOURCE_STATE_GENERIC_READ, mFormat, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
 CD3DX12_GPU_DESCRIPTOR_HANDLE SobelFilter::OutputSrv()
@@ -43,7 +44,7 @@ void SobelFilter::OnResize(UINT newWidth, UINT newHeight)
         mWidth = newWidth;
         mHeight = newHeight;
 
-        BuildResource();
+        mOutput->OnResize(mWidth, mHeight);
 
         // New resource, so we need new descriptors to that resource.
         BuildDescriptors();
@@ -58,8 +59,7 @@ void SobelFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignatur
     cmdList->SetComputeRootDescriptorTable(0, input);
     cmdList->SetComputeRootDescriptorTable(2, mhGpuUav);
 
-    auto ResBarReadtoUA = CD3DX12_RESOURCE_BARRIER::Transition(mOutput.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    cmdList->ResourceBarrier(1, &ResBarReadtoUA);
+    mOutput->ChangeState(cmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     // How many groups do we need to dispatch to cover image, where each
     // group covers 16x16 pixels.
@@ -67,8 +67,7 @@ void SobelFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignatur
     UINT numGroupsY = (UINT)ceilf(mHeight / 16.0f);
     cmdList->Dispatch(numGroupsX, numGroupsY, 1);
 
-    auto ResBarUAtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
-    cmdList->ResourceBarrier(1, &ResBarUAtoGR);
+    mOutput->ChangeState(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 }
 
 void SobelFilter::BuildDescriptors()
@@ -86,32 +85,6 @@ void SobelFilter::BuildDescriptors()
     uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
     uavDesc.Texture2D.MipSlice = 0;
 
-    md3dDevice->CreateShaderResourceView(mOutput.Get(), &srvDesc, mhCpuSrv);
-    md3dDevice->CreateUnorderedAccessView(mOutput.Get(), nullptr, &uavDesc, mhCpuUav);
-}
-
-void SobelFilter::BuildResource()
-{
-    // Note, compressed formats cannot be used for UAV.  We get error like:
-    // ERROR: ID3D11Device::CreateTexture2D: The format (0x4d, BC3_UNORM)
-    // cannot be bound as an UnorderedAccessView, or cast to a format that
-    // could be bound as an UnorderedAccessView.  Therefore this format
-    // does not support D3D11_BIND_UNORDERED_ACCESS.
-
-    D3D12_RESOURCE_DESC texDesc;
-    ZeroMemory(&texDesc, sizeof(D3D12_RESOURCE_DESC));
-    texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    texDesc.Alignment = 0;
-    texDesc.Width = mWidth;
-    texDesc.Height = mHeight;
-    texDesc.DepthOrArraySize = 1;
-    texDesc.MipLevels = 1;
-    texDesc.Format = mFormat;
-    texDesc.SampleDesc.Count = 1;
-    texDesc.SampleDesc.Quality = 0;
-    texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-
-    auto HEapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    md3dDevice->CreateCommittedResource(&HEapProp, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&mOutput)) >> Kds::App::Check;
+    mDevice->CreateShaderResourceView(mOutput->GetResource(), &srvDesc, mhCpuSrv);
+    mDevice->CreateUnorderedAccessView(mOutput->GetResource(), nullptr, &uavDesc, mhCpuUav);
 }

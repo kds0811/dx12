@@ -5,6 +5,29 @@
 
 class BlurFilter
 {
+    const int MaxBlurRadius = 5;
+
+    ID3D12Device* mDevice = nullptr;
+
+    UINT mWidth = 0;
+    UINT mHeight = 0;
+    DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur0CpuSrv;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur0CpuUav;
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur1CpuSrv;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur1CpuUav;
+
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur0GpuSrv;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur0GpuUav;
+
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur1GpuSrv;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur1GpuUav;
+
+    std::unique_ptr<GpuResource> mBlurMap0 = nullptr;
+    std::unique_ptr<GpuResource> mBlurMap1 = nullptr;
+
 public:
     ///< summary>
     /// The width and height should match the dimensions of the input texture to blur.
@@ -31,28 +54,4 @@ public:
 private:
     std::vector<float> CalcGaussWeights(float sigma);
     void BuildDescriptors();
-
-private:
-    const int MaxBlurRadius = 5;
-
-    ID3D12Device* mDevice = nullptr;
-
-    UINT mWidth = 0;
-    UINT mHeight = 0;
-    DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur0CpuSrv;
-    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur0CpuUav;
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur1CpuSrv;
-    CD3DX12_CPU_DESCRIPTOR_HANDLE mBlur1CpuUav;
-
-    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur0GpuSrv;
-    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur0GpuUav;
-
-    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur1GpuSrv;
-    CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur1GpuUav;
-
-    std::unique_ptr<GpuResource> mBlurMap0 = nullptr;
-    std::unique_ptr<GpuResource> mBlurMap1 = nullptr;
 };

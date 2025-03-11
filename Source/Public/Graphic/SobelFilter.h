@@ -1,20 +1,26 @@
-//***************************************************************************************
-// SobelFilter.h by Frank Luna (C) 2011 All Rights Reserved.
-//
-// Applies a sobel filter on the topmost mip level of an input texture.
-//***************************************************************************************
-
 #pragma once
-
 #include "D3D12Utils.h"
+#include "GpuResource.h"
+#include <memory>
 
 class SobelFilter
 {
+    ID3D12Device* mDevice = nullptr;
+
+    UINT mWidth = 0;
+    UINT mHeight = 0;
+    DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE mhCpuSrv;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE mhCpuUav;
+
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mhGpuSrv;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mhGpuUav;
+
+    // Microsoft::WRL::ComPtr<ID3D12Resource> mOutput = nullptr;
+    std::unique_ptr<GpuResource> mOutput = nullptr;
+
 public:
-	///<summary>
-	/// The width and height should match the dimensions of the input texture to apply the filter.
-	/// Recreate when the screen is resized. 
-	///</summary>
 	SobelFilter(ID3D12Device* device,
 		UINT width, UINT height,
 		DXGI_FORMAT format);
@@ -42,23 +48,6 @@ public:
 
 private:
 	void BuildDescriptors();
-	void BuildResource();
-
-private:
-
-	ID3D12Device* md3dDevice = nullptr;
-
-	UINT mWidth = 0;
-	UINT mHeight = 0;
-	DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE mhCpuSrv;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE mhCpuUav;
-
-	CD3DX12_GPU_DESCRIPTOR_HANDLE mhGpuSrv;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE mhGpuUav;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> mOutput = nullptr;
 };
 
  
