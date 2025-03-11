@@ -9,12 +9,13 @@ BlurFilter::BlurFilter(ID3D12Device* device, UINT width, UINT height, DXGI_FORMA
     mHeight = height;
     mFormat = format;
 
-    BuildResources();
+    mBlurMap0 = std::make_unique<GpuResource>(mDevice, mWidth, mHeight, L"BlurMap0", D3D12_RESOURCE_STATE_COPY_SOURCE, mFormat, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    mBlurMap1 = std::make_unique<GpuResource>(mDevice, mWidth, mHeight, L"BlurMap1", D3D12_RESOURCE_STATE_UNORDERED_ACCESS, mFormat, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
 ID3D12Resource* BlurFilter::Output()
 {
-    return mBlurMap0.Get();
+    return mBlurMap0->GetResource();
 }
 
 void BlurFilter::BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuDescriptor, CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuDescriptor, UINT descriptorSize)
@@ -40,7 +41,8 @@ void BlurFilter::OnResize(UINT newWidth, UINT newHeight)
         mWidth = newWidth;
         mHeight = newHeight;
 
-        BuildResources();
+        mBlurMap0->OnResize(mWidth, mHeight);
+        mBlurMap1->OnResize(mWidth, mHeight);
 
         // New resource, so we need new descriptors to that resource.
         BuildDescriptors();
@@ -65,24 +67,19 @@ void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature
     auto ResBarRTtoCSINPUT = CD3DX12_RESOURCE_BARRIER::Transition(input, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
     cmdList->ResourceBarrier(1, &ResBarRTtoCSINPUT);
 
-    auto ResBarComtoCDBLURMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-    cmdList->ResourceBarrier(1, &ResBarComtoCDBLURMap0);
+    mBlurMap0->ChangeState(cmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
     // Copy the input (back-buffer in this example) to BlurMap0.
-    cmdList->CopyResource(mBlurMap0.Get(), input);
+    cmdList->CopyResource(mBlurMap0->GetResource(), input);
 
-    auto ResBarCDtoGRBlurMap0 = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
-    cmdList->ResourceBarrier(1, &ResBarCDtoGRBlurMap0);
-
+    mBlurMap0->ChangeState(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 
     for (int i = 0; i < blurCount; ++i)
     {
         //
         // Horizontal Blur pass.
         //
-
         cmdList->SetPipelineState(horzBlurPSO);
-
         cmdList->SetComputeRootDescriptorTable(1, mBlur0GpuSrv);
         cmdList->SetComputeRootDescriptorTable(2, mBlur1GpuUav);
 
@@ -91,18 +88,13 @@ void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature
         UINT numGroupsX = (UINT)ceilf(mWidth / 256.0f);
         cmdList->Dispatch(numGroupsX, mHeight, 1);
 
-        auto ResBarGRtoUA = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-        cmdList->ResourceBarrier(1, &ResBarGRtoUA);
-
-        auto ResBarUAtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap1.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
-        cmdList->ResourceBarrier(1, &ResBarUAtoGR);
+        mBlurMap0->ChangeState(cmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        mBlurMap1->ChangeState(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 
         //
         // Vertical Blur pass.
         //
-
         cmdList->SetPipelineState(vertBlurPSO);
-
         cmdList->SetComputeRootDescriptorTable(1, mBlur1GpuSrv);
         cmdList->SetComputeRootDescriptorTable(2, mBlur0GpuUav);
 
@@ -111,16 +103,11 @@ void BlurFilter::Execute(ID3D12GraphicsCommandList* cmdList, ID3D12RootSignature
         UINT numGroupsY = (UINT)ceilf(mHeight / 256.0f);
         cmdList->Dispatch(mWidth, numGroupsY, 1);
 
-        auto ResBarMap0UAtoRead = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ);
-        cmdList->ResourceBarrier(1, &ResBarMap0UAtoRead);
-
-        auto ResBarMap1ReadtoUa = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap1.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-        cmdList->ResourceBarrier(1, &ResBarMap1ReadtoUa);
+        mBlurMap0->ChangeState(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
+        mBlurMap1->ChangeState(cmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     }
 
-
-    auto ResBarGRtoCopySOURCE = CD3DX12_RESOURCE_BARRIER::Transition(mBlurMap0.Get(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_SOURCE);
-    cmdList->ResourceBarrier(1, &ResBarGRtoCopySOURCE);
+    mBlurMap0->ChangeState(cmdList, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
 }
 
@@ -172,40 +159,8 @@ void BlurFilter::BuildDescriptors()
     uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
     uavDesc.Texture2D.MipSlice = 0;
 
-    mDevice->CreateShaderResourceView(mBlurMap0.Get(), &srvDesc, mBlur0CpuSrv);
-    mDevice->CreateUnorderedAccessView(mBlurMap0.Get(), nullptr, &uavDesc, mBlur0CpuUav);
-    mDevice->CreateShaderResourceView(mBlurMap1.Get(), &srvDesc, mBlur1CpuSrv);
-    mDevice->CreateUnorderedAccessView(mBlurMap1.Get(), nullptr, &uavDesc, mBlur1CpuUav);
-}
-
-void BlurFilter::BuildResources()
-{
-    // Note, compressed formats cannot be used for UAV.  We get error like:
-    // ERROR: ID3D11Device::CreateTexture2D: The format (0x4d, BC3_UNORM)
-    // cannot be bound as an UnorderedAccessView, or cast to a format that
-    // could be bound as an UnorderedAccessView.  Therefore this format
-    // does not support D3D11_BIND_UNORDERED_ACCESS.
-
-    D3D12_RESOURCE_DESC texDesc;
-    ZeroMemory(&texDesc, sizeof(D3D12_RESOURCE_DESC));
-    texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    texDesc.Alignment = 0;
-    texDesc.Width = mWidth;
-    texDesc.Height = mHeight;
-    texDesc.DepthOrArraySize = 1;
-    texDesc.MipLevels = 1;
-    texDesc.Format = mFormat;
-    texDesc.SampleDesc.Count = 1;
-    texDesc.SampleDesc.Quality = 0;
-    texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-
-    auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    mDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_COPY_SOURCE, nullptr, IID_PPV_ARGS(&mBlurMap0)) >> Kds::App::Check;
-
-    mDevice->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &texDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&mBlurMap1)) >> Kds::App::Check;
-
-    mBlurMap0->SetName(L"mBlurMap0") >> Kds::App::Check;
-
-    mBlurMap1->SetName(L"mBlurMap1") >> Kds::App::Check;
+    mDevice->CreateShaderResourceView(mBlurMap0->GetResource(), &srvDesc, mBlur0CpuSrv);
+    mDevice->CreateUnorderedAccessView(mBlurMap0->GetResource(), nullptr, &uavDesc, mBlur0CpuUav);
+    mDevice->CreateShaderResourceView(mBlurMap1->GetResource(), &srvDesc, mBlur1CpuSrv);
+    mDevice->CreateUnorderedAccessView(mBlurMap1->GetResource(), nullptr, &uavDesc, mBlur1CpuUav);
 }

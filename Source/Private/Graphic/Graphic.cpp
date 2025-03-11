@@ -167,9 +167,6 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     {
         // Change offscreen texture to be used as a a render target output.
         mOffscreenRT->GetGpuResource()->ChangeState(mCommandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
- /*       auto ResbarOffScreenRTGRtoRT = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        mCommandList->ResourceBarrier(1, &ResbarOffScreenRTGRtoRT);*/
-
         mCommandList->ClearRenderTargetView(mOffscreenRT->Rtv(), (float*)&mMainPassCB.FogColor, 0, nullptr);
     }
     else
@@ -332,9 +329,6 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
     {
         // Change offscreen texture to be used as an input.
         mOffscreenRT->GetGpuResource()->ChangeState(mCommandList.Get(), D3D12_RESOURCE_STATE_GENERIC_READ);
-        //auto ResBarOffScreeRTRTtoGR = CD3DX12_RESOURCE_BARRIER::Transition(mOffscreenRT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
-        //mCommandList->ResourceBarrier(1, &ResBarOffScreeRTRTtoGR);
-
         mSobelFilter->Execute(mCommandList.Get(), mPostProcessRootSignature.Get(), mPSOs["sobel"].Get(), mOffscreenRT->Srv());
 
         // Switching back to back buffer rendering.

@@ -16,12 +16,13 @@ class GpuResource
     D3D12_RESOURCE_STATES mCurrenState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
     DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     DirectX::XMFLOAT4 mClearColor = {1.0f, 1.0f, 1.0f, 1.0f};
+    D3D12_RESOURCE_FLAGS mResourceFlag = D3D12_RESOURCE_FLAG_NONE;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> mResource = nullptr;
 
 public:
     GpuResource(ID3D12Device* device, UINT width, UINT height, std::wstring name, D3D12_RESOURCE_STATES createState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON,
-        DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM, DirectX::XMFLOAT4 clearColor = {1.0f, 1.0f, 1.0f, 1.0f});
+        DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAGS resourceFlag = D3D12_RESOURCE_FLAG_NONE, DirectX::XMFLOAT4 clearColor = {1.0f, 1.0f, 1.0f, 1.0f});
     GpuResource(const GpuResource& rhs) = delete;
     GpuResource& operator=(const GpuResource& rhs) = delete;
     ~GpuResource() = default;

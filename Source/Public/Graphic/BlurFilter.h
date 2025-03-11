@@ -1,5 +1,7 @@
 #pragma once
 #include "D3D12Utils.h"
+#include "GpuResource.h"
+#include <memory>
 
 class BlurFilter
 {
@@ -28,9 +30,7 @@ public:
 
 private:
     std::vector<float> CalcGaussWeights(float sigma);
-
     void BuildDescriptors();
-    void BuildResources();
 
 private:
     const int MaxBlurRadius = 5;
@@ -53,7 +53,6 @@ private:
     CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur1GpuSrv;
     CD3DX12_GPU_DESCRIPTOR_HANDLE mBlur1GpuUav;
 
-    // Two for ping-ponging the textures.
-    Microsoft::WRL::ComPtr<ID3D12Resource> mBlurMap0 = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Resource> mBlurMap1 = nullptr;
+    std::unique_ptr<GpuResource> mBlurMap0 = nullptr;
+    std::unique_ptr<GpuResource> mBlurMap1 = nullptr;
 };

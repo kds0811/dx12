@@ -11,8 +11,8 @@ RenderTarget::RenderTarget(ID3D12Device* device, UINT width, UINT height, DXGI_F
     mWidth = width;
     mHeight = height;
     mFormat = format;
-
-    mTexture = std::make_unique<GpuResource>(mDevice, mWidth, mHeight, L"OffscreenTex", D3D12_RESOURCE_STATE_GENERIC_READ, mFormat, DirectX::XMFLOAT4{0.7f, 0.7f, 0.7f, 1.0f});
+    mTexture = std::make_unique<GpuResource>(
+        mDevice, mWidth, mHeight, L"OffscreenTex", D3D12_RESOURCE_STATE_GENERIC_READ, mFormat, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, DirectX::XMFLOAT4{0.7f, 0.7f, 0.7f, 1.0f});
 }
 
 GpuResource* RenderTarget::GetGpuResource()

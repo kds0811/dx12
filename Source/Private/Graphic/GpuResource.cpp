@@ -1,8 +1,8 @@
 #include "GpuResource.h"
 #include "cassert"
 
-GpuResource::GpuResource(
-    ID3D12Device* device, UINT width, UINT height, std::wstring name, D3D12_RESOURCE_STATES createState, DXGI_FORMAT format, DirectX::XMFLOAT4 clearColor)
+GpuResource::GpuResource(ID3D12Device* device, UINT width, UINT height, std::wstring name, D3D12_RESOURCE_STATES createState, DXGI_FORMAT format,
+    D3D12_RESOURCE_FLAGS resourceFlag, DirectX::XMFLOAT4 clearColor)
 {
     mDevice = device;
     mWidth = width;
@@ -11,6 +11,7 @@ GpuResource::GpuResource(
     mCurrenState = createState;
     mClearColor = clearColor;
     mName = std::move(name);
+    mResourceFlag = resourceFlag;
 
     BuildResource();
 }
@@ -61,12 +62,19 @@ D3D12_RESOURCE_STATES GpuResource::GetCurrentState()
 
 void GpuResource::BuildResource()
 {
-    D3D12_CLEAR_VALUE optimizedClearValue = {};
-    optimizedClearValue.Format = mFormat;
-    optimizedClearValue.Color[0] = mClearColor.x;
-    optimizedClearValue.Color[1] = mClearColor.y;
-    optimizedClearValue.Color[2] = mClearColor.z;
-    optimizedClearValue.Color[3] = mClearColor.w;
+    D3D12_CLEAR_VALUE optimizedClearValue{}; 
+    D3D12_CLEAR_VALUE* ClearFlag = nullptr;   
+
+    if (mResourceFlag & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET)
+    {
+        optimizedClearValue.Format = mFormat;
+        optimizedClearValue.Color[0] = mClearColor.x;
+        optimizedClearValue.Color[1] = mClearColor.y;
+        optimizedClearValue.Color[2] = mClearColor.z;
+        optimizedClearValue.Color[3] = mClearColor.w;
+
+        ClearFlag = &optimizedClearValue;
+    }
 
     D3D12_RESOURCE_DESC texDesc;
     ZeroMemory(&texDesc, sizeof(D3D12_RESOURCE_DESC));
@@ -80,11 +88,12 @@ void GpuResource::BuildResource()
     texDesc.SampleDesc.Count = 1;
     texDesc.SampleDesc.Quality = 0;
     texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    texDesc.Flags = mResourceFlag;
+    
 
     auto HeapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-    mDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, mCurrenState, &optimizedClearValue, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
+    mDevice->CreateCommittedResource(&HeapProp, D3D12_HEAP_FLAG_NONE, &texDesc, mCurrenState, ClearFlag, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
 
     mResource->SetName(mName.c_str()) >> Kds::App::Check;
 }
