@@ -24,7 +24,7 @@ std::unordered_map<std::string, std::unique_ptr<Texture>> TextureCreator::Create
     result["coldfire"] = std::make_unique<Texture>(ETextureType::BaseColor, "coldfire", L"../Source/Textures/coldfire.dds", device, cmdList);
     result["metall"] = std::make_unique<Texture>(ETextureType::BaseColor, "metall", L"../Source/Textures/metall.dds", device, cmdList);
     result["droneBaseColor"] = std::make_unique<Texture>(ETextureType::BaseColor, "droneBaseColor", L"../Source/Textures/droneBaseColor.dds", device, cmdList);
-    result["WireFence"] = std::make_unique<Texture>(ETextureType::BaseColor, "WireFence", L"../Source/Textures/WireFence.dds", device, cmdList);
+    result["wireFence"] = std::make_unique<Texture>(ETextureType::BaseColor, "wireFence", L"../Source/Textures/WireFence.dds", device, cmdList);
     result["treeArray2"] = std::make_unique<Texture>(ETextureType::BaseColor, "treeArray2", L"../Source/Textures/treeArray2.dds", device, cmdList);
 
     // normal maps

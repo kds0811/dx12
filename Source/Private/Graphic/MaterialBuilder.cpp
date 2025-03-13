@@ -2,213 +2,72 @@
 #include "DirectXColors.h"
 #include <vector>
 
-std::unordered_map<EMaterialType, std::unique_ptr<Material>> MaterialBuilder::CreateMaterials()
+std::unordered_map<std::string, std::unique_ptr<Material>> MaterialBuilder::CreateMaterials(std::unordered_map<std::string, std::unique_ptr<Texture>>& textures)
 {
     using namespace DirectX;
 
-    std::vector<MaterialInfo> materialsInfo{};
+    std::unordered_map<std::string, std::unique_ptr<Material>> result{};
 
-    MaterialInfo grassInfo{.Type = EMaterialType::GRASS,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
-        .Roughness = 0.5f};
-    materialsInfo.push_back(grassInfo);
+    result["wood_crate1"] =
+        std::make_unique<Material>("wood_crate1", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["wood_crate1"]);
 
-    MaterialInfo grassxInfo{.Type = EMaterialType::GRASSX,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
-        .Roughness = 0.5f};
-    materialsInfo.push_back(grassxInfo);
+    result["tile"] = std::make_unique<Material>("tile", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.02f, 0.02f, 0.02f), 0.2f, textures["tile"].get());
 
-        MaterialInfo grassyInfo{.Type = EMaterialType::GRASSY,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01f),
-        .Roughness = 0.5f};
-    materialsInfo.push_back(grassyInfo);
+    result["grass"] = std::make_unique<Material>("grass", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["grass"].get());
 
-    MaterialInfo waterInfo{.Type = EMaterialType::WATER,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f),
-        .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1f),
-        .Roughness = 0.0f};
-    materialsInfo.push_back(waterInfo);
+    result["bricks"] = std::make_unique<Material>("bricks", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["bricks"].get());
 
-    MaterialInfo bricksInfo{.Type = EMaterialType::BRICKS,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.02f, 0.02f, 0.02f),
-        .Roughness = 0.5f};
-    materialsInfo.push_back(bricksInfo);
+    result["default"] = std::make_unique<Material>(
+        "default", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.05f, 0.05f, 0.05f), 0.3f, textures["default"].get(), result["default_nmap"].get());
 
-    MaterialInfo stoneInfo{.Type = EMaterialType::STONE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05f),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(stoneInfo);
+    result["stone"] =
+        std::make_unique<Material>("stone", EMaterialType::Transparent, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.05f, 0.05f, 0.05f), 0.3f, textures["stone"].get());
 
-        MaterialInfo tileInfo{.Type = EMaterialType::TILE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.02f, 0.02f, 0.02f),
-        .Roughness = 0.2f};
-    materialsInfo.push_back(tileInfo);
+    result["grassx"] = std::make_unique<Material>("grassx", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["grassx"].get());
 
-         MaterialInfo skullInfo{.Type = EMaterialType::SKULLMAT,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(skullInfo);
+    result["grassy"] = std::make_unique<Material>("grassy", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["grassy"].get());
 
+    result["firebal"] =
+        std::make_unique<Material>("firebal", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["firebal"].get());
 
-     MaterialInfo fireball{.Type = EMaterialType::FIREBALL,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(fireball);
+    result["coldfire"] =
+        std::make_unique<Material>("coldfire", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["coldfire"].get());
 
-    MaterialInfo coldfire{.Type = EMaterialType::COLDFIRE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(coldfire);
+    result["metall"] = std::make_unique<Material>("metall", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.05f, 0.05f, 0.05f), 0.3f, textures["metall"].get());
 
-    MaterialInfo metall{.Type = EMaterialType::METALL,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(metall);
+    result["droneBaseColor"] = std::make_unique<Material>(
+        "droneBaseColor", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["droneBaseColor"].get());
 
-    MaterialInfo droneBaseColor{.Type = EMaterialType::DRONEBASECOLOR,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(droneBaseColor);
+    result["treeArray2"] =
+        std::make_unique<Material>("treeArray2", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["treeArray2"].get());
 
-     MaterialInfo wireFence{.Type = EMaterialType::WIREFENCE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-        .Fresnel = XMFLOAT3(0.05f, 0.05f, 0.05),
-        .Roughness = 0.3f};
-    materialsInfo.push_back(wireFence);
+    // Alpha Tested
+    result["wireFence"] =
+        std::make_unique<Material>("wireFence", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f, textures["wireFence"].get());
 
-    MaterialInfo mirror{.Type = EMaterialType::MIRROR,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.3f),
-        .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1),
-        .Roughness = 0.5f};
-    materialsInfo.push_back(mirror);
+    // Transparent
+    result["water"] = std::make_unique<Material>("water", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 0.6f), XMFLOAT3(0.1f, 0.1f, 0.1f), 0.0f, textures["water"].get());
 
-        MaterialInfo shadow{.Type = EMaterialType::SHADOW,
-        .DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.5f),
-        .Fresnel = XMFLOAT3(0.001f, 0.001f, 0.001),
-        .Roughness = 0.0f};
-    materialsInfo.push_back(shadow);
+    // sky box
+    result["grasscube1024"] =
+        std::make_unique<Material>("grasscube1024", EMaterialType::Skybox, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.1f, 0.1f, 0.1f), 1.0f, textures["grasscube1024"].get());
 
-          MaterialInfo three{.Type = EMaterialType::TREES,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.01f, 0.01f, 0.01),
-        .Roughness = 0.125f};
-    materialsInfo.push_back(three);
+    // Mirror
+    result["mirror"] = std::make_unique<Material>("mirror", EMaterialType::Mirror, XMFLOAT4(1.0f, 1.0f, 1.0f, 0.3f), XMFLOAT3(0.1f, 0.1f, 0.1f), 0.5f);
 
-      // RED
-    MaterialInfo redMaterial{.Type = EMaterialType::RED,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(redMaterial);
-
-    // GREEN
-    MaterialInfo greenMaterial{.Type = EMaterialType::GREEN,
-        .DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(greenMaterial);
-
-    // BLUE
-    MaterialInfo blueMaterial{.Type = EMaterialType::BLUE,
-        .DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(blueMaterial);
-
-    // YELLOW
-    MaterialInfo yellowMaterial{.Type = EMaterialType::YELLOW,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(yellowMaterial);
-
-    // PURPLE
-    MaterialInfo purpleMaterial{.Type = EMaterialType::PURPLE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(purpleMaterial);
-
-   // CYAN
-    MaterialInfo cyanMaterial{.Type = EMaterialType::CYAN,
-        .DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(cyanMaterial);
-
-    // ORANGE
-    MaterialInfo orangeMaterial{.Type = EMaterialType::ORANGE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(orangeMaterial);
-
-    // PINK
-    MaterialInfo pinkMaterial{.Type = EMaterialType::PINK,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.5f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(pinkMaterial);
-
-    // GRAY
-    MaterialInfo grayMaterial{.Type = EMaterialType::GRAY,
-        .DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(grayMaterial);
-
-    // WHITE
-    MaterialInfo whiteMaterial{.Type = EMaterialType::WHITE,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.0001f, 0.0001f, 0.0001f),
-        .Roughness = 0.001f};
-    materialsInfo.push_back(whiteMaterial);
-
-    //SKYBOX
-    MaterialInfo skyBox{.Type = EMaterialType::SKYBOX,
-        .DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.f),
-        .Fresnel = XMFLOAT3(0.1f, 0.1f, 0.1f),
-        .Roughness = 1.0f};
-    materialsInfo.push_back(skyBox);
-
-
-
-    std::unordered_map<EMaterialType, std::unique_ptr<Material>> result{};
-
-    for (const auto& matInfo : materialsInfo)
-    {
-
-        if (result.contains(matInfo.Type))
-        {
-            assert(false); // material type allready on container
-            continue;
-        }
-        result[matInfo.Type] = MakeMaterial(matInfo);
-
-        ++mCurrentMatCBIndex;
-    }
+    // Planar Shadow Material
+    result["shadow"] = std::make_unique<Material>("shadow", EMaterialType::Shadow, XMFLOAT4(0.0f, 0.0f, 0.0f, 0.5f), XMFLOAT3(0.001f, 0.001f, 0.001f), 0.0f);
 
     return result;
 }
 
-std::unique_ptr<Material> MaterialBuilder::MakeMaterial(const MaterialInfo& matInfo)
-{
-    std::unique_ptr<Material> result = std::make_unique<Material>();
-    result->Type = matInfo.Type;
-    result->DiffuseAlbedo = matInfo.DiffuseAlbedo;
-    result->FresnelR0 = matInfo.Fresnel;
-    result->Roughness = matInfo.Roughness;
-    result->MatCBIndex = mCurrentMatCBIndex;
-    return result;
-}
+// std::unique_ptr<Material> MaterialBuilder::MakeMaterial(const MaterialInfo& matInfo)
+//{
+//     std::unique_ptr<Material> result = std::make_unique<Material>();
+//     result->Type = matInfo.Type;
+//     result->DiffuseAlbedo = matInfo.DiffuseAlbedo;
+//     result->FresnelR0 = matInfo.Fresnel;
+//     result->Roughness = matInfo.Roughness;
+//     result->MatCBIndex = mCurrentMatCBIndex;
+//     return result;
+// }
