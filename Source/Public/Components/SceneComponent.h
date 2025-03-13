@@ -1,8 +1,8 @@
 #pragma once
 #include "Transform.h"
 #include <DirectXMath.h>
+#include "GraphicGlobals.h"
 
-static constexpr int gNumFrameResources = 3;
 
 
 class alignas(16) SceneComponent
@@ -11,7 +11,7 @@ class alignas(16) SceneComponent
     // Dirty flag indicating the object data has changed and we need to update the constant buffer.
     // Because we have an object cbuffer for each FrameResource, we have to apply the
     // update to each FrameResource.
-    int NumFramesDirty = gNumFrameResources;
+    int NumFramesDirty = GG::gNumFrameResources;
 
 public:
     SceneComponent() : mTrans(Vector::Zero(), Rotator::Zero(), Vector::One()) {}
@@ -23,33 +23,33 @@ public:
     inline void SetTransformation(Transform trans) noexcept
     {
         mTrans = trans;
-        NumFramesDirty = gNumFrameResources;
+        NumFramesDirty = GG::gNumFrameResources;
     }
     inline void SetLocation(Vector location) noexcept
     {
         mTrans.SetLocation(location);
-        NumFramesDirty = gNumFrameResources;
+        NumFramesDirty = GG::gNumFrameResources;
     }
     inline void SetRotation(Rotator rotation) noexcept
     {
         mTrans.SetRotation(rotation);
-        NumFramesDirty = gNumFrameResources;
+        NumFramesDirty = GG::gNumFrameResources;
     }
     inline void SetScale(Vector scale) noexcept { mTrans.SetScale(scale); }
     inline void AddLocation(Vector location) noexcept
     {
         mTrans.AddLocation(location);
-        NumFramesDirty = gNumFrameResources;
+        NumFramesDirty = GG::gNumFrameResources;
     }
     inline void AddRotation(Rotator rotation) noexcept
     {
         mTrans.AddRotation(rotation);
-        NumFramesDirty = gNumFrameResources;
+        NumFramesDirty = GG::gNumFrameResources;
     }
     inline void AddScale(Vector scale) noexcept
     {
         mTrans.AddScale(scale);
-        NumFramesDirty = gNumFrameResources;
+        NumFramesDirty = GG::gNumFrameResources;
     }
 
     inline int GetNumFramesDirty() const noexcept { return NumFramesDirty; }

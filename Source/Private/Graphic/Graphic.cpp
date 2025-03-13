@@ -5,6 +5,7 @@
 #include "GameTimerW.h"
 #include <cassert>
 #include "PixProfile.h"
+#include "GraphicGlobals.h"
 
 #if defined PIXPROFILE
 #define USE_PIX
@@ -404,7 +405,7 @@ void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, co
     mEyePos = CameraPos;
 
     // Cycle through the circular frame resource array.
-    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
+    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % GG::gNumFrameResources;
     mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 
     // Has the GPU finished processing the commands of the current frame resource?
@@ -1359,7 +1360,7 @@ void Graphic::BuildPSOs()
 
 void Graphic::BuildFrameResources()
 {
-    for (int i = 0; i < gNumFrameResources; ++i)
+    for (int i = 0; i < GG::gNumFrameResources; ++i)
     {
         mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get(), 2, (UINT)mSceneObjectCount, (UINT)mWavesVerticesCount, (UINT)mMaterialCount));
     }

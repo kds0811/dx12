@@ -60,5 +60,5 @@ void WavesSceneObject::AnimateMaterial(float dt)
     waterMat->MatTransform(3, 1) = tv;
 
     // Material has changed, so need to update cbuffer.
-    waterMat->NumFramesDirty = gNumFrameResources;
+    waterMat->NumFramesDirty = GG::gNumFrameResources;
 }

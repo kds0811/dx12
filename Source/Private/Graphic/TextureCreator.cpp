@@ -31,6 +31,8 @@ std::unordered_map<EMaterialType, std::unique_ptr<Texture>> TextureCreator::Crea
     texInfos.push_back(TextureInfo{.Type = EMaterialType::TREES, .FilePath = L"../Source/Textures/treeArray2.dds"});
     texInfos.push_back(TextureInfo{.Type = EMaterialType::SKYBOX, .FilePath = L"../Source/Textures/grasscube1024.dds"});
 
+
+
     for (const auto& info : texInfos)
     {
         result[info.Type] = CreateTexture(info, device, cmdList);

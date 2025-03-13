@@ -40,7 +40,7 @@ void ImguiWrapper::InitImgui(Graphic* gfx, HWND hwnd, size_t numTextures, Camera
     ImGui_ImplDX12_InitInfo init_info = {};
     init_info.Device = pGfx->GetDevice();
     init_info.CommandQueue = pGfx->GetCommandQueue();
-    init_info.NumFramesInFlight = gNumFrameResources;
+    init_info.NumFramesInFlight = GG::gNumFrameResources;
     init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     init_info.DSVFormat = DXGI_FORMAT_UNKNOWN;
 

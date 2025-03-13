@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <array>
 #include "Vector.h"
-
+#include "GraphicGlobals.h"
 
 class D3D12Utils
 {
@@ -154,65 +154,6 @@ enum class ERenderLayer : std::uint8_t
     TesselationFracEven,
     TesselationPow2,
     Skybox
-};
-
-enum class EMaterialType : std::uint8_t
-{
-    GRASS,
-    GRASSX,
-    GRASSY,
-    WATER,
-    BRICKS,
-    STONE,
-    TILE,
-    SKULLMAT,
-    UNKNOWN,
-    WOODCRATE,
-    FIREBALL,
-    COLDFIRE,
-    METALL,
-    DRONEBASECOLOR,
-    WIREFENCE,
-    MIRROR,
-    SHADOW,
-    TREES,
-    RED,
-    GREEN,
-    BLUE,
-    YELLOW,
-    PURPLE,
-    CYAN,
-    ORANGE,
-    PINK,
-    GRAY,
-    WHITE,
-    SKYBOX
-};
-
-struct Texture;
-
-struct Material
-{
-    // Unique material name for lookup.
-    EMaterialType Type;
-
-    // Index into constant buffer corresponding to this material.
-    int MatCBIndex = -1;
-
-    Texture* Tex = nullptr;
-
-    // Dirty flag indicating the material has changed and we need to update the constant buffer.
-    // Because we have a material constant buffer for each FrameResource, we have to apply the
-    // update to each FrameResource.  Thus, when we modify a material we should set
-    // NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
-    int NumFramesDirty = gNumFrameResources;
-
-    // Material constant buffer data used for shading.
-    DirectX::XMFLOAT4 DiffuseAlbedo = {1.0f, 1.0f, 1.0f, 1.0f};
-    DirectX::XMFLOAT3 FresnelR0 = {0.01f, 0.01f, 0.01f};
-    float Roughness = .25f;
-
-    DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
 
