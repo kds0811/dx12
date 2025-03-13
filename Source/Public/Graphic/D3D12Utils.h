@@ -157,22 +157,6 @@ enum class ERenderLayer : std::uint8_t
 };
 
 
-struct Texture
-{
-    // Unique material name for lookup.
-    EMaterialType Type;
-
-    std::wstring Filename;
-
-    // Index into SRV heap for diffuse texture.
-    int DiffuseSrvHeapIndex = -1;
-
-    // Index into SRV heap for normal texture.
-    int NormalSrvHeapIndex = -1;
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
-};
 
 
 static std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers()

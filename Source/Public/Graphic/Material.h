@@ -5,7 +5,6 @@
 #include <DirectXMath.h>
 #include "MathHelper.h"
 
-
 enum class EMaterialType : std::uint8_t
 {
     Opaque,
@@ -21,7 +20,7 @@ struct Texture;
 
 struct Material
 {
-
+    std::string Name;
     EMaterialType Type;
 
 

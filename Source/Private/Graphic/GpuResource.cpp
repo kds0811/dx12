@@ -21,6 +21,13 @@ ID3D12Resource* GpuResource::GetResource()
     return mResource.Get();
 }
 
+Microsoft::WRL::ComPtr<ID3D12Resource>& GpuResource::GetComPtrResource()
+{
+    return mResource;
+}
+
+
+
 void GpuResource::OnResize(UINT newWidth, UINT newHeight) 
 {
     if ((mWidth != newWidth) || (mHeight != newHeight))

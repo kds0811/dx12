@@ -28,6 +28,8 @@ public:
     ~GpuResource() = default;
 
     ID3D12Resource* GetResource();
+    Microsoft::WRL::ComPtr<ID3D12Resource>& GetComPtrResource();
+
     void OnResize(UINT newWidth, UINT newHeight);
     bool ChangeState(ID3D12GraphicsCommandList* cmdList, D3D12_RESOURCE_STATES newState);
     bool ChangeState(ID3D12GraphicsCommandList* cmdList, D3D12_RESOURCE_STATES oldState, D3D12_RESOURCE_STATES newState);
