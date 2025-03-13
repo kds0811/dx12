@@ -26,8 +26,7 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
         CreateStandartShapeGeometry();
     }
 
-    mMaterials = mMaterialBuilder.CreateMaterials();
-    AddTexturePtrOnMaterial();
+    mMaterials = mMaterialBuilder.CreateMaterials(mTextures);
 
 }
 
@@ -77,17 +76,3 @@ void ResourceManager::FlushCommandQueue()
     }
 }
 
-void ResourceManager::AddTexturePtrOnMaterial() 
-{
-    for (auto& [type, mat] : mMaterials)
-    {
-        if (mTextures.contains(type))
-        {
-            mat->Tex = mTextures[type].get();
-        }
-        else
-        {
-            mat->Tex = mTextures[EMaterialType::UNKNOWN].get();
-        }
-    }
-}

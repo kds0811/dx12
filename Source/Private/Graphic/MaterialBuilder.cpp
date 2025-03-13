@@ -60,14 +60,3 @@ std::unordered_map<std::string, std::unique_ptr<Material>> MaterialBuilder::Crea
 
     return result;
 }
-
-// std::unique_ptr<Material> MaterialBuilder::MakeMaterial(const MaterialInfo& matInfo)
-//{
-//     std::unique_ptr<Material> result = std::make_unique<Material>();
-//     result->Type = matInfo.Type;
-//     result->DiffuseAlbedo = matInfo.DiffuseAlbedo;
-//     result->FresnelR0 = matInfo.Fresnel;
-//     result->Roughness = matInfo.Roughness;
-//     result->MatCBIndex = mCurrentMatCBIndex;
-//     return result;
-// }
