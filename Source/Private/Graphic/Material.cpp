@@ -7,9 +7,47 @@ Material::Material(std::string name, EMaterialType type)
 	mType(type) 
 {}
 
-void Material::SetBaseColor(DirectX::XMFLOAT4 color)
+Material::Material(std::string name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness) 
+    :
+    mName(name),
+    mType(type),
+    mBaseColorFactor(color),
+    mFresnel(fresnel),
+    mRoughness(roughness)
 {
-    mBaseColor = color;
+}
+
+Material::Material(std::string name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness, Texture* baseColorTex)
+    :
+    mName(name),
+    mType(type),
+    mBaseColorFactor(color),
+    mFresnel(fresnel),
+    mRoughness(roughness),
+    mBaseColorTex(baseColorTex)
+{
+}
+
+Material::Material(std::string name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness, Texture* baseColorTex, Texture* normalMapTex)
+    :
+    mName(name),
+    mType(type),
+    mBaseColorFactor(color),
+    mFresnel(fresnel),
+    mRoughness(roughness),
+    mBaseColorTex(baseColorTex),
+    mNormalMapTex(normalMapTex)
+{
+}
+
+void Material::SetBaseColorFactor(DirectX::XMFLOAT4 colorFactor)
+{
+    mBaseColorFactor = colorFactor;
+}
+
+void Material::SetNormalMapFactor(DirectX::XMFLOAT3 factor) 
+{
+    mNormalMapFactor = factor;
 }
 
 void Material::SetFresnel(DirectX::XMFLOAT3 fresnel) 
