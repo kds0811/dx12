@@ -4,17 +4,19 @@
 #include <memory>
 #include <cstdint>
 
-enum class ETexture2DType : std::uint8_t
+enum class ETextureType : std::uint8_t
 {
     BaseColor,
     NormalMap,
     RoughnessMap,
-    MetallicMap
+    MetallicMap,
+    CubeMap,
+    Default
 };
 
 class Texture
 {
-    ETexture2DType mType;
+    ETextureType mType = ETextureType::Default;
     std::string mName;
     std::wstring mFilename;
     int mSrvHeapIndex = -1;
@@ -23,7 +25,7 @@ class Texture
     std::unique_ptr<GpuResource> mUploadHeap = nullptr;
 
 public:
-    Texture(ETexture2DType type, std::string name, std::wstring fileName);
+    Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
     
     void LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 

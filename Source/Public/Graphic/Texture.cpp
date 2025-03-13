@@ -3,12 +3,14 @@
 #include "DDSTextureLoader.h"
 
 
-Texture::Texture(ETexture2DType type, std::string name, std::wstring fileName)
+Texture::Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 	:
 	mType(type),
 	mName(std::move(name)),
 	mFilename(std::move(fileName))
-{ }
+{
+    LoadFromFile(device, cmdList);
+}
 
 void Texture::LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList) 
 {
