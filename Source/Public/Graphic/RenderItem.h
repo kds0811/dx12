@@ -1,6 +1,7 @@
 #pragma once
 #include "MathHelper.h"
 #include "D3D12Utils.h"
+#include "Material.h"
 
 // Lightweight structure stores parameters to draw a shape.
 struct RenderItem

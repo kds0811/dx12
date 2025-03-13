@@ -4,6 +4,9 @@
 #include "GraphicGlobals.h"
 #include <DirectXMath.h>
 #include "MathHelper.h"
+#include <memory>
+
+class Texture;
 
 enum class EMaterialType : std::uint8_t
 {
@@ -16,23 +19,30 @@ enum class EMaterialType : std::uint8_t
     Shadow
 };
 
-struct Texture;
-
-struct Material
+class Material
 {
-    std::string Name;
-    EMaterialType Type;
+    std::string mName;
+    EMaterialType mType;
 
+    Texture* mBaseColorTex;
 
-    int MatCBIndex = -1;
+    int mMatCBIndex = -1;
+    int mNumFramesDirty = GG::gNumFrameResources;
+    DirectX::XMFLOAT4X4 mMatTransform = MathHelper::Identity4x4();
 
-    Texture* Tex = nullptr;
+    DirectX::XMFLOAT4 mBaseColor = {1.0f, 1.0f, 1.0f, 1.0f};
+    DirectX::XMFLOAT3 mFresnel = {0.01f, 0.01f, 0.01f};
+    float mRoughness = .25f;
 
-    int NumFramesDirty = GG::gNumFrameResources;
+   
 
-    DirectX::XMFLOAT4 DiffuseAlbedo = {1.0f, 1.0f, 1.0f, 1.0f};
-    DirectX::XMFLOAT3 FresnelR0 = {0.01f, 0.01f, 0.01f};
-    float Roughness = .25f;
+public:
+    Material(std::string name, EMaterialType type);
 
-    DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
+    void SetBaseColor(DirectX::XMFLOAT4 color);
+    void SetFresnel(DirectX::XMFLOAT3 fresnel);
+    void SetRoughness(float roughness);
+    void SetMaterialTransformation(DirectX::XMFLOAT4X4 trans);
+
+    void SetBaseColorTexture(Texture* tex);
 };

@@ -4,6 +4,7 @@
 #include "MovementComponent.h"
 #include <memory>
 #include "BoundComponent.h"
+#include "Material.h"
 
 class alignas(16) BaseSceneObject
 {

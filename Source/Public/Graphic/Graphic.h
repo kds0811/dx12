@@ -13,9 +13,9 @@
 #include "RenderTarget.h"
 #include "GpuWaves.h"
 #include "DirectXCollision.h"
+#include "Material.h"
 
 class GameTimerW;
-
 
 class Graphic
 {

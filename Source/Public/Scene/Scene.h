@@ -6,6 +6,7 @@
 #include "ShapeGeometryBuilder.h"
 #include "D3D12Utils.h"
 #include "WavesSceneObject.h"
+#include "Material.h"
 
 class ResourceManager;
 

@@ -8,9 +8,7 @@ Texture::Texture(ETexture2DType type, std::string name, std::wstring fileName)
 	mType(type),
 	mName(std::move(name)),
 	mFilename(std::move(fileName))
-{
-
-}
+{ }
 
 void Texture::LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList) 
 {

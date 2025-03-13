@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <format>
 #include <string>
+#include "Logger.h"
 
 namespace Kds::App
 {
@@ -13,7 +14,9 @@ namespace Kds::App
         if (FAILED(g.Hr))
         {
             _com_error Error(g.Hr);
-            throw std::runtime_error{std::format("Graphics error: {}\n \n {}({})", Error.ErrorMessage(), g.Loc.file_name(), g.Loc.line())};
+            auto message = std::format("Graphics error: {}\n \n {}({})", Error.ErrorMessage(), g.Loc.file_name(), g.Loc.line());
+            Log::LogError(message);
+            throw std::runtime_error{message};
         }
     }
-}  // namespace kds::app
+}  // namespace kds::app 
