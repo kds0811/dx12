@@ -6,10 +6,7 @@
 
 namespace Kds::App
 {
-
     HrGrabber::HrGrabber(unsigned int hr, std::source_location loc) noexcept : Hr(hr), Loc(loc) {}
-
-    
 
     void operator>>(HrGrabber g, CheckerToken)
     {
