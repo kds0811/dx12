@@ -11,5 +11,5 @@ public:
     inline void SetOwner (SceneObject* owner) { pOwner = owner; }
 
 protected:
-    SceneObject* pOwner;
+    SceneObject* pOwner = nullptr;
 };

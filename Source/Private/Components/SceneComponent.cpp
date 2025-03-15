@@ -1,23 +1,27 @@
 #include "SceneComponent.h"
 
-SceneComponent::SceneComponent() : mTrans(Vector::Zero(), Rotator::Zero(), Vector::One()) 
+SceneComponent::SceneComponent(SceneObject* owner) : mTrans(Vector::Zero(), Rotator::Zero(), Vector::One())
 {
     mMovementComponent.Init(this);
+    pOwner = owner;
 }
 
-SceneComponent::SceneComponent(Transform trans) : mTrans(trans)
+SceneComponent::SceneComponent(SceneObject* owner, Transform trans) : mTrans(trans)
 {
     mMovementComponent.Init(this);
+    pOwner = owner;
 }
 
-SceneComponent::SceneComponent(Vector loc) : mTrans(loc)
+SceneComponent::SceneComponent(SceneObject* owner, Vector loc) : mTrans(loc)
 {
     mMovementComponent.Init(this);
+    pOwner = owner;
 }
 
-SceneComponent::SceneComponent(Vector loc, Rotator rot) : mTrans(loc, rot)
+SceneComponent::SceneComponent(SceneObject* owner, Vector loc, Rotator rot) : mTrans(loc, rot)
 {
     mMovementComponent.Init(this);
+    pOwner = owner;
 }
 
 

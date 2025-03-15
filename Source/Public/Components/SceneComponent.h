@@ -3,8 +3,9 @@
 #include <DirectXMath.h>
 #include "GraphicGlobals.h"
 #include "MovementComponent.h"
+#include "BaseComponent.h"
 
-class alignas(16) SceneComponent
+class SceneComponent : public BaseComponent
 {
     Transform mTrans;
     MovementComponent mMovementComponent;
@@ -12,10 +13,10 @@ class alignas(16) SceneComponent
     int mObjCBIndex = -1;
 
 public:
-    SceneComponent();
-    SceneComponent(Transform trans);
-    SceneComponent(Vector loc);
-    SceneComponent(Vector loc, Rotator rot);
+    SceneComponent(SceneObject* owner);
+    SceneComponent(SceneObject* owner, Transform trans);
+    SceneComponent(SceneObject* owner, Vector loc);
+    SceneComponent(SceneObject* owner,Vector loc, Rotator rot);
 
     // Movement Component Interface
     void Update(float dt);
