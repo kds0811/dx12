@@ -1,4 +1,10 @@
 #include "MovementComponent.h"
+#include "SceneComponent.h"
+
+void MovementComponent::Init(SceneComponent* ownerSceneComp) 
+{
+    pOwnerSceneComp = ownerSceneComp;
+}
 
 void MovementComponent::Update(float dt)
 {
@@ -41,7 +47,7 @@ void MovementComponent::SetContinuesRotation(Rotator rotation)
 void MovementComponent::MoveToLocation(float dt)
 {
 
-    Vector vecToTarget = mTargetLocation - mUpdatedSceneComponent.GetLocation();
+    Vector vecToTarget = mTargetLocation - pOwnerSceneComp->GetLocation();
     if (vecToTarget.Length() < 1.0f)
     {
         bTargetLocationIsSet = false;
@@ -50,12 +56,12 @@ void MovementComponent::MoveToLocation(float dt)
     }
     Vector direction = vecToTarget.Normalize();
     Vector VecOfsset = direction * dt * mSpeedMoving;
-    mUpdatedSceneComponent.AddLocation(VecOfsset);
+    pOwnerSceneComp->AddLocation(VecOfsset);
 }
 
 void MovementComponent::Rotation(float dt) 
 {
-    Rotator UpdatedRotatorNorm = (mUpdatedSceneComponent.GetRotation()).Normalize360();
+    Rotator UpdatedRotatorNorm = (pOwnerSceneComp->GetRotation()).Normalize360();
 
     if (UpdatedRotatorNorm.IsNearEqual(mTargetRotation, 1.0f))
     {
@@ -102,11 +108,11 @@ void MovementComponent::Rotation(float dt)
             offsetRot -= Rotator(0.0f, 0.0f, mSpeedRotating * dt);
         }
     }
-    mUpdatedSceneComponent.AddRotation(offsetRot);
+    pOwnerSceneComp->AddRotation(offsetRot);
 }
 
 void MovementComponent::ContinuesRotation(float dt)
 {
     Rotator OffsetRotation = mContinuesRotation * dt * mSpeedRotating;
-    mUpdatedSceneComponent.AddRotation(OffsetRotation);
+    pOwnerSceneComp->AddRotation(OffsetRotation);
 }

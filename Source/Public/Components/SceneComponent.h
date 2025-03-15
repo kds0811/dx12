@@ -2,22 +2,27 @@
 #include "Transform.h"
 #include <DirectXMath.h>
 #include "GraphicGlobals.h"
-
+#include "MovementComponent.h"
 
 
 class alignas(16) SceneComponent
 {
     Transform mTrans;
-    // Dirty flag indicating the object data has changed and we need to update the constant buffer.
-    // Because we have an object cbuffer for each FrameResource, we have to apply the
-    // update to each FrameResource.
+    MovementComponent mMovementComponent;
     int NumFramesDirty = GG::gNumFrameResources;
 
 public:
-    SceneComponent() : mTrans(Vector::Zero(), Rotator::Zero(), Vector::One()) {}
-    SceneComponent(Transform trans) : mTrans(trans) {}
-    SceneComponent(Vector loc) : mTrans(loc) {}
-    SceneComponent(Vector loc, Rotator rot) : mTrans(loc, rot) {}
+    SceneComponent(); 
+    SceneComponent(Transform trans);
+    SceneComponent(Vector loc);
+    SceneComponent(Vector loc, Rotator rot);
+
+    //Movement Component Interface
+    void Update(float dt);
+    void SetTargetLocation(Vector targetLocation);
+    void SetTargetRotation(Rotator targetRotation);
+    void SetContinuesRotation(Rotator rotation);
+
 
     // Setters
     inline void SetTransformation(Transform trans) noexcept

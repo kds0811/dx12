@@ -1,10 +1,11 @@
 #pragma once
-#include "SceneComponent.h"
 
+
+class SceneComponent;
 
 class MovementComponent
 {
-    SceneComponent& mUpdatedSceneComponent;
+    SceneComponent* pOwnerSceneComp;
     float mSpeedMoving = 20.0f;
     float mSpeedRotating = 20.0f;
 
@@ -19,8 +20,9 @@ class MovementComponent
     Vector Velocity = Vector::Zero();
 
 public:
-    MovementComponent(SceneComponent& updatedSceneComponent) : mUpdatedSceneComponent(updatedSceneComponent) {}
-
+    MovementComponent() = default;
+    void Init(SceneComponent* ownerSceneComp);
+    
     void Update(float dt);
 
     void SetTargetLocation(Vector targetLocation);
