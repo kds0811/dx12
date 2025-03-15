@@ -4,61 +4,64 @@
 #include "GraphicGlobals.h"
 #include "MovementComponent.h"
 
-
 class alignas(16) SceneComponent
 {
     Transform mTrans;
     MovementComponent mMovementComponent;
-    int NumFramesDirty = GG::gNumFrameResources;
+    int mNumFramesDirty = GG::gNumFrameResources;
+    int mObjCBIndex = -1;
 
 public:
-    SceneComponent(); 
+    SceneComponent();
     SceneComponent(Transform trans);
     SceneComponent(Vector loc);
     SceneComponent(Vector loc, Rotator rot);
 
-    //Movement Component Interface
+    // Movement Component Interface
     void Update(float dt);
     void SetTargetLocation(Vector targetLocation);
     void SetTargetRotation(Rotator targetRotation);
     void SetContinuesRotation(Rotator rotation);
 
+    // Update mObjCBIndex interface
+    inline void SetObjCBIndex(int objCBIndex) noexcept { mObjCBIndex = objCBIndex; }
+    inline int GetObjCBIndex() noexcept { return mObjCBIndex; }
 
     // Setters
     inline void SetTransformation(Transform trans) noexcept
     {
         mTrans = trans;
-        NumFramesDirty = GG::gNumFrameResources;
+        mNumFramesDirty = GG::gNumFrameResources;
     }
     inline void SetLocation(Vector location) noexcept
     {
         mTrans.SetLocation(location);
-        NumFramesDirty = GG::gNumFrameResources;
+        mNumFramesDirty = GG::gNumFrameResources;
     }
     inline void SetRotation(Rotator rotation) noexcept
     {
         mTrans.SetRotation(rotation);
-        NumFramesDirty = GG::gNumFrameResources;
+        mNumFramesDirty = GG::gNumFrameResources;
     }
     inline void SetScale(Vector scale) noexcept { mTrans.SetScale(scale); }
     inline void AddLocation(Vector location) noexcept
     {
         mTrans.AddLocation(location);
-        NumFramesDirty = GG::gNumFrameResources;
+        mNumFramesDirty = GG::gNumFrameResources;
     }
     inline void AddRotation(Rotator rotation) noexcept
     {
         mTrans.AddRotation(rotation);
-        NumFramesDirty = GG::gNumFrameResources;
+        mNumFramesDirty = GG::gNumFrameResources;
     }
     inline void AddScale(Vector scale) noexcept
     {
         mTrans.AddScale(scale);
-        NumFramesDirty = GG::gNumFrameResources;
+        mNumFramesDirty = GG::gNumFrameResources;
     }
 
-    inline int GetNumFramesDirty() const noexcept { return NumFramesDirty; }
-    inline void DecrementNumFrameDirty() noexcept { --NumFramesDirty; }
+    inline int GetNumFramesDirty() const noexcept { return mNumFramesDirty; }
+    inline void DecrementNumFrameDirty() noexcept { --mNumFramesDirty; }
 
     // Getters
     [[nodiscard]] inline Vector GetLocation() const noexcept { return mTrans.GetLocation(); }
@@ -70,7 +73,4 @@ public:
     [[nodiscard]] inline Vector GetUpVector() const noexcept { return mTrans.GetUpVector(); }
     [[nodiscard]] inline DirectX::XMMATRIX GetLookAtMatrix() const noexcept { return mTrans.GetLookAtMatrix(); }
     [[nodiscard]] inline DirectX::XMMATRIX GetWorldMatrix() const noexcept { return mTrans.GetWorldMatrix(); }
-
-    
-
 };

@@ -43,44 +43,41 @@ struct PassConstants
     Light Lights[MaxLights];
 
 DirectX::XMFLOAT4 gBaseColors[32] = {
-        DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),  // Красный
-        DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),  // Зеленый
-        DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),  // Синий
-        DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f),  // Желтый
-        DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f),  // Пурпурный (Magenta)
-        DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f),  // Голубой (Cyan)
-        DirectX::XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f),  // Оранжевый
-        DirectX::XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f),  // Фиолетовый
-        DirectX::XMFLOAT4(0.0f, 1.0f, 0.5f, 1.0f),  // Изумрудный
-        DirectX::XMFLOAT4(1.0f, 0.0f, 0.5f, 1.0f),  // Розовый
-        DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),  // Серый
-        DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),  // Белый
+        DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+        DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f),
+        DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f),
+        DirectX::XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f),
+        DirectX::XMFLOAT4(0.0f, 1.0f, 0.5f, 1.0f),
+        DirectX::XMFLOAT4(1.0f, 0.0f, 0.5f, 1.0f),
+        DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
+        DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
 
-        // Дополнительные оттенки
-        DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f),   // Темно-красный
-        DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f),   // Темно-зеленый
-        DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),   // Темно-синий
-        DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f),   // Темно-желтый
-        DirectX::XMFLOAT4(0.5f, 0.0f, 0.5f, 1.0f),   // Темно-пурпурный
-        DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f),   // Темно-голубой
-        DirectX::XMFLOAT4(1.0f, 0.25f, 0.0f, 1.0f),  // Ярко-оранжевый
-        DirectX::XMFLOAT4(0.75f, 0.0f, 1.0f, 1.0f),  // Светло-фиолетовый
-        DirectX::XMFLOAT4(0.0f, 1.0f, 0.25f, 1.0f),  // Светло-изумрудный
-        DirectX::XMFLOAT4(1.0f, 0.0f, 0.25f, 1.0f),  // Светло-розовый
+        DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f),  
+        DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f),  
+        DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),  
+        DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f),  
+        DirectX::XMFLOAT4(0.5f, 0.0f, 0.5f, 1.0f),  
+        DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f),  
+        DirectX::XMFLOAT4(1.0f, 0.25f, 0.0f, 1.0f), 
+        DirectX::XMFLOAT4(0.75f, 0.0f, 1.0f, 1.0f), 
+        DirectX::XMFLOAT4(0.0f, 1.0f, 0.25f, 1.0f), 
+        DirectX::XMFLOAT4(1.0f, 0.0f, 0.25f, 1.0f), 
 
-        // Пастельные тона
-        DirectX::XMFLOAT4(0.9f, 0.6f, 0.6f, 1.0f),  // Пастельный красный
-        DirectX::XMFLOAT4(0.6f, 0.9f, 0.6f, 1.0f),  // Пастельный зеленый
-        DirectX::XMFLOAT4(0.6f, 0.6f, 0.9f, 1.0f),  // Пастельный синий
-        DirectX::XMFLOAT4(0.9f, 0.9f, 0.6f, 1.0f),  // Пастельный желтый
-        DirectX::XMFLOAT4(0.9f, 0.6f, 0.9f, 1.0f),  // Пастельный пурпурный
-        DirectX::XMFLOAT4(0.6f, 0.9f, 0.9f, 1.0f),  // Пастельный голубой
+        DirectX::XMFLOAT4(0.9f, 0.6f, 0.6f, 1.0f), 
+        DirectX::XMFLOAT4(0.6f, 0.9f, 0.6f, 1.0f), 
+        DirectX::XMFLOAT4(0.6f, 0.6f, 0.9f, 1.0f), 
+        DirectX::XMFLOAT4(0.9f, 0.9f, 0.6f, 1.0f), 
+        DirectX::XMFLOAT4(0.9f, 0.6f, 0.9f, 1.0f), 
+        DirectX::XMFLOAT4(0.6f, 0.9f, 0.9f, 1.0f), 
 
-        // Другие цвета
-        DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f),     // Черный
-        DirectX::XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f),  // Темно-серый
-        DirectX::XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f),  // Светло-серый
-        DirectX::XMFLOAT4(0.5f, 0.25f, 0.0f, 1.0f)     // Коричневый
+        DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f),    
+        DirectX::XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f), 
+        DirectX::XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f), 
+        DirectX::XMFLOAT4(0.5f, 0.25f, 0.0f, 1.0f)    
     };
 };
 

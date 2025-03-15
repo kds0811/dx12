@@ -46,6 +46,7 @@ void MovementComponent::SetContinuesRotation(Rotator rotation)
 
 void MovementComponent::MoveToLocation(float dt)
 {
+    if (!pOwnerSceneComp) return;
 
     Vector vecToTarget = mTargetLocation - pOwnerSceneComp->GetLocation();
     if (vecToTarget.Length() < 1.0f)
@@ -61,6 +62,8 @@ void MovementComponent::MoveToLocation(float dt)
 
 void MovementComponent::Rotation(float dt) 
 {
+    if (!pOwnerSceneComp) return;
+
     Rotator UpdatedRotatorNorm = (pOwnerSceneComp->GetRotation()).Normalize360();
 
     if (UpdatedRotatorNorm.IsNearEqual(mTargetRotation, 1.0f))
@@ -113,6 +116,8 @@ void MovementComponent::Rotation(float dt)
 
 void MovementComponent::ContinuesRotation(float dt)
 {
+    if (!pOwnerSceneComp) return;
+
     Rotator OffsetRotation = mContinuesRotation * dt * mSpeedRotating;
     pOwnerSceneComp->AddRotation(OffsetRotation);
 }
