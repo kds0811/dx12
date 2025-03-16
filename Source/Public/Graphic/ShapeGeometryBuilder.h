@@ -72,8 +72,6 @@ private:
         auto geo = std::make_unique<MeshGeometry>();
         geo->Name = meshName;
 
-       
-
         if (!isWavesMesh)
         {
             D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Kds::App::Check;
