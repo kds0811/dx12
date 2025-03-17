@@ -23,10 +23,7 @@ public:
     {
     }
 
-
-
-
-    [[nodiscard]] inline std::string GetName() noexcept {return mName;}
+    [[nodiscard]] inline std::string GetName()  {return mName;}
     [[nodiscard]] inline MeshGeometry* GetGeo() const noexcept { return mGeo; }
     [[nodiscard]] inline D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveType() noexcept { return mPrimitiveType; }
     [[nodiscard]] inline UINT GetIndexCount() noexcept { return mIndexCount; }

@@ -9,11 +9,16 @@ protected:
     int mID;
 
 public:
-    Mesh() = default;
+    Mesh(std::string name, int ID)
+        :
+        mName(std::move(name)),
+        mID(ID)
+    {}
 
-    void SetName(std::string name) { mName = std::move(name); }
-    std::string GetName() { return mName; }
+    [[nodiscard]] inline std::string GetName() { return mName; }
+    [[nodiscard]] inline int GetID() noexcept { return mID; }
 
-    void SetID(int id) { mID = id; }
-    int GetID() { return mID; }
+    inline void SetID(int id) noexcept { mID = id; }
+    inline void SetName(std::string name) { mName = std::move(name); }
+    
 };
