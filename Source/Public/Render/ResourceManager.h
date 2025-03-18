@@ -21,8 +21,8 @@ class ResourceManager
 
     // Builders
     std::unique_ptr<GeometryManager> mGeometryManager;
-    std::unique_ptr<TextureManager> mTexturemanager;
-    MaterialBuilder mMaterialBuilder;
+    std::unique_ptr<TextureManager> mTextureManager;
+    std::unique_ptr<MaterialBuilder> mMaterialManager;
 
     // Storages
 
@@ -36,7 +36,6 @@ public:
     std::unordered_map<std::string, std::unique_ptr<Texture>>& GetTextures() { return mTextures; }
 
 private:
-    void CreateStandartShapeGeometry();
     void BuildResources();
     void CreateCommandList();
     void FlushCommandQueue();

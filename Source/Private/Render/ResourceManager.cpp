@@ -10,6 +10,9 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     
     CreateCommandList();
 
+    mTextureManager = std::make_unique<TextureManager>();
+    mGeometryManager = std::make_unique<GeometryManager>(pDevice, mCommandList.Get());
+
     if (pDevice && pCommandQueue && mCommandAllocator && mCommandList && mFence)
     {
         BuildResources();
@@ -19,29 +22,15 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
 
 }
 
-void ResourceManager::CreateStandartShapeGeometry() 
-{
-    mCommandList->Reset(mCommandAllocator.Get(), nullptr) >> Kds::App::Check;
-    
-    // load and build textures
-    mTextures = mTextureCreator.CreateTextures(pDevice, mCommandList.Get());
-
-    // add on queue and execute commands
-    mCommandList->Close() >> Kds::App::Check;
-    ID3D12CommandList* cmdsLists[] = {mCommandList.Get()};
-    pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-    FlushCommandQueue();
-
-}
-
 void ResourceManager::BuildResources() 
 {
+   // open command list 
     mCommandList->Reset(mCommandAllocator.Get(), nullptr) >> Kds::App::Check;
 
-    mGeometryManager = std::make_unique<GeometryManager>(pDevice, mCommandList.Get());
+    mTextureManager->CreateBaseTextures(pDevice, mCommandList.Get());
+    mGeometryManager->CreateBaseGeometries(pDevice, mCommandList.Get());
 
-
-      // add on queue and execute commands
+    // add on queue and execute commands
     mCommandList->Close() >> Kds::App::Check;
     ID3D12CommandList* cmdsLists[] = {mCommandList.Get()};
     pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);

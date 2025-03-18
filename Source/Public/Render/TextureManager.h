@@ -36,5 +36,4 @@ public:
         return std::make_pair(mTextures.cbegin(), mTextures.cend());
     }
 
-
 };

@@ -1,9 +1,9 @@
 #include "GeometryManager.h"
 
-GeometryManager::GeometryManager(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
-	:
-	pDevice(device),
-	pCommandList(cmdList)
+GeometryManager::GeometryManager()
+{}
+
+void GeometryManager::CreateBaseGeometries(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-    mPrimitiveGeometries = mPrimitiveGeometryBuilder.BuildShapeGeometry(pDevice, pCommandList);
+    mPrimitiveGeometries = mPrimitiveGeometryBuilder.BuildShapeGeometry(device, cmdList);
 }
