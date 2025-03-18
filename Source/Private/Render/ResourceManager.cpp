@@ -16,7 +16,6 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
         BuildResources();
     }
 
-    AddTexturesToStandartMaterial();
 }
 
 void ResourceManager::BuildResources()
@@ -26,6 +25,7 @@ void ResourceManager::BuildResources()
 
     mTextureManager->CreateBaseTextures(pDevice, mCommandList.Get());
     mGeometryManager->CreateBaseGeometries(pDevice, mCommandList.Get());
+    AddTexturesToStandartMaterial();
 
     // add on queue and execute commands
     mCommandList->Close() >> Kds::App::Check;
