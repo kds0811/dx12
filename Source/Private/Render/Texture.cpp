@@ -1,6 +1,8 @@
 #include "Texture.h"
 #include "GraphicError.h"
 #include "DDSTextureLoader.h"
+#include "Logger.h"
+
 
 
 Texture::Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
@@ -15,4 +17,7 @@ Texture::Texture(ETextureType type, std::string name, std::wstring fileName, ID3
 void Texture::LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList) 
 {
     DirectX::CreateDDSTextureFromFile12(device, cmdList, mFilename.c_str(), mResource->GetComPtrResource(), mUploadHeap->GetComPtrResource()) >> Kds::App::Check;
+
+	std::string message = "Texture " + mName + " is created";
+    Log::LogMessage(message);
 }

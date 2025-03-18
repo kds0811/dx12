@@ -26,8 +26,7 @@ class Texture
 
 public:
     Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
-    
+
+private:
     void LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
-
-
 };

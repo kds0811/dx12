@@ -1,43 +1,60 @@
 #include "TextureManager.h"
 #include "GraphicError.h"
 #include "DDSTextureLoader.h"
+#include "Logger.h"
 
+TextureManager::TextureManager() {}
 
-TextureManager::TextureManager(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
-    :
-    pDevice(device),
-    pCommandList(cmdList)
+void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-    assert(pDevice);
-    assert(pCommandList);
+    // Base color textures
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "wood_crate1", "../Source/Textures/WoodCrate01.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "tile", "../Source/Textures/tile.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "grass", "../Source/Textures/grass.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "bricks", "../Source/Textures/bricks.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "default", "../Source/Textures/default.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "stone", "../Source/Textures/stone.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "water", "../Source/Textures/water.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "grassx", "../Source/Textures/grassx.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "grassy", "../Source/Textures/grassy.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "firebal", "../Source/Textures/firebal.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "coldfire", "../Source/Textures/coldfire.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "metall", "../Source/Textures/metall.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "droneBaseColor", "../Source/Textures/droneBaseColor.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "wireFence", "../Source/Textures/WireFence.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "treeArray2", "../Source/Textures/treeArray2.dds");
 
-    CreateBaseTextures();
+    // Normal maps
+    CreateTexture(device, cmdList, ETextureType::NormalMap, "default_nmap", "../Source/Textures/default_nmap.dds");
+
+    // Skybox
+    CreateTexture(device, cmdList, ETextureType::CubeMap, "grasscube1024", "../Source/Textures/grasscube1024.dds");
+
+    std::string message = "base textures have been created";
+    Log::LogMessage(message);
 }
 
-void TextureManager::CreateBaseTextures()
+void TextureManager::CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, ETextureType type, std::string name, std::string path)
 {
+    if (mTextures.contains(name))
+    {
+        std::string message = "texture " + name + " has already been created";
+        Log::LogWarning(message);
+        return;
+    }
+    mTextures.end();
+    mTextures[name] = std::make_unique<Texture>(type, name, path, device, cmdList);
+}
 
-    // base color tex
-    mTextures["wood_crate1"] = std::make_unique<Texture>(ETextureType::BaseColor, "woodCrate01", L"../Source/Textures/WoodCrate01.dds", pDevice, pCommandList);
-    mTextures["tile"] = std::make_unique<Texture>(ETextureType::BaseColor, "tile", L"../Source/Textures/tile.dds", pDevice, pCommandList);
-    mTextures["grass"] = std::make_unique<Texture>(ETextureType::BaseColor, "grass", L"../Source/Textures/grass.dds", pDevice, pCommandList);
-    mTextures["bricks"] = std::make_unique<Texture>(ETextureType::BaseColor, "bricks", L"../Source/Textures/bricks.dds", pDevice, pCommandList);
-    mTextures["default"] = std::make_unique<Texture>(ETextureType::BaseColor, "default", L"../Source/Textures/default.dds", pDevice, pCommandList);
-    mTextures["stone"] = std::make_unique<Texture>(ETextureType::BaseColor, "stone", L"../Source/Textures/stone.dds", pDevice, pCommandList);
-    mTextures["water"] = std::make_unique<Texture>(ETextureType::BaseColor, "water", L"../Source/Textures/water.dds", pDevice, pCommandList);
-    mTextures["grassx"] = std::make_unique<Texture>(ETextureType::BaseColor, "grassx", L"../Source/Textures/grassx.dds", pDevice, pCommandList);
-    mTextures["grassy"] = std::make_unique<Texture>(ETextureType::BaseColor, "grassy", L"../Source/Textures/grassy.dds", pDevice, pCommandList);
-    mTextures["firebal"] = std::make_unique<Texture>(ETextureType::BaseColor, "firebal", L"../Source/Textures/firebal.dds", pDevice, pCommandList);
-    mTextures["coldfire"] = std::make_unique<Texture>(ETextureType::BaseColor, "coldfire", L"../Source/Textures/coldfire.dds", pDevice, pCommandList);
-    mTextures["metall"] = std::make_unique<Texture>(ETextureType::BaseColor, "metall", L"../Source/Textures/metall.dds", pDevice, pCommandList);
-    mTextures["droneBaseColor"] = std::make_unique<Texture>(ETextureType::BaseColor, "droneBaseColor", L"../Source/Textures/droneBaseColor.dds", pDevice, pCommandList);
-    mTextures["wireFence"] = std::make_unique<Texture>(ETextureType::BaseColor, "wireFence", L"../Source/Textures/WireFence.dds", pDevice, pCommandList);
-    mTextures["treeArray2"] = std::make_unique<Texture>(ETextureType::BaseColor, "treeArray2", L"../Source/Textures/treeArray2.dds", pDevice, pCommandList);
-
-    // normal maps
-    mTextures["default_nmap"] = std::make_unique<Texture>(ETextureType::NormalMap, "default_nmap", L"../Source/Textures/default_nmap.dds", pDevice, pCommandList);
-
-    // sky box
-    mTextures["grasscube1024"] = std::make_unique<Texture>(ETextureType::CubeMap, "grasscube1024", L"../Source/Textures/grasscube1024.dds", pDevice, pCommandList);
+Texture* TextureManager::GetTexture(std::string name)
+{
+    if (!mTextures.contains(name))
+    {
+        std::string message = "texture " + name + " is not in the container";
+        Log::LogWarning(message);
+        return nullptr;
+    }
+   
+    return mTextures[name].get();
 }
 
