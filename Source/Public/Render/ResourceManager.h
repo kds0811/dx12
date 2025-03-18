@@ -1,6 +1,5 @@
 #pragma once
 #include "D3D12Utils.h"
-#include "ShapeGeometryBuilder.h"
 #include "MaterialBuilder.h"
 #include "TextureCreator.h"
 #include "Material.h"
@@ -19,19 +18,19 @@ class ResourceManager
     UINT64 mCurrentFenceValue = 0;
 
     // Builders
-    ShapeGeometryBuilder mShapeGeometryBuilder;
+
     MaterialBuilder mMaterialBuilder;
     TextureCreator mTextureCreator;
     
 
     // Storages
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+
     std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
     std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 
 public:
     ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>& GetGeometries() { return mGeometries; }
+
     std::unordered_map<std::string, std::unique_ptr<Material>>& GetMaterials() { return mMaterials; }
     std::unordered_map<std::string, std::unique_ptr<Texture>>& GetTextures() { return mTextures; }
 
