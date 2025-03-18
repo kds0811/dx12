@@ -4,4 +4,5 @@ int StaticMeshFactory::mMeshesCurrentID = 0;
 
 StaticMeshFactory::StaticMeshFactory() 
 {
+
 }

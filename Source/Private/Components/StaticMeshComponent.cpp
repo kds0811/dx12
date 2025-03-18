@@ -4,3 +4,8 @@ StaticMeshComponent::StaticMeshComponent(SceneObject* owner) : MeshComponent(own
 {
    
 }
+
+void StaticMeshComponent::SetRenderData(RenderData* rd) 
+{
+    mStaticMesh->SetRenderData(rd);
+}

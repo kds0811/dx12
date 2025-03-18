@@ -8,4 +8,8 @@ class StaticMeshComponent : public MeshComponent
 
 public:
     StaticMeshComponent(SceneObject* owner);
+
+    [[nodiscard]] inline RenderData* GetRenderData() const noexcept { return mStaticMesh->GetRenderData(); }
+
+    void SetRenderData(RenderData* rd);
 };

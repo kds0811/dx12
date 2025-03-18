@@ -4,12 +4,12 @@
 
 class StaticMesh : public Mesh
 {
-    RenderData* pRenderData = nullptr;
+    RenderData* mRenderData = nullptr;
 
 public:
     StaticMesh() = default;
     StaticMesh(std::string name, int ID);
 
-    [[nodiscard]] inline RenderData* GetRenderData() const noexcept { return pRenderData; }
-
+    [[nodiscard]] inline RenderData* GetRenderData() const noexcept { return mRenderData; }
+    void SetRenderData(RenderData* rd);
 };

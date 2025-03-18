@@ -34,18 +34,7 @@ enum class EPrimitiveType : std::uint8_t
     GRID,
     CYLINDER,
     SPHERE,
-    GEOSPHERE,
-    LAND,
-    MESH,
-    WAVES,
-    MODEL,
-    MODEL1,
-    MODELSPIDERFBX,
-    MODELSPIDEROBJ,
-    HUESITOS,
-    SPINER,
-    DRONE,
-    TREES
+    GEOSPHERE
 };
 
 struct SubmeshGeometry
