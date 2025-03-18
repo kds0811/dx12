@@ -6,9 +6,6 @@
 // class for creating and storing all kinds of geometry
 class GeometryManager
 {
-    using iterator = std::vector<std::unique_ptr<MeshGeometry>>::iterator;
-    using const_iterator = std::vector<std::unique_ptr<MeshGeometry>>::const_iterator;
-
     ID3D12Device* pDevice = nullptr;
     ID3D12GraphicsCommandList* pCommandList = nullptr;
 

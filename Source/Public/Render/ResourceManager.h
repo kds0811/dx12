@@ -1,8 +1,10 @@
 #pragma once
 #include "D3D12Utils.h"
 #include "MaterialBuilder.h"
-#include "TextureCreator.h"
+#include "TextureManager.h"
 #include "Material.h"
+#include "GeometryManager.h"
+#include <memory>
 
 
 class ResourceManager
@@ -18,10 +20,9 @@ class ResourceManager
     UINT64 mCurrentFenceValue = 0;
 
     // Builders
-
+    std::unique_ptr<GeometryManager> mGeometryManager;
+    std::unique_ptr<TextureManager> mTexturemanager;
     MaterialBuilder mMaterialBuilder;
-    TextureCreator mTextureCreator;
-    
 
     // Storages
 
@@ -36,5 +37,7 @@ public:
 
 private:
     void CreateStandartShapeGeometry();
+    void BuildResources();
+    void CreateCommandList();
     void FlushCommandQueue();
 };

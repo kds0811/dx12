@@ -1,4 +1,4 @@
-#include "ShapeGeometryBuilder.h"
+#include "PrimitiveGeometryBuilder.h"
 #include <algorithm>
 #include <string>
 #include "Transform.h"
