@@ -49,4 +49,5 @@ public:
     void SetRoughness(float roughness);
     void SetMaterialTransformation(DirectX::XMFLOAT4X4 trans);
     void SetBaseColorTexture(Texture* tex);
+    void SetNormalMapTexture(Texture* tex);
 };

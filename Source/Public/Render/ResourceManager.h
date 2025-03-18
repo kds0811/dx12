@@ -1,6 +1,6 @@
 #pragma once
 #include "D3D12Utils.h"
-#include "MaterialBuilder.h"
+#include "MaterialManager.h"
 #include "TextureManager.h"
 #include "Material.h"
 #include "GeometryManager.h"
@@ -22,7 +22,7 @@ class ResourceManager
     // Builders
     std::unique_ptr<GeometryManager> mGeometryManager;
     std::unique_ptr<TextureManager> mTextureManager;
-    std::unique_ptr<MaterialBuilder> mMaterialManager;
+    std::unique_ptr<MaterialManager> mMaterialManager;
 
     // Storages
 
@@ -39,4 +39,5 @@ private:
     void BuildResources();
     void CreateCommandList();
     void FlushCommandQueue();
+    void AddTexturesToStandartMaterial();
 };

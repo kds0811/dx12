@@ -69,3 +69,8 @@ void Material::SetBaseColorTexture(Texture* tex)
 {
     mBaseColorTex = tex;
 }
+
+void Material::SetNormalMapTexture(Texture* tex) 
+{
+    mNormalMapTex = tex;
+}
