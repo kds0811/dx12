@@ -49,7 +49,7 @@ void MaterialManager::SetMaterialBaseColor(std::string materialName, Texture* ba
 {
     if (!baseColor)
     {
-        std::string message = "baseColor Texture is nullptr";
+        std::string message = " baseColor Texture pointer is nullptr";
         Log::LogWarning(message);
     }
 
@@ -66,7 +66,7 @@ void MaterialManager::SetMaterialNormalMap(std::string materialName, Texture* no
 {
     if (!normalMap)
     {
-        std::string message = "normalMap Texture is nullptr";
+        std::string message = "normalMap Texture pointer is nullptr";
         Log::LogWarning(message);
     }
 
