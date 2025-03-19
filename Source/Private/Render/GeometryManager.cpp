@@ -7,3 +7,6 @@ void GeometryManager::CreateBaseGeometries(ID3D12Device* device, ID3D12GraphicsC
 {
     mPrimitiveGeometries = mPrimitiveGeometryBuilder.BuildShapeGeometry(device, cmdList);
 }
+
+void GeometryManager::CreatePrimitiveGeoRenderData() 
+{}

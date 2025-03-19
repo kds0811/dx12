@@ -2,13 +2,16 @@
 #include "PrimitiveGeometryBuilder.h"
 #include "type_traits"
 #include "iterator"
+#include <unordered_map>
+#include "GeoRenderData.h"
 
-// class for creating and storing all kinds of geometry
 class GeometryManager
 {
     PrimitiveGeometryBuilder mPrimitiveGeometryBuilder;
 
-    // storage
+    std::unordered_map<std::string, std::unique_ptr<GeoRenderData>> mRenderDataInstances;
+
+    // storage Geometries
     std::unique_ptr<MeshGeometry> mPrimitiveGeometries = nullptr;
 
 public:
@@ -17,4 +20,6 @@ public:
 
     [[nodiscard]] inline const MeshGeometry* GetPrimitiveGeometry() const noexcept { return mPrimitiveGeometries.get(); }
 
+private:
+    void CreatePrimitiveGeoRenderData();
 };

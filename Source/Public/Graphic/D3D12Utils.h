@@ -28,14 +28,6 @@ public:
         const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target);
 };
 
-enum class EPrimitiveType : std::uint8_t
-{
-    BOX,
-    GRID,
-    CYLINDER,
-    SPHERE,
-    GEOSPHERE
-};
 
 struct SubmeshGeometry
 {

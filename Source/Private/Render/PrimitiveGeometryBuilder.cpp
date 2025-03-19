@@ -10,11 +10,12 @@ using namespace DirectX;
 std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
     // Add geometries
-    AddGeometry(mGeometryGenerator.CreateBox(1.f, 1.0f, 1.0f, 3), EPrimitiveType::BOX);
-    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), EPrimitiveType::GRID);
-    AddGeometry(mGeometryGenerator.CreateSphere(1.f, 20, 20), EPrimitiveType::SPHERE);
-    AddGeometry(mGeometryGenerator.CreateCylinder(2.0f, 1.f, 3.0f, 20, 20), EPrimitiveType::CYLINDER);
-    AddGeometry(mGeometryGenerator.CreateGeosphere(1.0f, 0), EPrimitiveType::GEOSPHERE);
+    AddGeometry(mGeometryGenerator.CreateBox(1.f, 1.0f, 1.0f, 3), "box");
+    AddGeometry(mGeometryGenerator.CreateSphere(1.f, 20, 20), "sphere");
+    AddGeometry(mGeometryGenerator.CreateCylinder(1.0f, 1.f, 1.0f, 20, 20), "cylinder");
+    AddGeometry(mGeometryGenerator.CreateGrid(50.0f, 50.0f, 50, 50), "grid50x50");
+    AddGeometry(mGeometryGenerator.CreateGrid(10.0f, 10.0f, 5, 5), "grid10x10");
+    AddGeometry(mGeometryGenerator.CreateGrid(10.0f, 10.0f, 2, 2), "grid10x10g");
 
     CalculateOffsets();
 
@@ -29,11 +30,11 @@ std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::BuildShapeGeometry(ID3D1
     return std::move(result);
 }
 
-void PrimitiveGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, EPrimitiveType type)
+void PrimitiveGeometryBuilder::AddGeometry(const GeometryGenerator::MeshData& mesh, std::string name)
 {
     GeometryData data;
     data.meshData = mesh;
-    data.type = type;
+    data.name = name;
     mGeometries.push_back(data);
 }
 
@@ -107,7 +108,7 @@ std::vector<std::uint16_t> PrimitiveGeometryBuilder::CreateIndexBuffer()
 std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::CreateMeshGeometry(
     ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices, std::string meshName)
 {
-    const UINT vbByteSize = (UINT)vertices.size() * sizeof(T);
+    const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
     const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
     auto geo = std::make_unique<MeshGeometry>();
@@ -121,7 +122,7 @@ std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::CreateMeshGeometry(
     CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
     geo->IndexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-    geo->VertexByteStride = sizeof(T);
+    geo->VertexByteStride = sizeof(Vertex);
     geo->VertexBufferByteSize = vbByteSize;
     geo->IndexFormat = DXGI_FORMAT_R16_UINT;
     geo->IndexBufferByteSize = ibByteSize;
@@ -129,7 +130,7 @@ std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::CreateMeshGeometry(
     // Add DrawArgs
     for (const auto& geometry : mGeometries)
     {
-        geo->DrawArgs[geometry.type] = geometry.submesh;
+        geo->DrawArgs[geometry.name] = geometry.submesh;
     }
 
     return geo;

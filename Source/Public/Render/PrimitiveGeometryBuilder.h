@@ -8,10 +8,20 @@
 #include <vector>
 #include "FrameResource.h"
 
+//enum class EPrimitiveType : std::uint8_t
+//{
+//    BOX,
+//    GRID,
+//    CYLINDER,
+//    SPHERE,
+//    GEOSPHERE
+//};
+
+
 struct GeometryData
 {
     GeometryGenerator::MeshData meshData;
-    EPrimitiveType type;
+    std::string name;
     UINT vertexOffset = 0;
     UINT indexOffset = 0;
     SubmeshGeometry submesh;
@@ -30,7 +40,7 @@ public:
     std::unique_ptr<MeshGeometry> BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
 private:
-    void AddGeometry(const GeometryGenerator::MeshData& mesh, EPrimitiveType type);
+    void AddGeometry(const GeometryGenerator::MeshData& mesh, std::string name);
 
     void CalculateOffsets();
     std::vector<Vertex> CreateVertexBuffer();

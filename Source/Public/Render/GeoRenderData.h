@@ -2,7 +2,7 @@
 #include "D3D12Utils.h"
 #include <string>
 
-class RenderData
+class GeoRenderData
 {
     std::string mName;
     MeshGeometry* mGeo = nullptr;
@@ -12,7 +12,7 @@ class RenderData
     UINT mBaseVertexLocation = 0;
 
 public:
-    RenderData(std::string name, MeshGeometry* geo, D3D12_PRIMITIVE_TOPOLOGY type, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation)
+    GeoRenderData(std::string name, MeshGeometry* geo, D3D12_PRIMITIVE_TOPOLOGY type, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation)
         :
         mName(std::move(name)),
         mGeo(geo),

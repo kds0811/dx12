@@ -1,15 +1,15 @@
 #pragma once
 #include "Mesh.h"
-#include "RenderData.h"
+#include "GeoRenderData.h"
 
 class StaticMesh : public Mesh
 {
-    RenderData* mRenderData = nullptr;
+    GeoRenderData* mGeoRenderData = nullptr;
 
 public:
     StaticMesh() = default;
     StaticMesh(std::string name, int ID);
 
-    [[nodiscard]] inline RenderData* GetRenderData() const noexcept { return mRenderData; }
-    void SetRenderData(RenderData* rd);
+    [[nodiscard]] inline GeoRenderData* GetGeoRenderData() const noexcept { return mGeoRenderData; }
+    void SetGeoRenderData(GeoRenderData* rd);
 };
