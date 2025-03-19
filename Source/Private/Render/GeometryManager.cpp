@@ -9,4 +9,7 @@ void GeometryManager::CreateBaseGeometries(ID3D12Device* device, ID3D12GraphicsC
 }
 
 void GeometryManager::CreatePrimitiveGeoRenderData() 
-{}
+{
+    mDrawArgs = mPrimitiveGeometryBuilder.GetDrawArgs();
+    mRenderDataInstances["box"] = std::make_unique<GeoRenderData>("box", mPrimitiveGeometries.get(), mDrawArgs["box"].)
+}

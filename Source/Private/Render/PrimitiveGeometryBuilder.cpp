@@ -130,7 +130,7 @@ std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::CreateMeshGeometry(
     // Add DrawArgs
     for (const auto& geometry : mGeometries)
     {
-        geo->DrawArgs[geometry.name] = geometry.submesh;
+        mDrawArgs[geometry.name] = geometry.submesh;
     }
 
     return geo;

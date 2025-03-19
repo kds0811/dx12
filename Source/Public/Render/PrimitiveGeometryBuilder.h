@@ -7,16 +7,7 @@
 #include "GraphicError.h"
 #include <vector>
 #include "FrameResource.h"
-
-//enum class EPrimitiveType : std::uint8_t
-//{
-//    BOX,
-//    GRID,
-//    CYLINDER,
-//    SPHERE,
-//    GEOSPHERE
-//};
-
+#include "GeometryCommon.h"
 
 struct GeometryData
 {
@@ -31,6 +22,7 @@ class PrimitiveGeometryBuilder
 {
     std::vector<GeometryData> mGeometries;
     GeometryGenerator mGeometryGenerator;
+    std::unordered_map<std::string, SubmeshGeometry> mDrawArgs;
 
     UINT mVertexBufferSize = 0;
     UINT mIndexBufferSize = 0;
@@ -38,6 +30,7 @@ class PrimitiveGeometryBuilder
 public:
     PrimitiveGeometryBuilder() = default;
     std::unique_ptr<MeshGeometry> BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
+    std::unordered_map<std::string, SubmeshGeometry> GetDrawArgs() { return mDrawArgs; }
 
 private:
     void AddGeometry(const GeometryGenerator::MeshData& mesh, std::string name);

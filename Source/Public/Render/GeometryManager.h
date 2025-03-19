@@ -4,6 +4,8 @@
 #include "iterator"
 #include <unordered_map>
 #include "GeoRenderData.h"
+#include "GeometryCommon.h"
+
 
 class GeometryManager
 {
@@ -11,8 +13,10 @@ class GeometryManager
 
     std::unordered_map<std::string, std::unique_ptr<GeoRenderData>> mRenderDataInstances;
 
+
     // storage Geometries
     std::unique_ptr<MeshGeometry> mPrimitiveGeometries = nullptr;
+    std::unordered_map<std::string, SubmeshGeometry> mDrawArgs;
 
 public:
     GeometryManager();
@@ -22,4 +26,6 @@ public:
 
 private:
     void CreatePrimitiveGeoRenderData();
+
+
 };
