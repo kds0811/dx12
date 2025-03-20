@@ -18,6 +18,16 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     AddTexturesToStandartMaterial();
 }
 
+const GeoRenderData* ResourceManager::GetRenderDataInstance(const std::string& name) const
+{
+    return mGeometryManager->GetRenderDataInstancePtr(name);
+}
+
+const Material* ResourceManager::GetMaterial(const std::string& name) const
+{
+    return mMaterialManager->GetMaterial(name);
+}
+
 void ResourceManager::BuildResources()
 {
     // open command list
@@ -25,6 +35,7 @@ void ResourceManager::BuildResources()
 
     mTextureManager->CreateBaseTextures(pDevice, mCommandList.Get());
     mGeometryManager->CreateBaseGeometries(pDevice, mCommandList.Get());
+    mGeometryManager->CreatePrimitiveGeoRenderData();
     
     // add on queue and execute commands
     mCommandList->Close() >> Kds::App::Check;

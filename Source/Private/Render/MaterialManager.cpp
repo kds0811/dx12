@@ -2,6 +2,7 @@
 #include "DirectXColors.h"
 #include <vector>
 #include "Logger.h"
+#include <cassert>
 
 MaterialManager::MaterialManager()
 {
@@ -11,6 +12,8 @@ MaterialManager::MaterialManager()
 void MaterialManager::CreateBaseMaterials()
 {
     using namespace DirectX;
+
+    mMaterials.reserve(32);
 
     CreateMaterial("wood_crate1", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.01f, 0.01f, 0.01f), 0.5f);
     CreateMaterial("tile", EMaterialType::Opaque, XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(0.02f, 0.02f, 0.02f), 0.2f);
@@ -33,48 +36,65 @@ void MaterialManager::CreateBaseMaterials()
 
 }
 
-void MaterialManager::CreateMaterial(std::string name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness) 
+void MaterialManager::CreateMaterial(const std::string& name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness)
 {
     if (mMaterials.contains(name))
     {
-        std::string message = "material " + name + " has already been created";
-        Log::LogWarning(message);
+        Log::LogWarning("material " + name + " has already been created");
+        assert(0);
         return;
     }
 
     mMaterials[name] = std::make_unique<Material>(name, type, color, fresnel, roughness);
 }
 
-void MaterialManager::SetMaterialBaseColor(std::string materialName, Texture* baseColor)
+void MaterialManager::SetMaterialBaseColor(const std::string& materialName, Texture* baseColor)
 {
     if (!baseColor)
     {
         std::string message = " baseColor Texture pointer is nullptr";
         Log::LogWarning(message);
+        assert(0);
+        return;
     }
 
     if (!mMaterials.contains(materialName))
     {
-        std::string message = "material with" + materialName  + " name has not been created";
-        Log::LogWarning(message);
+        Log::LogWarning("material with " + materialName + " name has not been created");
+        assert(0);
+        return;
     }
-
-    mMaterials[materialName]->SetBaseColorTexture(baseColor);
+    mMaterials.at(materialName)->SetBaseColorTexture(baseColor);
 }
 
-void MaterialManager::SetMaterialNormalMap(std::string materialName, Texture* normalMap)
+void MaterialManager::SetMaterialNormalMap(const std::string& materialName, Texture* normalMap)
 {
     if (!normalMap)
     {
         std::string message = "normalMap Texture pointer is nullptr";
         Log::LogWarning(message);
+        assert(0);
+        return;
     }
 
     if (!mMaterials.contains(materialName))
     {
-        std::string message = "material with" + materialName + " name has not been created";
-        Log::LogWarning(message);
+        Log::LogWarning("material with " + materialName + " name has not been created");
+        assert(0);
+        return;
     }
+    
+    mMaterials.at(materialName)->SetNormalMapTexture(normalMap);
+}
 
-    mMaterials[materialName]->SetNormalMapTexture(normalMap);
+const Material* MaterialManager::GetMaterial(const std::string& materialName) const
+{
+    if (!mMaterials.contains(materialName))
+    {
+        Log::LogWarning("material with " + materialName + " name has not been created");
+        assert(0);
+        return nullptr;
+    }
+    
+    return mMaterials.at(materialName).get();
 }

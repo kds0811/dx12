@@ -3,7 +3,6 @@
 #include <memory>
 #include "BaseSceneObject.h"
 #include "GameTimerW.h"
-#include "ShapeGeometryBuilder.h"
 #include "D3D12Utils.h"
 #include "WavesSceneObject.h"
 #include "Material.h"

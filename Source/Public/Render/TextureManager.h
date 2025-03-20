@@ -1,6 +1,8 @@
 #pragma once
 #include "D3D12Utils.h"
 #include "Texture.h"
+#include <cassert>
+#include "Logger.h"
 
 class TextureManager
 {
@@ -14,15 +16,26 @@ public:
 
     void CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
-    void CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, ETextureType type, std::string name, std::string path);
+    void CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, ETextureType type, const std::string& name, const std::wstring& path);
 
-    Texture* GetTexture(std::string name);
+    [[nodiscard]] inline const Texture* GetTexture(const std::string& name) const
+    {
+        if (!mTextures.contains(name))
+        {
+            Log::LogWarning("texture " + name + " is not in the container");
+            assert(0);
+            return nullptr;
+        }
+        return mTextures.at(name).get();
+    }
 
     [[nodiscard]] inline std::pair<iterator, iterator> GetIterators() noexcept
     {
         if (mTextures.empty())
         {
             Log::LogWarning("Texture container is empty.");
+            assert(0);
+            return {};
         }
         return std::make_pair(mTextures.begin(), mTextures.end());
     }
@@ -32,8 +45,12 @@ public:
         if (mTextures.empty())
         {
             Log::LogWarning("Texture container is empty.");
+            assert(0);
+            return {};
         }
         return std::make_pair(mTextures.cbegin(), mTextures.cend());
     }
+
+    [[nodiscard]] inline size_t GetTextureSize() const noexcept { return mTextures.size();}
 
 };
