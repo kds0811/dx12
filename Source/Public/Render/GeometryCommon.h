@@ -69,6 +69,7 @@ struct MeshGeometry
 };
 
 
+
 class GeoRenderData
 {
     std::string mName;
@@ -86,8 +87,8 @@ public:
 
     [[nodiscard]] inline std::string GetName() { return mName; }
     [[nodiscard]] inline MeshGeometry* GetGeo() const noexcept { return mGeo; }
-    [[nodiscard]] inline D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveType() noexcept { return mPrimitiveType; }
-    [[nodiscard]] inline UINT GetIndexCount() noexcept { return mIndexCount; }
-    [[nodiscard]] inline UINT GetStartIndexLocation() noexcept { return mStartIndexLocation; }
-    [[nodiscard]] inline UINT GetBaseVertexLocation() noexcept { return mBaseVertexLocation; }
+    [[nodiscard]] inline D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveType() const noexcept { return mPrimitiveType; }
+    [[nodiscard]] inline UINT GetIndexCount() const noexcept { return mIndexCount; }
+    [[nodiscard]] inline UINT GetStartIndexLocation() const noexcept { return mStartIndexLocation; }
+    [[nodiscard]] inline UINT GetBaseVertexLocation() const noexcept { return mBaseVertexLocation; }
 };

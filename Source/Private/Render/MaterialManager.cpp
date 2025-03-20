@@ -67,7 +67,7 @@ void MaterialManager::SetMaterialBaseColor(const std::string& materialName, Text
     mMaterials.at(materialName)->SetBaseColorTexture(baseColor);
 }
 
-void MaterialManager::SetMaterialNormalMap(const std::string& materialName, Texture* normalMap)
+void MaterialManager::SetMaterialNormalMap(const std::string& materialName,  Texture* normalMap)
 {
     if (!normalMap)
     {

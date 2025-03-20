@@ -65,12 +65,12 @@ void Material::SetMaterialTransformation(DirectX::XMFLOAT4X4 trans)
     mMatTransform = trans;
 }
 
-void Material::SetBaseColorTexture(Texture* tex) 
+void Material::SetBaseColorTexture(Texture* tex)
 {
     mBaseColorTex = tex;
 }
 
-void Material::SetNormalMapTexture(Texture* tex) 
+void Material::SetNormalMapTexture(Texture* tex)
 {
     mNormalMapTex = tex;
 }

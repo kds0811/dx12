@@ -18,7 +18,7 @@ public:
 
     void CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, ETextureType type, const std::string& name, const std::wstring& path);
 
-    [[nodiscard]] inline const Texture* GetTexture(const std::string& name) const
+    [[nodiscard]] inline  Texture* GetTexture(const std::string& name) 
     {
         if (!mTextures.contains(name))
         {

@@ -1,6 +1,7 @@
 #pragma once
 #include "MeshComponent.h"
 #include "StaticMesh.h"
+#include "RenderData.h"
 
 class StaticMeshComponent : public MeshComponent
 {
@@ -9,7 +10,7 @@ class StaticMeshComponent : public MeshComponent
 public:
     StaticMeshComponent(SceneObject* owner);
 
-    [[nodiscard]] inline RenderData* GetRenderData() const noexcept { return mStaticMesh->GetRenderData(); }
+
 
     void SetRenderData(RenderData* rd);
 };

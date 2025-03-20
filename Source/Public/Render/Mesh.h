@@ -15,8 +15,8 @@ public:
         mID(ID)
     {}
 
-    [[nodiscard]] inline std::string GetName() { return mName; }
-    [[nodiscard]] inline int GetID() noexcept { return mID; }
+    [[nodiscard]] inline std::string GetName() const { return mName; }
+    [[nodiscard]] inline int GetID() const noexcept { return mID; }
 
     inline void SetID(int id) noexcept { mID = id; }
     inline void SetName(std::string name) { mName = std::move(name); }
