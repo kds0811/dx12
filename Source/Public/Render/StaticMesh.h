@@ -1,6 +1,6 @@
 #pragma once
 #include "Mesh.h"
-#include "GeoRenderData.h"
+#include "GeometryCommon.h"
 
 class StaticMesh : public Mesh
 {

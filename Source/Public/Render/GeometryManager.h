@@ -3,7 +3,6 @@
 #include "type_traits"
 #include "iterator"
 #include <unordered_map>
-#include "GeoRenderData.h"
 #include "GeometryCommon.h"
 
 
@@ -16,7 +15,6 @@ class GeometryManager
 
     // storage Geometries
     std::unique_ptr<MeshGeometry> mPrimitiveGeometries = nullptr;
-    std::unordered_map<std::string, SubmeshGeometry> mDrawArgs;
 
 public:
     GeometryManager();
@@ -27,5 +25,5 @@ public:
 private:
     void CreatePrimitiveGeoRenderData();
 
-
+    void CreateRenderDataInstance(std::string&& name);
 };
