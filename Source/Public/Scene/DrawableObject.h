@@ -22,7 +22,13 @@ class DrawableObject : public SceneObject
     RenderData mRenderData;
 
 public:
+    DrawableObject(int id, std::string name);
     DrawableObject(int id, std::string name, EMeshType type);
+
+    void SetStaticMesh(StaticMesh* staticMesh);
+    void SetSkeletalMesh(SkeletalMesh* skeletalMesh);
+
+    void SetMaterial(Material* material);
 
 private:
     void InitAsStaticMesh();

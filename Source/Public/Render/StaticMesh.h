@@ -1,6 +1,6 @@
 #pragma once
 #include "Mesh.h"
-#include "GeometryCommon.h"
+#include "RenderData.h"
 
 
 class StaticMesh : public Mesh

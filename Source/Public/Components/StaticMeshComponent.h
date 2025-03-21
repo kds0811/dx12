@@ -5,12 +5,9 @@
 
 class StaticMeshComponent : public MeshComponent
 {
-    StaticMesh* mStaticMesh = nullptr;
+    StaticMesh* pStaticMesh = nullptr;
 
 public:
     StaticMeshComponent(SceneObject* owner);
-
-
-
-    void SetRenderData(RenderData* rd);
+    inline void SetStaticMesh(StaticMesh* staticMesh) noexcept { pStaticMesh = staticMesh; }
 };

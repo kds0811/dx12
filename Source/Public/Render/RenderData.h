@@ -9,6 +9,8 @@
 #include <string>
 #include "Material.h"
 #include "Texture.h"
+#include "GeometryCommon.h"
+#include <array>
 
 struct GeoRenderData
 {
@@ -35,8 +37,9 @@ struct GeoRenderData
 
 struct MatRenderData
 {
-    EMaterialType mType;
-    std::vector<std::pair<int, ETextureType>> SrvIndexAndTexType{};
+    EMaterialType mType = EMaterialType::Default;
+    std::array<int, 4> mSrvIndexes;
+    std::array<ETextureType, 4> mTexTypes;
     int mMatCBIndex = -1;
 };
 

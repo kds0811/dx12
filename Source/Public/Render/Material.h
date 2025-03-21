@@ -10,6 +10,7 @@ class Texture;
 
 enum class EMaterialType : std::uint8_t
 {
+    Default,
     Opaque,
     Transparent,
     AlphaTested,
