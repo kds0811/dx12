@@ -7,6 +7,7 @@
 #include <memory>
 
 
+
 class ResourceManager
 {
     // pointer to Graphic DirectX fields
@@ -28,7 +29,7 @@ class ResourceManager
 public:
     ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);
 
-    const GeoRenderData* GetRenderDataInstance(const std::string& name) const;
+   // const GeoRenderData* GetRenderDataInstance(const std::string& name) const;
     const Material* GetMaterial(const std::string& name) const;
 
 

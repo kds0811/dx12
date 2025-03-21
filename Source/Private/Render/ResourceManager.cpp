@@ -18,10 +18,10 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     AddTexturesToStandartMaterial();
 }
 
-const GeoRenderData* ResourceManager::GetRenderDataInstance(const std::string& name) const
-{
-    return mGeometryManager->GetRenderDataInstancePtr(name);
-}
+//const GeoRenderData* ResourceManager::GetRenderDataInstance(const std::string& name) const
+//{
+//    return mGeometryManager->GetRenderDataInstancePtr(name);
+//}
 
 const Material* ResourceManager::GetMaterial(const std::string& name) const
 {
@@ -77,10 +77,12 @@ void ResourceManager::FlushCommandQueue()
 
 void ResourceManager::AddTexturesToStandartMaterial()
 {
+   // add base color textures ptr to material
     mMaterialManager->SetMaterialBaseColor("wood_crate1", mTextureManager->GetTexture("wood_crate1"));
     mMaterialManager->SetMaterialBaseColor("tile", mTextureManager->GetTexture("tile"));
     mMaterialManager->SetMaterialBaseColor("grass", mTextureManager->GetTexture("grass"));
     mMaterialManager->SetMaterialBaseColor("bricks", mTextureManager->GetTexture("bricks"));
+    mMaterialManager->SetMaterialBaseColor("bricks2", mTextureManager->GetTexture("bricks2"));
     mMaterialManager->SetMaterialBaseColor("default", mTextureManager->GetTexture("default"));
     mMaterialManager->SetMaterialBaseColor("stone", mTextureManager->GetTexture("stone"));
     mMaterialManager->SetMaterialBaseColor("grassx", mTextureManager->GetTexture("grassx"));
@@ -94,5 +96,9 @@ void ResourceManager::AddTexturesToStandartMaterial()
     mMaterialManager->SetMaterialBaseColor("water", mTextureManager->GetTexture("water"));
     mMaterialManager->SetMaterialBaseColor("grasscube1024", mTextureManager->GetTexture("grasscube1024"));
 
+    // Add normal maps textures ptr
     mMaterialManager->SetMaterialNormalMap("default", mTextureManager->GetTexture("default_nmap"));
+    mMaterialManager->SetMaterialNormalMap("bricks", mTextureManager->GetTexture("bricks_nmap"));
+    mMaterialManager->SetMaterialNormalMap("bricks2", mTextureManager->GetTexture("bricks2_nmap"));
+    mMaterialManager->SetMaterialNormalMap("tile", mTextureManager->GetTexture("tile_nmap"));
 }

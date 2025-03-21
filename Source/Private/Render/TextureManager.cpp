@@ -16,6 +16,7 @@ void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsComm
     CreateTexture(device, cmdList, ETextureType::BaseColor, "tile", L"../Source/Textures/tile.dds");
     CreateTexture(device, cmdList, ETextureType::BaseColor, "grass", L"../Source/Textures/grass.dds");
     CreateTexture(device, cmdList, ETextureType::BaseColor, "bricks", L"../Source/Textures/bricks.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "bricks2", L"../Source/Textures/bricks2.dds");
     CreateTexture(device, cmdList, ETextureType::BaseColor, "default", L"../Source/Textures/default.dds");
     CreateTexture(device, cmdList, ETextureType::BaseColor, "stone", L"../Source/Textures/stone.dds");
     CreateTexture(device, cmdList, ETextureType::BaseColor, "water", L"../Source/Textures/water.dds");
@@ -30,6 +31,9 @@ void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsComm
 
     // Normal maps
     CreateTexture(device, cmdList, ETextureType::NormalMap, "default_nmap", L"../Source/Textures/default_nmap.dds");
+    CreateTexture(device, cmdList, ETextureType::NormalMap, "bricks_nmap", L"../Source/Textures/bricks_nmap.dds");
+    CreateTexture(device, cmdList, ETextureType::NormalMap, "bricks2_nmap", L"../Source/Textures/bricks2_nmap.dds");
+    CreateTexture(device, cmdList, ETextureType::NormalMap, "tile_nmap", L"../Source/Textures/tile_nmap.dds");
 
     // Skybox
     CreateTexture(device, cmdList, ETextureType::CubeMap, "grasscube1024", L"../Source/Textures/grasscube1024.dds");
