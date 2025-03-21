@@ -24,8 +24,10 @@ class Material
     std::string mName{};
     EMaterialType mType = EMaterialType::Opaque;
 
-    Texture* mBaseColorTex = nullptr;
-    Texture* mNormalMapTex = nullptr;
+    Texture* mBaseColor = nullptr;
+    Texture* mNormalMap = nullptr;
+    Texture* mRoughnesslMap = nullptr;
+    Texture* mMetalliclMap = nullptr;
 
     int mMatCBIndex = -1;
     int mNumFramesDirty = GG::gNumFrameResources;
