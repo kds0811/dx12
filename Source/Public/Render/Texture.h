@@ -10,7 +10,6 @@ enum class ETextureType : std::uint8_t
     NormalMap,
     RoughnessMap,
     MetallicMap,
-    CubeMap,
     Default
 };
 
@@ -26,6 +25,12 @@ class Texture
 
 public:
     Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
+
+    inline ETextureType GetTextureType() noexcept { return mType; }
+    inline std::string GetName() { return mName; }
+    inline int GetSrvIndex() noexcept { return mSrvHeapIndex; }
+
+    
 
 private:
     void LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);

@@ -11,15 +11,16 @@
 #include "Texture.h"
 #include "GeometryCommon.h"
 #include <array>
+#include <bitset>
 
 struct GeoRenderData
 {
-    std::string mName;
-    MeshGeometry* mGeo = nullptr;
-    D3D12_PRIMITIVE_TOPOLOGY mPrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    UINT mIndexCount = 0;
-    UINT mStartIndexLocation = 0;
-    UINT mBaseVertexLocation = 0;
+    std::string Name{};
+    MeshGeometry* Geo = nullptr;
+    D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    UINT IndexCount = 0;
+    UINT StartIndexLocation = 0;
+    UINT BaseVertexLocation = 0;
 
 //public:
 //    GeoRenderData(std::string name, MeshGeometry* geo, D3D12_PRIMITIVE_TOPOLOGY type, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation)
@@ -37,16 +38,16 @@ struct GeoRenderData
 
 struct MatRenderData
 {
-    EMaterialType mType = EMaterialType::Default;
-    std::array<int, 4> mSrvIndexes;
-    std::array<ETextureType, 4> mTexTypes;
-    int mMatCBIndex = -1;
+    EMaterialType Type = EMaterialType::Default;
+    std::array<int, 4> SrvIndexes{};
+    std::array<bool, 4> TexStatus = {false, false, false, false};
+    int MatCBIndex = -1;
 };
 
 
 struct RenderData
 {
-    GeoRenderData mGeoRenderData;
-    MatRenderData mMatRenderData;
-    int mObjCBIndex = -1;
+    GeoRenderData GeoRenderData;
+    MatRenderData MatRenderData;
+    int ObjCBIndex = -1;
 };

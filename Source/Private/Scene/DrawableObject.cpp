@@ -1,6 +1,10 @@
 #include "DrawableObject.h"
+#include "Logger.h"
+#include "Texture.h"
+#include <cassert>
 
-DrawableObject::DrawableObject(int id, std::string name) : SceneObject(id, name) 
+
+DrawableObject::DrawableObject(int id, std::string name) : SceneObject(id, name)
 {
     mSceneComponent = std::make_unique<SceneComponent>(this);
 }
@@ -20,7 +24,7 @@ DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : Scene
     }
 }
 
-void DrawableObject::SetStaticMesh(StaticMesh* staticMesh) 
+void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
 {
     if (mMeshType == EMeshType::Static)
     {
@@ -41,7 +45,7 @@ void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
     }
 }
 
-void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh) 
+void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
 {
     if (mMeshType == EMeshType::Skeletal)
     {
@@ -62,7 +66,7 @@ void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
     }
 }
 
-void DrawableObject::SetMaterial(Material* material) 
+void DrawableObject::SetMaterial(Material* material)
 {
     mMeshComponent->SetMaterial(material);
 }
@@ -77,4 +81,50 @@ void DrawableObject::InitAsSkeletalMesh()
 {
     mMeshType = EMeshType::Skeletal;
     mMeshComponent = std::make_unique<SkeletalMeshComponent>(this);
+}
+
+void DrawableObject::UpdateMaterialRenderData()
+{
+    auto material = mMeshComponent->GetMaterial();
+    if (!material)
+    {
+        Log::LogWarning("material is nullptr");
+        return;
+    }
+
+    mRenderData.MatRenderData.Type = material->GetMaterialType();
+    mRenderData.MatRenderData.MatCBIndex = material->GetMaterialCBIndex();
+
+    UpdataMatTexRenderData(0, mMeshComponent->GetMaterial()->GetBaseColor());
+    UpdataMatTexRenderData(1, mMeshComponent->GetMaterial()->GetNormalMap());
+    UpdataMatTexRenderData(2, mMeshComponent->GetMaterial()->GetRoughnesslMap());
+    UpdataMatTexRenderData(3, mMeshComponent->GetMaterial()->GetMetalliclMap());
+}
+
+void DrawableObject::UpdateGeoRenderData() {}
+
+void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex) 
+{
+    assert(index >= 0 && index <= 3);
+
+    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+
+    if (index < 0 || index > 3)
+    {
+        Log::LogWarning("Invalid texture index " + std::to_string(index) + " for Drawable Object " + objectName);
+        return;
+    }
+
+    if (tex)
+    {
+        mRenderData.MatRenderData.TexStatus[index] = true;
+        mRenderData.MatRenderData.SrvIndexes[index] = tex->GetSrvIndex();
+        Log::LogMessage(" The texture of Drawable Object  " + objectName + "  has been changed to " + tex->GetName() + " to slot " + std::to_string(index));
+    }
+    else
+    {
+        mRenderData.MatRenderData.TexStatus[index] = false;
+        mRenderData.MatRenderData.SrvIndexes[index] = -1;
+        Log::LogMessage(" The texture of Drawable Object  " + objectName + "  has been cleared for slot " + std::to_string(index));
+    }
 }

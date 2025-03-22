@@ -33,4 +33,8 @@ public:
 private:
     void InitAsStaticMesh();
     void InitAsSkeletalMesh();
+    void UpdateMaterialRenderData();
+    void UpdateGeoRenderData();
+
+    void UpdataMatTexRenderData(int index, Texture* tex);
 };

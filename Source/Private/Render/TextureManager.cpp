@@ -36,7 +36,7 @@ void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsComm
     CreateTexture(device, cmdList, ETextureType::NormalMap, "tile_nmap", L"../Source/Textures/tile_nmap.dds");
 
     // Skybox
-    CreateTexture(device, cmdList, ETextureType::CubeMap, "grasscube1024", L"../Source/Textures/grasscube1024.dds");
+    CreateTexture(device, cmdList, ETextureType::BaseColor, "grasscube1024", L"../Source/Textures/grasscube1024.dds");
 
     std::string message = "base textures have been created";
     Log::LogMessage(message);
