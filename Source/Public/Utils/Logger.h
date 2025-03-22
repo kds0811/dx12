@@ -21,5 +21,4 @@ namespace Log
 
 
 
-
 }  // namespace Log

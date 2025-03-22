@@ -3,7 +3,6 @@
 #include "Texture.h"
 #include <cassert>
 
-
 DrawableObject::DrawableObject(int id, std::string name) : SceneObject(id, name)
 {
     mSceneComponent = std::make_unique<SceneComponent>(this);
@@ -26,12 +25,25 @@ DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : Scene
 
 void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
 {
+    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+
+    if (!staticMesh)
+    {
+        Log::LogWarning(objectName + " SetStaticMesh func incoming argument is nullptr");
+    }
+
     if (mMeshType == EMeshType::Static)
     {
         auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
         if (meshComp)
         {
             meshComp->SetStaticMesh(staticMesh);
+        }
+        else
+        {
+            Log::LogWarning(objectName + " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+            assert(false);
+            return;
         }
     }
     else
@@ -42,17 +54,39 @@ void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
         {
             meshComp->SetStaticMesh(staticMesh);
         }
+        else
+        {
+            Log::LogWarning(objectName + " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+            assert(false);
+            return;
+        }
     }
+
+    UpdateStaticGeoRenderData();
 }
 
 void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
 {
+    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+
+    if (!skeletalMesh)
+    {
+
+        Log::LogWarning(objectName + " SetSkeletalMesh func incoming argument is nullptr");
+    }
+
     if (mMeshType == EMeshType::Skeletal)
     {
         auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
         if (meshComp)
         {
             meshComp->SetSkeletalMesh(skeletalMesh);
+        }
+        else
+        {
+            Log::LogWarning(objectName + " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+            assert(false);
+            return;
         }
     }
     else
@@ -63,7 +97,15 @@ void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
         {
             meshComp->SetSkeletalMesh(skeletalMesh);
         }
+        else
+        {
+            Log::LogWarning(objectName + " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+            assert(false);
+            return;
+        }
     }
+
+    UpdateSkeletalGeoRenderData();
 }
 
 void DrawableObject::SetMaterial(Material* material)
@@ -89,7 +131,8 @@ void DrawableObject::UpdateMaterialRenderData()
     auto material = mMeshComponent->GetMaterial();
     if (!material)
     {
-        Log::LogWarning("material is nullptr");
+        std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+        Log::LogWarning(objectName + " material is nullptr");
         return;
     }
 
@@ -102,12 +145,10 @@ void DrawableObject::UpdateMaterialRenderData()
     UpdataMatTexRenderData(MatRenderData::MetallicMapTexIndex, mMeshComponent->GetMaterial()->GetMetalliclMap());
 }
 
-
-
-void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex) 
+void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
 {
     assert(index >= 0 && index <= MatRenderData::TextureArraySize - 1);
- 
+
     std::string objectName = mName.empty() ? "Unnamed Object" : mName;
 
     if (index < 0 || index > MatRenderData::TextureArraySize - 1)
@@ -130,4 +171,30 @@ void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
     }
 }
 
-void DrawableObject::UpdateGeoRenderData() {}
+void DrawableObject::UpdateStaticGeoRenderData()
+{
+    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+
+    auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
+    if (!meshComp)
+    {
+        assert(false);
+        Log::LogWarning(objectName + " StaticMeshComponent is nullpt or is not Static");
+        return;
+    }
+
+    const auto staticMesh = meshComp->GetStaticMesh();
+    if (!staticMesh)
+    {
+        assert(false);
+        Log::LogWarning(objectName + " StaticMesh pointer is nullptr");
+        return;
+    }
+
+    auto& geoRD = mRenderData.GeoRenderData;
+
+    geoRD = *staticMesh->GetGeoRenderData(); // GOVNO
+
+}
+
+void DrawableObject::UpdateSkeletalGeoRenderData() {}

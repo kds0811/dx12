@@ -6,7 +6,6 @@
 #include "SkeletalMeshComponent.h"
 #include "RenderData.h"
 
-
 enum class EMeshType
 {
     None,
@@ -36,5 +35,6 @@ private:
     void UpdateMaterialRenderData();
     void UpdataMatTexRenderData(int index, Texture* tex);
 
-      void UpdateGeoRenderData();
+    void UpdateStaticGeoRenderData();
+    void UpdateSkeletalGeoRenderData();
 };
