@@ -69,6 +69,7 @@ void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
 void DrawableObject::SetMaterial(Material* material)
 {
     mMeshComponent->SetMaterial(material);
+    UpdateMaterialRenderData();
 }
 
 void DrawableObject::InitAsStaticMesh()
@@ -95,21 +96,21 @@ void DrawableObject::UpdateMaterialRenderData()
     mRenderData.MatRenderData.Type = material->GetMaterialType();
     mRenderData.MatRenderData.MatCBIndex = material->GetMaterialCBIndex();
 
-    UpdataMatTexRenderData(0, mMeshComponent->GetMaterial()->GetBaseColor());
-    UpdataMatTexRenderData(1, mMeshComponent->GetMaterial()->GetNormalMap());
-    UpdataMatTexRenderData(2, mMeshComponent->GetMaterial()->GetRoughnesslMap());
-    UpdataMatTexRenderData(3, mMeshComponent->GetMaterial()->GetMetalliclMap());
+    UpdataMatTexRenderData(MatRenderData::BaseColorTexIndex, mMeshComponent->GetMaterial()->GetBaseColor());
+    UpdataMatTexRenderData(MatRenderData::NormalMapTexIndex, mMeshComponent->GetMaterial()->GetNormalMap());
+    UpdataMatTexRenderData(MatRenderData::RoughnessMapTexIndex, mMeshComponent->GetMaterial()->GetRoughnesslMap());
+    UpdataMatTexRenderData(MatRenderData::MetallicMapTexIndex, mMeshComponent->GetMaterial()->GetMetalliclMap());
 }
 
-void DrawableObject::UpdateGeoRenderData() {}
+
 
 void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex) 
 {
-    assert(index >= 0 && index <= 3);
-
+    assert(index >= 0 && index <= MatRenderData::TextureArraySize - 1);
+ 
     std::string objectName = mName.empty() ? "Unnamed Object" : mName;
 
-    if (index < 0 || index > 3)
+    if (index < 0 || index > MatRenderData::TextureArraySize - 1)
     {
         Log::LogWarning("Invalid texture index " + std::to_string(index) + " for Drawable Object " + objectName);
         return;
@@ -128,3 +129,5 @@ void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
         Log::LogMessage(" The texture of Drawable Object  " + objectName + "  has been cleared for slot " + std::to_string(index));
     }
 }
+
+void DrawableObject::UpdateGeoRenderData() {}

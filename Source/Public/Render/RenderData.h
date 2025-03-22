@@ -38,9 +38,15 @@ struct GeoRenderData
 
 struct MatRenderData
 {
+    static constexpr size_t TextureArraySize = 4;
+    static constexpr size_t BaseColorTexIndex = 0;
+    static constexpr size_t NormalMapTexIndex = 1;
+    static constexpr size_t RoughnessMapTexIndex = 2;
+    static constexpr size_t MetallicMapTexIndex = 3;
+
     EMaterialType Type = EMaterialType::Default;
-    std::array<int, 4> SrvIndexes{};
-    std::array<bool, 4> TexStatus = {false, false, false, false};
+    std::array<int, TextureArraySize> SrvIndexes{};
+    std::array<bool, TextureArraySize> TexStatus = {false, false, false, false};
     int MatCBIndex = -1;
 };
 

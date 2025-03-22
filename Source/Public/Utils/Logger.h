@@ -18,4 +18,8 @@ namespace Log
         ::OutputDebugString(("information " + str + "\n").c_str());
     }
 
+
+
+
+
 }  // namespace Log
