@@ -6,20 +6,19 @@
 
 namespace Log
 {
-
 namespace details
 {
+
+template <typename T>
+    requires std::is_convertible_v<T, std::string> && (!std::is_same_v<std::decay_t<T>, void*>) && (!std::is_same_v<std::decay_t<T>, std::nullptr_t>)
+static std::string Logs(T&& arg)
+{
+    return std::string(std::forward<T>(arg));
+}
 
 static std::string Logs()
 {
     return "";
-}
-
-template <typename T>
-    requires std::is_convertible_v<T, std::string> && (!std::is_same_v<std::decay_t<T>, void*>) && (!std::is_same_v<std::decay_t<T>, std::nullptr_t>)
-static std::string Logs(T arg)
-{
-    return std::string(arg);
 }
 
 template <typename T>
@@ -57,8 +56,7 @@ static std::string Logs<bool>(bool arg)
     return arg ? " TRUE " : " FALSE ";
 }
 
-template <>
-static std::string Logs<const char*>(const char* arg)
+static std::string Logs(const char* arg)
 {
     if (!arg) return " Is nullptr";
 
@@ -83,6 +81,26 @@ template <>
 static std::string Logs<std::string&>(std::string& arg)
 {
     return arg;
+}
+
+static std::string Logs(std::wstring& arg)
+{
+    if (arg.empty())
+    {
+        return std::string();
+    }
+
+    int size = WideCharToMultiByte(CP_UTF8, 0, arg.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    if (size == 0)
+    {
+        throw std::runtime_error("Failed to convert wstring to string");
+    }
+
+    // Создаем буфер для результата
+    std::string result(size - 1, '\0');  // size - 1, чтобы исключить завершающий ноль
+    WideCharToMultiByte(CP_UTF8, 0, arg.c_str(), -1, &result[0], size, nullptr, nullptr);
+
+    return result;
 }
 
 template <>
@@ -116,6 +134,7 @@ concept Container = requires(T t) {
     t.end();
     requires std::input_iterator<decltype(t.begin())>;
     requires !std::is_same_v<std::decay_t<T>, std::string>;
+    requires !std::is_same_v<std::decay_t<T>, std::wstring>;
 };
 
 // containers handling
@@ -152,9 +171,9 @@ static void LogMain(Types&&... args)
 
 }  // namespace details
 
-#define LOG_WARNING(...) details::LogMain("warning ", __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_ERROR(...) details::LogMain("error ", __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_MESSAGE(...) details::LogMain("information ", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARNING(...) details::LogMain("warning: ", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) details::LogMain("error: ", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_MESSAGE(...) details::LogMain("information: ", __FILE__, __LINE__, __VA_ARGS__)
 
 }  // namespace Log
 

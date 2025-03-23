@@ -13,7 +13,7 @@ class MaterialManager
 public:
     MaterialManager();
 
-    void CreateMaterial(const std::string& name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness);
+    void CreateMaterial(const std::string name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness);
 
     void SetMaterialBaseColor(const std::string& materialName, Texture* baseColor);
     void SetMaterialNormalMap(const std::string& materialName, Texture* normalMap);

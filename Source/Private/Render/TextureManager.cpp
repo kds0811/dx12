@@ -65,7 +65,7 @@ void TextureManager::CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandLi
 
     if (!std::filesystem::exists(path))
     {
-        LOG_WARNING("File not found: ", std::string(path.begin(), path.end()));
+        LOG_WARNING("File not found: ", path);
         assert(0);
         return;
     }

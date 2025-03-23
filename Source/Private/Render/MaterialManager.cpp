@@ -37,11 +37,11 @@ void MaterialManager::CreateBaseMaterials()
 
 }
 
-void MaterialManager::CreateMaterial(const std::string& name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness)
+void MaterialManager::CreateMaterial(const std::string name, EMaterialType type, DirectX::XMFLOAT4 color, DirectX::XMFLOAT3 fresnel, float roughness)
 {
     if (mMaterials.contains(name))
     {
-        LOG_WARNING("material ", name, " has already been created");
+        LOG_WARNING("the material named: ", name, " has already been created");
         assert(0);
         return;
     }
@@ -53,18 +53,20 @@ void MaterialManager::SetMaterialBaseColor(const std::string& materialName, Text
 {
     if (!baseColor)
     {
-        LOG_WARNING(" baseColor Texture pointer is nullptr");
+        LOG_WARNING("baseColor Texture pointer is nullptr");
         assert(0);
         return;
     }
 
     if (!mMaterials.contains(materialName))
     {
-        LOG_WARNING("material with ", materialName, " name has not been created");
+        LOG_WARNING("the material named: ", materialName, " name has not been created");
         assert(0);
         return;
     }
+
     mMaterials.at(materialName)->SetBaseColorTexture(baseColor);
+    LOG_MESSAGE("the material named: ", materialName, " has the base color texture changed to a texture named:", baseColor->GetName());
 }
 
 void MaterialManager::SetMaterialNormalMap(const std::string& materialName,  Texture* normalMap)
@@ -78,19 +80,20 @@ void MaterialManager::SetMaterialNormalMap(const std::string& materialName,  Tex
 
     if (!mMaterials.contains(materialName))
     {
-        LOG_WARNING("material with ", materialName, " name has not been created");
+        LOG_WARNING("the material named: ", materialName, "  has not been created");
         assert(0);
         return;
     }
     
     mMaterials.at(materialName)->SetNormalMapTexture(normalMap);
+    LOG_MESSAGE("the material named: ", materialName, " has the normal map texture changed to a texture named:", normalMap->GetName());
 }
 
 const Material* MaterialManager::GetMaterial(const std::string& materialName) const
 {
     if (!mMaterials.contains(materialName))
     {
-        LOG_WARNING("material with ", materialName, " name has not been created");
+        LOG_WARNING("the material named: ", materialName, " has not been created");
         assert(0);
         return nullptr;
     }

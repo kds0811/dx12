@@ -5,23 +5,28 @@
 #include <unordered_map>
 #include "GeometryCommon.h"
 #include "RenderData.h"
+#include "StaticMesh.h"
 
 
 class GeometryManager
 {
     PrimitiveGeometryBuilder mPrimitiveGeometryBuilder;
 
-    std::unordered_map<std::string, std::unique_ptr<GeoRenderData>> mRenderDataInstances;
-
     // storage Geometries
     std::unique_ptr<MeshGeometry> mPrimitiveGeometries = nullptr;
+
+    //  Primitive geometry static meshes
+    std::unordered_map<std::string, std::unique_ptr<StaticMesh>> mStaticMeshes;
+    int mStaticMeshID = 0;
 
 public:
     GeometryManager();
     void CreateBaseGeometries(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
-    void CreatePrimitiveGeoRenderData();
-    const GeoRenderData* GetRenderDataInstancePtr(const std::string& name) const;
+    void CreatePrimitiveStaticMeshes();
+
+    const StaticMesh* GetStaticMesh(const std::string& name) const;
+    StaticMesh* GetStaticMesh(const std::string& name);
 
 private:
-    void CreateRenderDataInstance(const std::string& name);
+    void CreateStaticMesh(const std::string& name);
 };

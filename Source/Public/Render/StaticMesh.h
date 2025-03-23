@@ -5,12 +5,11 @@
 
 class StaticMesh : public Mesh
 {
-    GeoRenderData* mGeoRenderData = nullptr;
+    GeoRenderData mGeoRenderData;
 
 public:
-    StaticMesh() = default;
-    StaticMesh(std::string name, int ID);
+    StaticMesh(std::string name, int ID, GeoRenderData geo);
 
-    [[nodiscard]] inline GeoRenderData* GetGeoRenderData() const noexcept { return mGeoRenderData; }
-    inline void SetGeoRenderData(GeoRenderData* geoRenderData) noexcept { mGeoRenderData = geoRenderData; }
+    [[nodiscard]] inline GeoRenderData& GetGeoRenderData()  noexcept { return mGeoRenderData; }
+    inline void SetGeoRenderData(GeoRenderData geoRenderData) noexcept { mGeoRenderData = geoRenderData; }
 };

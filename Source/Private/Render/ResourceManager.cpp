@@ -31,7 +31,7 @@ void ResourceManager::BuildResources()
 
     mTextureManager->CreateBaseTextures(pDevice, mCommandList.Get());
     mGeometryManager->CreateBaseGeometries(pDevice, mCommandList.Get());
-    mGeometryManager->CreatePrimitiveGeoRenderData();
+    mGeometryManager->CreatePrimitiveStaticMeshes();
     
     // add on queue and execute commands
     mCommandList->Close() >> Kds::App::Check;
