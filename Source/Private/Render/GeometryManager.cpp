@@ -25,7 +25,7 @@ const GeoRenderData* GeometryManager::GetRenderDataInstancePtr(const std::string
 {
     if (!mRenderDataInstances.contains(name))
     {
-        Log::LogWarning("render data instance " + name + " is not created");
+        LOG_WARNING("render data instance ", name, " is not created");
         assert(0);
         return;
     }
@@ -39,7 +39,7 @@ void GeometryManager::CreateRenderDataInstance(const std::string& name)
 
     if (!drawArgs.contains(name))
     {
-        Log::LogWarning("render data " + name + "is not created");
+        LOG_WARNING("render data ", name, "is not created");
         assert(0);
         return;
     }

@@ -18,10 +18,6 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     AddTexturesToStandartMaterial();
 }
 
-//const GeoRenderData* ResourceManager::GetRenderDataInstance(const std::string& name) const
-//{
-//    return mGeometryManager->GetRenderDataInstancePtr(name);
-//}
 
 const Material* ResourceManager::GetMaterial(const std::string& name) const
 {

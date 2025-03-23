@@ -11,7 +11,7 @@ public:
     virtual void Update(float dt) = 0;
 
     inline void SetName(std::string name) { mName = name; }
-    inline std::string GetName() { return mName; }
+    inline std::string GetName() { return mName.empty() ? " Unnamed Object " : mName; }
     inline void SetId(int id) { mID = id; }
     inline int GetID() { return mID; }
 

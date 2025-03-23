@@ -25,11 +25,10 @@ DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : Scene
 
 void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
 {
-    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
-
+    auto objectName = GetName();
     if (!staticMesh)
     {
-        Log::LogWarning(objectName + " SetStaticMesh func incoming argument is nullptr");
+        LOG_WARNING(objectName, " SetStaticMesh func incoming argument is nullptr");
     }
 
     if (mMeshType == EMeshType::Static)
@@ -41,7 +40,7 @@ void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
         }
         else
         {
-            Log::LogWarning(objectName + " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
             assert(false);
             return;
         }
@@ -56,7 +55,7 @@ void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
         }
         else
         {
-            Log::LogWarning(objectName + " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
             assert(false);
             return;
         }
@@ -67,12 +66,11 @@ void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
 
 void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
 {
-    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+    std::string objectName = GetName();
 
     if (!skeletalMesh)
     {
-
-        Log::LogWarning(objectName + " SetSkeletalMesh func incoming argument is nullptr");
+        LOG_WARNING(objectName, " SetSkeletalMesh func incoming argument is nullptr");
     }
 
     if (mMeshType == EMeshType::Skeletal)
@@ -84,7 +82,7 @@ void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
         }
         else
         {
-            Log::LogWarning(objectName + " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
             assert(false);
             return;
         }
@@ -99,7 +97,7 @@ void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
         }
         else
         {
-            Log::LogWarning(objectName + " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
             assert(false);
             return;
         }
@@ -131,8 +129,7 @@ void DrawableObject::UpdateMaterialRenderData()
     auto material = mMeshComponent->GetMaterial();
     if (!material)
     {
-        std::string objectName = mName.empty() ? "Unnamed Object" : mName;
-        Log::LogWarning(objectName + " material is nullptr");
+        LOG_WARNING(GetName(), " material is nullptr");
         return;
     }
 
@@ -149,11 +146,11 @@ void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
 {
     assert(index >= 0 && index <= MatRenderData::TextureArraySize - 1);
 
-    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+    auto objectName = GetName();
 
     if (index < 0 || index > MatRenderData::TextureArraySize - 1)
     {
-        Log::LogWarning("Invalid texture index " + std::to_string(index) + " for Drawable Object " + objectName);
+        LOG_WARNING("Invalid texture index ", index, " for Drawable Object ", objectName);
         return;
     }
 
@@ -161,13 +158,13 @@ void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
     {
         mRenderData.MatRenderData.TexStatus[index] = true;
         mRenderData.MatRenderData.SrvIndexes[index] = tex->GetSrvIndex();
-        Log::LogMessage(" The texture of Drawable Object  " + objectName + "  has been changed to " + tex->GetName() + " to slot " + std::to_string(index));
+        LOG_MESSAGE(" The texture of Drawable Object  ",  objectName, "  has been changed to ", tex->GetName(), " to slot ", index);
     }
     else
     {
         mRenderData.MatRenderData.TexStatus[index] = false;
         mRenderData.MatRenderData.SrvIndexes[index] = -1;
-        Log::LogMessage(" The texture of Drawable Object  " + objectName + "  has been cleared for slot " + std::to_string(index));
+        LOG_MESSAGE(" The texture of Drawable Object  ", objectName, "  has been cleared for slot ", index);
     }
 }
 
@@ -179,7 +176,7 @@ void DrawableObject::UpdateStaticGeoRenderData()
     if (!meshComp)
     {
         assert(false);
-        Log::LogWarning(objectName + " StaticMeshComponent is nullpt or is not Static");
+        LOG_WARNING(objectName, " StaticMeshComponent is nullpt or is not Static");
         return;
     }
 
@@ -187,7 +184,7 @@ void DrawableObject::UpdateStaticGeoRenderData()
     if (!staticMesh)
     {
         assert(false);
-        Log::LogWarning(objectName + " StaticMesh pointer is nullptr");
+        LOG_WARNING(objectName, " StaticMesh pointer is nullptr");
         return;
     }
 

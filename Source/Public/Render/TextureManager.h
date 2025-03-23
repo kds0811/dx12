@@ -22,7 +22,7 @@ public:
     {
         if (!mTextures.contains(name))
         {
-            Log::LogWarning("texture " + name + " is not in the container");
+            LOG_WARNING("texture ", name, " is not in the container");
             assert(0);
             return nullptr;
         }
@@ -33,7 +33,7 @@ public:
     {
         if (mTextures.empty())
         {
-            Log::LogWarning("Texture container is empty.");
+            LOG_WARNING("Texture container is empty");
             assert(0);
             return {};
         }
@@ -44,7 +44,7 @@ public:
     {
         if (mTextures.empty())
         {
-            Log::LogWarning("Texture container is empty.");
+            LOG_WARNING("Texture container is empty");
             assert(0);
             return {};
         }

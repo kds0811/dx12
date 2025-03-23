@@ -10,7 +10,6 @@ TextureManager::TextureManager()
 
 void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
-
     // Base color textures
     CreateTexture(device, cmdList, ETextureType::BaseColor, "wood_crate1", L"../Source/Textures/WoodCrate01.dds");
     CreateTexture(device, cmdList, ETextureType::BaseColor, "tile", L"../Source/Textures/tile.dds");
@@ -38,36 +37,35 @@ void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsComm
     // Skybox
     CreateTexture(device, cmdList, ETextureType::BaseColor, "grasscube1024", L"../Source/Textures/grasscube1024.dds");
 
-    std::string message = "base textures have been created";
-    Log::LogMessage(message);
+    LOG_MESSAGE("base textures have been created");
 }
 
 void TextureManager::CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, ETextureType type, const std::string& name, const std::wstring& path)
 {
     if (!device)
     {
-        Log::LogWarning("Invalid device pointer.");
+        LOG_WARNING("Invalid device pointer");
         assert(0);
         return;
     }
 
     if (!cmdList)
     {
-        Log::LogWarning("Invalid  command list pointer.");
+        LOG_WARNING("Invalid  command list pointer");
         assert(0);
         return;
     }
 
     if (mTextures.contains(name))
     {
-        Log::LogWarning("texture " + name + " has already been created");
+        LOG_WARNING("texture ", name, " has already been created");
         assert(0);
         return;
     }
 
     if (!std::filesystem::exists(path))
     {
-        Log::LogWarning("File not found: " + std::string(path.begin(), path.end()));
+        LOG_WARNING("File not found: ", std::string(path.begin(), path.end()));
         assert(0);
         return;
     }

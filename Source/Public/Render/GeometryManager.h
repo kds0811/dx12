@@ -4,6 +4,7 @@
 #include "iterator"
 #include <unordered_map>
 #include "GeometryCommon.h"
+#include "RenderData.h"
 
 
 class GeometryManager

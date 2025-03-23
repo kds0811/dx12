@@ -157,3 +157,5 @@ static void LogMain(Types&&... args)
 #define LOG_MESSAGE(...) details::LogMain("information ", __FILE__, __LINE__, __VA_ARGS__)
 
 }  // namespace Log
+
+using namespace Log;

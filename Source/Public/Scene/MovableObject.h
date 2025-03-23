@@ -9,5 +9,5 @@ class MovableObject : public SceneObject
 
 
 public:
-    MovableObject();
+    MovableObject(int id, std::string name);
 };

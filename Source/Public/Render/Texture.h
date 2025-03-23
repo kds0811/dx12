@@ -27,7 +27,7 @@ public:
     Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
     inline ETextureType GetTextureType() noexcept { return mType; }
-    inline std::string GetName() { return mName; }
+    inline std::string GetName() { return mName.empty() ? " Unnamed Object " : mName; }
     inline int GetSrvIndex() noexcept { return mSrvHeapIndex; }
 
     

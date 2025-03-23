@@ -21,19 +21,6 @@ struct GeoRenderData
     UINT IndexCount = 0;
     UINT StartIndexLocation = 0;
     UINT BaseVertexLocation = 0;
-
-//public:
-//    GeoRenderData(std::string name, MeshGeometry* geo, D3D12_PRIMITIVE_TOPOLOGY type, UINT indexCount, UINT startIndexLocation, UINT baseVertexLocation)
-//        : mName(std::move(name)), mGeo(geo), mPrimitiveType(type), mIndexCount(indexCount), mStartIndexLocation(startIndexLocation), mBaseVertexLocation(baseVertexLocation)
-//    {
-//    }
-//
-//    [[nodiscard]] inline std::string GetName() { return mName; }
-//    [[nodiscard]] inline MeshGeometry* GetGeo() const noexcept { return mGeo; }
-//    [[nodiscard]] inline D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveType() const noexcept { return mPrimitiveType; }
-//    [[nodiscard]] inline UINT GetIndexCount() const noexcept { return mIndexCount; }
-//    [[nodiscard]] inline UINT GetStartIndexLocation() const noexcept { return mStartIndexLocation; }
-//    [[nodiscard]] inline UINT GetBaseVertexLocation() const noexcept { return mBaseVertexLocation; }
 };
 
 struct MatRenderData

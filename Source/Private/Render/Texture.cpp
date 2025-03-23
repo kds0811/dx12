@@ -18,6 +18,5 @@ void Texture::LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdL
 {
     DirectX::CreateDDSTextureFromFile12(device, cmdList, mFilename.c_str(), mResource->GetComPtrResource(), mUploadHeap->GetComPtrResource()) >> Kds::App::Check;
 
-	std::string message = "Texture " + mName + " is created";
-    Log::LogMessage(message);
+    LOG_MESSAGE("Texture ", GetName(), " is created");
 }

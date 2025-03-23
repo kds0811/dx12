@@ -15,7 +15,7 @@ namespace Kds::App
         {
             _com_error Error(g.Hr);
             auto message = std::format("Graphics error: {}\n \n {}({})", Error.ErrorMessage(), g.Loc.file_name(), g.Loc.line());
-            Log::LogError(message);
+            LOG_ERROR(message);
             throw std::runtime_error{message};
         }
     }

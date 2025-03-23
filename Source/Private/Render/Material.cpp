@@ -24,7 +24,7 @@ Material::Material(std::string name, EMaterialType type, DirectX::XMFLOAT4 color
     mBaseColorFactor(color),
     mFresnel(fresnel),
     mRoughness(roughness),
-    mBaseColorTex(baseColorTex)
+    mBaseColor(baseColorTex)
 {
 }
 
@@ -35,8 +35,8 @@ Material::Material(std::string name, EMaterialType type, DirectX::XMFLOAT4 color
     mBaseColorFactor(color),
     mFresnel(fresnel),
     mRoughness(roughness),
-    mBaseColorTex(baseColorTex),
-    mNormalMapTex(normalMapTex)
+    mBaseColor(baseColorTex),
+    mNormalMap(normalMapTex)
 {
 }
 
@@ -67,10 +67,10 @@ void Material::SetMaterialTransformation(DirectX::XMFLOAT4X4 trans)
 
 void Material::SetBaseColorTexture(Texture* tex)
 {
-    mBaseColorTex = tex;
+    mBaseColor = tex;
 }
 
 void Material::SetNormalMapTexture(Texture* tex)
 {
-    mNormalMapTex = tex;
+    mNormalMap = tex;
 }
