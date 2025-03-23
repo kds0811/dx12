@@ -1,5 +1,4 @@
 #include "DrawableObject.h"
-#include "Logger.h"
 #include "Texture.h"
 #include <cassert>
 
@@ -23,88 +22,88 @@ DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : Scene
     }
 }
 
-void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
-{
-    auto objectName = GetName();
-    if (!staticMesh)
-    {
-        LOG_WARNING(objectName, " SetStaticMesh func incoming argument is nullptr");
-    }
-
-    if (mMeshType == EMeshType::Static)
-    {
-        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
-        if (meshComp)
-        {
-            meshComp->SetStaticMesh(staticMesh);
-        }
-        else
-        {
-            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
-            assert(false);
-            return;
-        }
-    }
-    else
-    {
-        InitAsStaticMesh();
-        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
-        if (meshComp)
-        {
-            meshComp->SetStaticMesh(staticMesh);
-        }
-        else
-        {
-            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
-            assert(false);
-            return;
-        }
-    }
-
-    UpdateStaticGeoRenderData();
-}
-
-void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
-{
-    std::string objectName = GetName();
-
-    if (!skeletalMesh)
-    {
-        LOG_WARNING(objectName, " SetSkeletalMesh func incoming argument is nullptr");
-    }
-
-    if (mMeshType == EMeshType::Skeletal)
-    {
-        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
-        if (meshComp)
-        {
-            meshComp->SetSkeletalMesh(skeletalMesh);
-        }
-        else
-        {
-            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
-            assert(false);
-            return;
-        }
-    }
-    else
-    {
-        InitAsSkeletalMesh();
-        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
-        if (meshComp)
-        {
-            meshComp->SetSkeletalMesh(skeletalMesh);
-        }
-        else
-        {
-            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
-            assert(false);
-            return;
-        }
-    }
-
-    UpdateSkeletalGeoRenderData();
-}
+//void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
+//{
+//    auto objectName = GetName();
+//    if (!staticMesh)
+//    {
+//        LOG_WARNING(objectName, " SetStaticMesh func incoming argument is nullptr");
+//    }
+//
+//    if (mMeshType == EMeshType::Static)
+//    {
+//        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
+//        if (meshComp)
+//        {
+//            meshComp->SetStaticMesh(staticMesh);
+//        }
+//        else
+//        {
+//            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+//            assert(false);
+//            return;
+//        }
+//    }
+//    else
+//    {
+//        InitAsStaticMesh();
+//        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
+//        if (meshComp)
+//        {
+//            meshComp->SetStaticMesh(staticMesh);
+//        }
+//        else
+//        {
+//            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+//            assert(false);
+//            return;
+//        }
+//    }
+//
+//    UpdateStaticGeoRenderData();
+//}
+//
+//void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
+//{
+//    std::string objectName = GetName();
+//
+//    if (!skeletalMesh)
+//    {
+//        LOG_WARNING(objectName, " SetSkeletalMesh func incoming argument is nullptr");
+//    }
+//
+//    if (mMeshType == EMeshType::Skeletal)
+//    {
+//        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
+//        if (meshComp)
+//        {
+//            meshComp->SetSkeletalMesh(skeletalMesh);
+//        }
+//        else
+//        {
+//            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+//            assert(false);
+//            return;
+//        }
+//    }
+//    else
+//    {
+//        InitAsSkeletalMesh();
+//        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
+//        if (meshComp)
+//        {
+//            meshComp->SetSkeletalMesh(skeletalMesh);
+//        }
+//        else
+//        {
+//            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+//            assert(false);
+//            return;
+//        }
+//    }
+//
+//    UpdateSkeletalGeoRenderData();
+//}
 
 void DrawableObject::SetMaterial(Material* material)
 {
@@ -136,10 +135,10 @@ void DrawableObject::UpdateMaterialRenderData()
     mRenderData.MatRenderData.Type = material->GetMaterialType();
     mRenderData.MatRenderData.MatCBIndex = material->GetMaterialCBIndex();
 
-    UpdataMatTexRenderData(MatRenderData::BaseColorTexIndex, mMeshComponent->GetMaterial()->GetBaseColor());
-    UpdataMatTexRenderData(MatRenderData::NormalMapTexIndex, mMeshComponent->GetMaterial()->GetNormalMap());
-    UpdataMatTexRenderData(MatRenderData::RoughnessMapTexIndex, mMeshComponent->GetMaterial()->GetRoughnesslMap());
-    UpdataMatTexRenderData(MatRenderData::MetallicMapTexIndex, mMeshComponent->GetMaterial()->GetMetalliclMap());
+    UpdataMatTexRenderData(MatRenderData::BaseColorTexIndex,    material->GetBaseColor());
+    UpdataMatTexRenderData(MatRenderData::NormalMapTexIndex,    material->GetNormalMap());
+    UpdataMatTexRenderData(MatRenderData::RoughnessMapTexIndex, material->GetRoughnesslMap());
+    UpdataMatTexRenderData(MatRenderData::MetallicMapTexIndex,  material->GetMetalliclMap());
 }
 
 void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
@@ -170,7 +169,7 @@ void DrawableObject::UpdataMatTexRenderData(int index, Texture* tex)
 
 void DrawableObject::UpdateStaticGeoRenderData()
 {
-    std::string objectName = mName.empty() ? "Unnamed Object" : mName;
+    std::string objectName = GetName();
 
     auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
     if (!meshComp)
@@ -190,8 +189,8 @@ void DrawableObject::UpdateStaticGeoRenderData()
 
     auto& geoRD = mRenderData.GeoRenderData;
 
-    geoRD = *staticMesh->GetGeoRenderData(); // GOVNO
-
+    geoRD = staticMesh->GetGeoRenderData();
+    LOG_MESSAGE(objectName, " geo render data updated");
 }
 
 void DrawableObject::UpdateSkeletalGeoRenderData() {}

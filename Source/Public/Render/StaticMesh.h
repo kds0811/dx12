@@ -12,4 +12,5 @@ public:
 
     [[nodiscard]] inline GeoRenderData& GetGeoRenderData()  noexcept { return mGeoRenderData; }
     inline void SetGeoRenderData(GeoRenderData geoRenderData) noexcept { mGeoRenderData = geoRenderData; }
+
 };
