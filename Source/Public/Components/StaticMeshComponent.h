@@ -12,4 +12,6 @@ public:
     inline void SetStaticMesh(StaticMesh* staticMesh) noexcept { pStaticMesh = staticMesh; }
     inline const StaticMesh* GetStaticMesh() const noexcept { return pStaticMesh; }
     inline  StaticMesh* GetStaticMesh() noexcept { return pStaticMesh; }
+
+    virtual void SetMesh(Mesh* mesh) override;
 };

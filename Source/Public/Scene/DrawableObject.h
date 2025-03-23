@@ -25,8 +25,8 @@ public:
     DrawableObject(int id, std::string name);
     DrawableObject(int id, std::string name, EMeshType type);
 
-    //void SetStaticMesh(StaticMesh* staticMesh);
-    //void SetSkeletalMesh(SkeletalMesh* skeletalMesh);
+    void SetStaticMesh(StaticMesh* staticMesh);
+    void SetSkeletalMesh(SkeletalMesh* skeletalMesh);
 
     template <typename T>
     void SetMesh(T* mesh, EMeshType type);

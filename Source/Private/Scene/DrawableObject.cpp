@@ -22,88 +22,88 @@ DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : Scene
     }
 }
 
-//void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
-//{
-//    auto objectName = GetName();
-//    if (!staticMesh)
-//    {
-//        LOG_WARNING(objectName, " SetStaticMesh func incoming argument is nullptr");
-//    }
-//
-//    if (mMeshType == EMeshType::Static)
-//    {
-//        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
-//        if (meshComp)
-//        {
-//            meshComp->SetStaticMesh(staticMesh);
-//        }
-//        else
-//        {
-//            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
-//            assert(false);
-//            return;
-//        }
-//    }
-//    else
-//    {
-//        InitAsStaticMesh();
-//        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
-//        if (meshComp)
-//        {
-//            meshComp->SetStaticMesh(staticMesh);
-//        }
-//        else
-//        {
-//            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
-//            assert(false);
-//            return;
-//        }
-//    }
-//
-//    UpdateStaticGeoRenderData();
-//}
-//
-//void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
-//{
-//    std::string objectName = GetName();
-//
-//    if (!skeletalMesh)
-//    {
-//        LOG_WARNING(objectName, " SetSkeletalMesh func incoming argument is nullptr");
-//    }
-//
-//    if (mMeshType == EMeshType::Skeletal)
-//    {
-//        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
-//        if (meshComp)
-//        {
-//            meshComp->SetSkeletalMesh(skeletalMesh);
-//        }
-//        else
-//        {
-//            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
-//            assert(false);
-//            return;
-//        }
-//    }
-//    else
-//    {
-//        InitAsSkeletalMesh();
-//        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
-//        if (meshComp)
-//        {
-//            meshComp->SetSkeletalMesh(skeletalMesh);
-//        }
-//        else
-//        {
-//            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
-//            assert(false);
-//            return;
-//        }
-//    }
-//
-//    UpdateSkeletalGeoRenderData();
-//}
+void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)
+{
+    auto objectName = GetName();
+    if (!staticMesh)
+    {
+        LOG_WARNING(objectName, " SetStaticMesh func incoming argument is nullptr");
+    }
+
+    if (mMeshType == EMeshType::Static)
+    {
+        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
+        if (meshComp)
+        {
+            meshComp->SetStaticMesh(staticMesh);
+        }
+        else
+        {
+            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+            assert(false);
+            return;
+        }
+    }
+    else
+    {
+        InitAsStaticMesh();
+        auto meshComp = dynamic_cast<StaticMeshComponent*>(mMeshComponent.get());
+        if (meshComp)
+        {
+            meshComp->SetStaticMesh(staticMesh);
+        }
+        else
+        {
+            LOG_WARNING(objectName, " SetStaticMesh func - mMeshComponent is not StaticMeshComponent");
+            assert(false);
+            return;
+        }
+    }
+
+    UpdateStaticGeoRenderData();
+}
+
+void DrawableObject::SetSkeletalMesh(SkeletalMesh* skeletalMesh)
+{
+    std::string objectName = GetName();
+
+    if (!skeletalMesh)
+    {
+        LOG_WARNING(objectName, " SetSkeletalMesh func incoming argument is nullptr");
+    }
+
+    if (mMeshType == EMeshType::Skeletal)
+    {
+        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
+        if (meshComp)
+        {
+            meshComp->SetSkeletalMesh(skeletalMesh);
+        }
+        else
+        {
+            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+            assert(false);
+            return;
+        }
+    }
+    else
+    {
+        InitAsSkeletalMesh();
+        auto meshComp = dynamic_cast<SkeletalMeshComponent*>(mMeshComponent.get());
+        if (meshComp)
+        {
+            meshComp->SetSkeletalMesh(skeletalMesh);
+        }
+        else
+        {
+            LOG_WARNING(objectName, " SetSkeletalMesh func - mMeshComponent is not SkeletalMeshComponent");
+            assert(false);
+            return;
+        }
+    }
+
+    UpdateSkeletalGeoRenderData();
+}
 
 void DrawableObject::SetMaterial(Material* material)
 {

@@ -2,6 +2,7 @@
 #include "Material.h"
 #include "BoundComponent.h"
 #include "BaseComponent.h"
+#include "Mesh.h"
 
 class MeshComponent : public BaseComponent
 {
@@ -15,4 +16,6 @@ public:
 
     inline void SetMaterial(Material* mat) { pMaterial = mat; }
     inline Material* GetMaterial() const { return pMaterial; }
+
+    virtual void SetMesh(Mesh* mesh) = 0;
 };

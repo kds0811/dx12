@@ -14,6 +14,7 @@ public:
         mName(std::move(name)),
         mID(ID)
     {}
+    virtual ~Mesh() = default;
 
     [[nodiscard]] inline std::string GetName() const { return mName; }
     [[nodiscard]] inline int GetID() const noexcept { return mID; }
