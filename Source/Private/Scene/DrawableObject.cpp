@@ -2,12 +2,14 @@
 #include "Texture.h"
 #include <cassert>
 
-DrawableObject::DrawableObject(int id, std::string name) : SceneObject(id, name)
+DrawableObject::DrawableObject(int id, std::string name)
+    : SceneObject(id, name)
 {
     mSceneComponent = std::make_unique<SceneComponent>(this);
 }
 
-DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : SceneObject(id, name)
+DrawableObject::DrawableObject(int id, std::string name, EMeshType type)
+    : SceneObject(id, name)
 {
     mSceneComponent = std::make_unique<SceneComponent>(this);
 
@@ -20,6 +22,16 @@ DrawableObject::DrawableObject(int id, std::string name, EMeshType type) : Scene
     {
         InitAsSkeletalMesh();
     }
+}
+
+DrawableObject::DrawableObject(int id, std::string name, StaticMesh* staticMesh, Material* material, Transform transform)
+    : SceneObject(id, name)
+{
+    mSceneComponent = std::make_unique<SceneComponent>(this, transform);
+    InitAsStaticMesh();
+    SetStaticMesh(staticMesh);
+    UpdateStaticGeoRenderData();
+    SetMaterial(material);
 }
 
 void DrawableObject::SetStaticMesh(StaticMesh* staticMesh)

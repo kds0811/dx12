@@ -4,13 +4,8 @@
 #include <array>
 #include "GameTimerW.h"
 #include <cassert>
-#include "PixProfile.h"
 #include "GraphicGlobals.h"
 
-#if defined PIXPROFILE
-#define USE_PIX
-#include <pix3.h>
-#endif
 
 using namespace DirectX;
 using namespace Kds::App;
@@ -140,9 +135,6 @@ void Graphic::OnResize(UINT nWidth, UINT nHeight)
 
 void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 {
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(60, 40, 130), L"StartDrawFrame");
-#endif
 
     auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -365,9 +357,7 @@ void Graphic::StartDrawFrame(const SortedSceneObjects& sortedSceneObjects)
 
 void Graphic::EndDrawFrame()
 {
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(50, 50, 150), L"EndDrawFrame");
-#endif
+
     // Indicate a state transition on the resource usage.
     const auto ResBarrRenderTargetToPresent = CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     mCommandList->ResourceBarrier(1, &ResBarrRenderTargetToPresent);
@@ -396,9 +386,6 @@ void Graphic::EndDrawFrame()
 void Graphic::Update(DirectX::FXMMATRIX ViewMat, DirectX::XMFLOAT3 CameraPos, const GameTimerW* gt, const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects,
     WavesSceneObject* waveObject, std::unordered_map<EMaterialType, std::unique_ptr<Material>>& materials)
 {
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(60, 180, 60), L"Update Buffers");
-#endif
 
     // Update Camera
     DirectX::XMStoreFloat4x4(&mView, ViewMat);

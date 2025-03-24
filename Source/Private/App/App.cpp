@@ -8,13 +8,6 @@
 #include <cassert>
 #include "WavesSceneObject.h"
 
-#include "PixProfile.h"
-
-#if defined PIXPROFILE
-#define USE_PIX
-#include <pix3.h>
-#endif
-
 App::App()
 {
     mTimer = std::make_unique<GameTimerW>();
@@ -58,18 +51,13 @@ std::optional<int> App::Go()
 
     while (true)
     {
-#if defined PIXPROFILE
-        PIXBeginEvent(PIX_COLOR_DEFAULT, "Main LOOP %llu", mFrameCount);
-#endif
+
 
         mTimer->Tick();
         CalculateFrameStats();
         Update();
         Draw();
 
-#if defined PIXPROFILE
-        PIXEndEvent();
-#endif
 
         if (const auto ecode = Window::PrecessMessages())
         {
@@ -106,9 +94,7 @@ void App::OnStart()
 
 void App::Update()
 {
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(0, 255, 0), L"Update");
-#endif
+
 
 
     mMainInputController->Update();
@@ -121,25 +107,17 @@ void App::Update()
 
 void App::Draw()
 {
-#if defined PIXPROFILE
-    PIXBeginEvent(mGfx->GetCommandQueue(), PIX_COLOR(0, 0, 255), L"RENDER");
-#endif
+
 
     mImguiWrapper->StartImguiFrame();
     mGfx->StartDrawFrame(mScene->GetSortedSceneObjects());
     mImguiWrapper->EndImguiFrame();
     mGfx->EndDrawFrame();
 
-#if defined PIXPROFILE
-    PIXEndEvent(mGfx->GetCommandQueue());
-#endif
 }
 
 void App::CalculateFrameStats()
 {
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(255, 0, 255), L"CalculateFrameStats");
-#endif
     static int frameCnt = 0;
     static double timeElapsed = 0.0f;
 

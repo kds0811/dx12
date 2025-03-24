@@ -3,7 +3,7 @@
 #include <cassert>
 #include <vector>
 
-// Simple free list based allocator
+// Simple free list based allocator for IMGUI
 struct DescriptorHeapAllocator
 {
     ID3D12DescriptorHeap* Heap = nullptr;

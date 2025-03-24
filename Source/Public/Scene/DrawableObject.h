@@ -24,6 +24,7 @@ class DrawableObject : public SceneObject
 public:
     DrawableObject(int id, std::string name);
     DrawableObject(int id, std::string name, EMeshType type);
+    DrawableObject(int id, std::string name, StaticMesh* staticMesh, Material* material, Transform transform);
 
     void SetStaticMesh(StaticMesh* staticMesh);
     void SetSkeletalMesh(SkeletalMesh* skeletalMesh);
