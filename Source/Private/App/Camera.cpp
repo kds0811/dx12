@@ -1,11 +1,22 @@
 #include "Camera.h"
 #include "App.h"
 
-Camera::Camera(MainInputController* inputController, GameTimerW* timer) : Trans(Vector{0.f, 50.f, -50.f}, Rotator(45.0f, 0.0f, 0.0f), Vector(1.f, 1.f, 1.f))
+using namespace DirectX;
+
+Camera::Camera(MainInputController* inputController, GameTimerW* timer,  UINT width, UINT height)
+    :
+    Trans(Vector{0.f, 50.f, -50.f}, Rotator(45.0f, 0.0f, 0.0f), Vector(1.f, 1.f, 1.f)),
+    mWidth(width),
+    mHeight(height)
+
 {
     pMainInputController = inputController;
     pTimer = timer;
     mCameraController = std::make_unique<CameraController>(this, pMainInputController);
+    SetLens(XMConvertToRadians(mFovYDegrees), GetAspectRatio(), mNearZ, mFarZ);
+
+
+    
 }
 
 void Camera::UpdateInput()
@@ -47,6 +58,23 @@ void Camera::RotateCamera(float xOffset, float yOffset)
     Trans.AddRotation(RotOffset);
     mViewDirty = true;
 }
+
+void Camera::SetLens(float fovY, float aspect, float zn, float zf)
+{
+    // cache properties
+    mFovY = fovY;
+    mAspect = aspect;
+    mNearZ = zn;
+    mFarZ = zf;
+
+    mNearWindowHeight = 2.0f * mNearZ * tanf(0.5f * mFovY);
+    mFarWindowHeight = 2.0f * mFarZ * tanf(0.5f * mFovY);
+
+    DirectX::XMMATRIX P = DirectX::XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
+    DirectX::XMStoreFloat4x4(&mProj, P);
+}
+
+
 
 void Camera::UpdateViewMatrix()
 {

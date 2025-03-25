@@ -2,15 +2,9 @@
 #include "Camera.h"
 #include "WindowDK.h"
 #include "GameTimerW.h"
-#include "PixProfile.h"
 #include "MainController.h"
 #include <DirectXMath.h>
 
-
-#if defined PIXPROFILE
-#define USE_PIX
-#include <pix3.h>
-#endif
 
 CameraController::CameraController(Camera* cam, MainInputController* controller)
 {
@@ -20,11 +14,6 @@ CameraController::CameraController(Camera* cam, MainInputController* controller)
 
 void CameraController::UpdateInput()
 {
-
-#if defined PIXPROFILE
-    PIXScopedEvent(PIX_COLOR(60, 150, 60), L"Update Camera Input");
-#endif
-
     UpdateKeyboardInput();
     UpdateMouseInput();
 }
