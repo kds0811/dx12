@@ -49,7 +49,17 @@ bool Device::Initialize()
         {
             ComPtr<IDXGIAdapter> pWarpAdapter;
             mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
-            D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice)) >> Check;
+            hr = D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice));
+
+            if (SUCCEEDED(hr))
+            {
+                LOG_MESSAGE("Device was created as WARP");
+            }
+            else
+            {
+                LOG_MESSAGE("Device has not been created");
+                return false;
+            }
         }
     }
     assert(mDevice);
@@ -64,5 +74,6 @@ bool Device::Initialize()
         pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
     }
 #endif
+
     return true;
 }
