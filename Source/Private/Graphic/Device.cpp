@@ -9,10 +9,35 @@ bool Device::Initialize()
 {
     // enable debug layer
 #if defined(_DEBUG)
-    ComPtr<ID3D12Debug3> debugInterface;
-    D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)) >> Check;
-    debugInterface->EnableDebugLayer();
-    LOG_MESSAGE("Enable Debug Layer");
+    ComPtr<ID3D12Debug> debugInterface;
+    auto hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface));
+    if (SUCCEEDED(hr))
+    {
+        debugInterface->EnableDebugLayer();
+        LOG_MESSAGE("Enable Debug Layer");
+    }
+    else
+    {
+        LOG_ERROR("failure when creating a debug interface");
+    }
+
+
+    ComPtr<ID3D12Debug3> debugInterface3;
+    hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface3));
+    if (SUCCEEDED(hr))
+    {
+        debugInterface3->SetEnableGPUBasedValidation(true);
+        debugInterface3->SetEnableSynchronizedCommandQueueValidation(true);
+        LOG_MESSAGE("Enable GPUBasedValidation and SynchronizedCommandQueueValidation");
+    }
+
+    ComPtr<ID3D12Debug5> debugInterface5;
+    hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface5));
+    if (SUCCEEDED(hr))
+    {
+        debugInterface5->SetEnableAutoName(true);
+        LOG_MESSAGE("Enable Auto Name D3D Objects on debug");
+    }
 #endif
 
     // create FACTORY
