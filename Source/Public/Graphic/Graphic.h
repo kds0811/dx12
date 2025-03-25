@@ -21,8 +21,7 @@ class Graphic
 {
 private:
     // Main Fields
-    Microsoft::WRL::ComPtr<IDXGIFactory7> mFactory;
-    Microsoft::WRL::ComPtr<ID3D12Device8> mDevice;
+
 
     // Command Stuff
     Microsoft::WRL::ComPtr<ID3D12Fence1> mFence;

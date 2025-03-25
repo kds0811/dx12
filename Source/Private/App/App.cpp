@@ -4,7 +4,6 @@
 #include <format>
 #include <DirectXMath.h>
 #include "Vector.h"
-#include <chrono>
 #include <cassert>
 #include "WavesSceneObject.h"
 
@@ -92,8 +91,6 @@ void App::OnStart()
 
 void App::Update()
 {
-
-
 
     mMainInputController->Update();
     mCamera->UpdateInput();

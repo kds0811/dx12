@@ -1,17 +1,12 @@
 #pragma once
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3dcompiler.h>
-#include <directx/d3dx12.h>
-#include "GraphicError.h"
+#include "GraphicCommonHeaders.h"
+
 #include <unordered_map>
-#include <DirectXMath.h>
 #include "MathHelper.h"
 #include "SceneComponent.h"
 #include <cstdint>
 #include <array>
 #include "Vector.h"
-#include "GraphicGlobals.h"
 
 class D3D12Utils
 {
