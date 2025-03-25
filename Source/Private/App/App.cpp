@@ -17,7 +17,6 @@ App::App()
     mCamera = std::make_unique<Camera>(mMainInputController.get(), mTimer.get());
     mResourceManager = std::make_unique<ResourceManager>(mGfx->GetDevice(), mGfx->GetCommandQueue());
     mScene = std::make_unique<Scene>(mTimer.get(), mResourceManager.get());
-    mImguiWrapper = std::make_unique<ImguiWrapper>();
 
     assert(mWnd);
     assert(mGfx);
@@ -39,7 +38,6 @@ App::App()
         mGfx->InitResources(mScene->GetSceneObjectsCounter(), mScene->GetWavesPtr()->GetVertexCount(),
             mResourceManager->GetMaterials().size(), mResourceManager->GetTextures());
     }
-    mImguiWrapper->InitImgui(mGfx.get(), mWnd->GetHwnd(), mResourceManager->GetTextures().size(), mCamera.get());
 }
 
 App::~App()
@@ -108,10 +106,7 @@ void App::Update()
 void App::Draw()
 {
 
-
-    mImguiWrapper->StartImguiFrame();
     mGfx->StartDrawFrame(mScene->GetSortedSceneObjects());
-    mImguiWrapper->EndImguiFrame();
     mGfx->EndDrawFrame();
 
 }

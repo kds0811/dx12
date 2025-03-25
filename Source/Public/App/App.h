@@ -6,7 +6,6 @@
 #include "Scene.h"
 #include <memory>
 #include "ResourceManager.h"
-#include "ImguiWrapper.h"
 #include "MainController.h"
 
 
@@ -22,7 +21,6 @@ class App
     std::unique_ptr<MainInputController> mMainInputController = nullptr;
     std::unique_ptr<ResourceManager> mResourceManager = nullptr;
     std::unique_ptr<Scene> mScene = nullptr;
-    std::unique_ptr<ImguiWrapper> mImguiWrapper = nullptr;
     bool bAppPaused = false;
     std::uint64_t mFrameCount = 0;
 
