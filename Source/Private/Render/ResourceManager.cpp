@@ -8,7 +8,7 @@ ResourceManager::ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* comm
     CreateCommandList();
 
     mTextureManager = std::make_unique<TextureManager>();
-    mGeometryManager = std::make_unique<GeometryManager>(pDevice, mCommandList.Get());
+    mGeometryManager = std::make_unique<GeometryManager>();
     mMaterialManager = std::make_unique<MaterialManager>();
 
     if (pDevice && pCommandQueue && mCommandAllocator && mCommandList && mFence)

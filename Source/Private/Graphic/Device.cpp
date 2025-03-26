@@ -89,6 +89,8 @@ void Device::Initialize()
         }
     }
 
+    mDevice->SetName(L"Device");
+
 #if defined(_DEBUG)
     ComPtr<ID3D12InfoQueue> pInfoQueue = nullptr;
     if (mDevice)

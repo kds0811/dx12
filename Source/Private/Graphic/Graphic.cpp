@@ -454,29 +454,6 @@ void Graphic::InitPipeline()
 {
   
 
-
-
-
-
-
-  
-    // Create Fence
-    mDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)) >> Check;
-    assert(mFence);
-    // Create Command Objects
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-    queueDesc.NodeMask = 0;
-    mDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)) >> Check;
-    mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAlloc.GetAddressOf())) >> Check;
-    mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAlloc.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >> Check;
-    mCommandList->Close();
-    assert(mCommandQueue);
-    assert(mCommandAlloc);
-    assert(mCommandList);
-
     // Create SwapChain
     mSwapChain.Reset();
     DXGI_SWAP_CHAIN_DESC1 sd = {};
@@ -622,18 +599,7 @@ void Graphic::InitResources(size_t sceneObjectCount, size_t wavesVertCount, size
 
 void Graphic::FlushCommandQueue()
 {
-    ++mCurrentFenceValue;
-    mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue) >> Check;
 
-    if (mFence->GetCompletedValue() < mCurrentFenceValue)
-    {
-        HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
-
-        mFence->SetEventOnCompletion(mCurrentFenceValue, eventHandle);
-
-        WaitForSingleObject(eventHandle, INFINITE);
-        CloseHandle(eventHandle);
-    }
 }
 
 void Graphic::UpdateObjectCBs(const std::vector<std::unique_ptr<BaseSceneObject>>& sceneObjects)

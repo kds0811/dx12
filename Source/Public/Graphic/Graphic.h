@@ -23,12 +23,7 @@ private:
     // Main Fields
 
 
-    // Command Stuff
-    Microsoft::WRL::ComPtr<ID3D12Fence1> mFence;
-    UINT64 mCurrentFenceValue = 0;
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAlloc;
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> mCommandList;
+   
 
     // SwapChain and Backbuffer Fields
     static constexpr UINT mSwapChainBufferCount = 2;
