@@ -5,7 +5,7 @@ using namespace DirectX;
 using namespace Kds::App;
 using namespace Microsoft::WRL;
 
-bool Device::Initialize()
+void Device::Initialize()
 {
     // enable debug layer
 #if defined(_DEBUG)
@@ -20,7 +20,6 @@ bool Device::Initialize()
     {
         LOG_ERROR("failure when creating a debug interface");
     }
-
 
     ComPtr<ID3D12Debug3> debugInterface3;
     hr = D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface3));
@@ -73,32 +72,34 @@ bool Device::Initialize()
         if (FAILED(hr))
         {
             ComPtr<IDXGIAdapter> pWarpAdapter;
-            mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
-            hr = D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice));
+            if (mFactory)
+            {
+                mFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)) >> Check;
+                hr = D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice));
 
-            if (SUCCEEDED(hr))
-            {
-                LOG_MESSAGE("Device was created as WARP");
-            }
-            else
-            {
-                LOG_MESSAGE("Device has not been created");
-                return false;
+                if (SUCCEEDED(hr))
+                {
+                    LOG_MESSAGE("Device was created as WARP");
+                }
+                else
+                {
+                    LOG_MESSAGE("Device has not been created");
+                }
             }
         }
     }
-    assert(mDevice);
 
 #if defined(_DEBUG)
     ComPtr<ID3D12InfoQueue> pInfoQueue = nullptr;
-    mDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue));
-    if (pInfoQueue)
+    if (mDevice)
     {
-        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-        pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        mDevice->QueryInterface(IID_PPV_ARGS(&pInfoQueue));
+        if (pInfoQueue)
+        {
+            pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+            pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+            pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        }
     }
 #endif
-
-    return true;
 }

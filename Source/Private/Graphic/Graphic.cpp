@@ -454,18 +454,15 @@ void Graphic::InitPipeline()
 {
   
 
+
+
+
+
+
+  
     // Create Fence
     mDevice->CreateFence(mCurrentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)) >> Check;
     assert(mFence);
-
-    // Set Descriptors Size
-    mRtvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    mDsvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-    mCbvSrvUavDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    assert(mRtvDescriptorSize);
-    assert(mDsvDescriptorSize);
-    assert(mCbvSrvUavDescriptorSize);
-
     // Create Command Objects
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;

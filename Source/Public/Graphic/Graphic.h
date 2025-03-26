@@ -45,10 +45,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
 
-    // Decriptor Sizes
-    UINT mRtvDescriptorSize = 0u;
-    UINT mDsvDescriptorSize = 0u;
-    UINT mCbvSrvUavDescriptorSize = 0u;
+
 
     // Viewport and window fields
     D3D12_VIEWPORT mScreenViewport;

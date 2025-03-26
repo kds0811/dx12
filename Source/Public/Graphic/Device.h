@@ -8,7 +8,13 @@ class Device
 
 public:
     Device() = default;
-    bool Initialize();
+    ~Device() = default;
+    Device(const Device&) = delete;
+    Device& operator=(const Device&) = delete;
+    Device(const Device&& rhs) = delete;
+    Device& operator=(const Device&& rhs) = delete;
+
+    void Initialize();
     [[nodiscard]] inline ID3D12Device* GetDevice() const noexcept { return mDevice.Get(); }
 
 
