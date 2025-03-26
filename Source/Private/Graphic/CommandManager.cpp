@@ -2,10 +2,13 @@
 
 using namespace Kds::App;
 
-CommandManager::CommandManager() {}
+CommandManager::CommandManager(ID3D12Device* device)
+{
+    Initialize(device);
+}
 
 void CommandManager::Initialize(ID3D12Device* device)
-{  // Create Fence
+{  
 
 
 
