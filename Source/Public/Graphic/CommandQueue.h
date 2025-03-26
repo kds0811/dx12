@@ -4,7 +4,6 @@
 
 class CommandQueue
 {
-private:
     const D3D12_COMMAND_LIST_TYPE mType;
     UINT64 mCurrentFenceValue = 0;
     Microsoft::WRL::ComPtr<ID3D12Fence1> mFence = nullptr;

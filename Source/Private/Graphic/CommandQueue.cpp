@@ -1,7 +1,4 @@
 #include "CommandQueue.h"
-#include "Logger.h"
-#include "GraphicError.h"
-#include <cassert>
 
 CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type) : mType(type) {}
 
