@@ -1,4 +1,5 @@
 #include "CommandQueue.h"
+#include <MathHelper.h>
 
 CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ID3D12Device* device) : mType(type)
 {
@@ -14,7 +15,7 @@ CommandQueue::~CommandQueue()
     }
 }
 
-uint64_t CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list)
+UINT64 CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list)
 {
     std::lock_guard<std::mutex> LockGuard(mFenceMutex);
 
@@ -29,12 +30,22 @@ uint64_t CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list)
     return mCurrentFenceValue;
 }
 
+void CommandQueue::WaitForFence(UINT64 fenceValue)
+{
+    if (IsFenceComplete(fenceValue)) return;
+
+    {
+        std::lock_guard<std::mutex> LockGuard(mEventMutex);
+
+        mFence->SetEventOnCompletion(fenceValue, mEventHandle);
+        WaitForSingleObject(mEventHandle, INFINITE);
+        mLastCompletedFenceValue = fenceValue;
+    }
+}
+
 void CommandQueue::FlushCommandQueue()
 {
-    std::lock_guard<std::mutex> LockGuard(mFenceMutex);
-
-    ++mCurrentFenceValue;
-    mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue) >> Kds::App::Check;
+    std::lock_guard<std::mutex> LockGuard(mEventMutex);
 
     ++mCurrentFenceValue;
     mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue) >> Kds::App::Check;
@@ -45,7 +56,16 @@ void CommandQueue::FlushCommandQueue()
         WaitForSingleObject(mEventHandle, INFINITE);
     }
     LOG_MESSAGE("Command queue has been flushed.");
+    mLastCompletedFenceValue = mCurrentFenceValue;
+}
 
+bool CommandQueue::IsFenceComplete(UINT64 FenceValue)
+{
+    if (FenceValue > mLastCompletedFenceValue)
+    {
+        mLastCompletedFenceValue = MathHelper::Max(mLastCompletedFenceValue, mFence->GetCompletedValue());
+    }
+    return FenceValue <= mLastCompletedFenceValue;
 }
 
 void CommandQueue::Initialize(ID3D12Device* device)
