@@ -4,22 +4,19 @@
 
 class CommandQueue
 {
-    const D3D12_COMMAND_LIST_TYPE mType;
     UINT64 mCurrentFenceValue = 0;
     UINT64 mLastCompletedFenceValue = 0;
     Microsoft::WRL::ComPtr<ID3D12Fence1> mFence = nullptr;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue = nullptr;
-
+    HANDLE mEventHandle = nullptr;
+    const D3D12_COMMAND_LIST_TYPE mType;
     std::mutex mFenceMutex;
     std::mutex mEventMutex;
-
-    HANDLE mEventHandle = nullptr;
 
 public:
     CommandQueue(D3D12_COMMAND_LIST_TYPE Type, ID3D12Device* device);
     ~CommandQueue();
 
-    
     UINT64 ExecuteCommandList(ID3D12GraphicsCommandList* list);
     void WaitForFence(UINT64 fenceValue);
     void FlushCommandQueue();
@@ -29,7 +26,6 @@ public:
     [[nodiscard]] D3D12_COMMAND_LIST_TYPE GetType() const noexcept { return mType; }
     [[nodiscard]] UINT64 GetCurrentFenceValue() const noexcept { return mCurrentFenceValue; }
     [[nodiscard]] UINT64 GetLastCompletedFenceValue() const noexcept { return mLastCompletedFenceValue; }
-
 
 private:
     void Initialize(ID3D12Device* device);

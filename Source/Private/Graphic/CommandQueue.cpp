@@ -23,9 +23,7 @@ UINT64 CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list)
     ID3D12CommandList* cmdsLists[] = {list};
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-    ++mCurrentFenceValue;
-
-    mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue);
+    mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue);
 
     return mCurrentFenceValue;
 }
@@ -47,8 +45,7 @@ void CommandQueue::FlushCommandQueue()
 {
     std::lock_guard<std::mutex> LockGuard(mEventMutex);
 
-    ++mCurrentFenceValue;
-    mCommandQueue->Signal(mFence.Get(), mCurrentFenceValue) >> Kds::App::Check;
+    mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue) >> Kds::App::Check;
 
     if (mFence->GetCompletedValue() < mCurrentFenceValue)
     {

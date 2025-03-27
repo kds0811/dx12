@@ -5,13 +5,11 @@
 GraphicEngine::GraphicEngine() 
 {
     mDevice = std::make_unique<Device>();
-    mDescriptorManager = std::make_unique<DescriptorManager>();
+    mDescriptorManager = std::make_unique<DescriptorManager>(mDevice->GetDevice());
 }
 
 GraphicEngine::~GraphicEngine() = default;
 
 void GraphicEngine::Initialize()
 {
-    mDevice->Initialize();
-    mDescriptorManager->Initialize(mDevice->GetDevice());
 }

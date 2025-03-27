@@ -5,6 +5,11 @@ using namespace DirectX;
 using namespace Kds::App;
 using namespace Microsoft::WRL;
 
+Device::Device()
+{
+    Initialize();
+}
+
 void Device::Initialize()
 {
     // enable debug layer
