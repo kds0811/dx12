@@ -95,16 +95,17 @@ struct Vertex
 struct FrameResource
 {
 public:
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc;
+
     std::unique_ptr<UploadBuffer<PassConstants>> PassCB = nullptr;
     std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
     std::unique_ptr<UploadBuffer<Vertex>> WavesVB = nullptr;
 
     UINT64 Fence = 0;
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc;
 
 public:
-    FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT waveVertCount, UINT materialCount);
+    FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount);
     FrameResource(const FrameResource& rhs) = delete;
     FrameResource& operator=(const FrameResource& rhs) = delete;
     FrameResource(const FrameResource&& rhs) = delete;

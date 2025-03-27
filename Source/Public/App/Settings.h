@@ -2,11 +2,11 @@
 #include <minwindef.h>
 
 
-class SettingsManager
+struct Settings
 {
     static constexpr int mNumFrameResources = 3;
-    UINT mWidth = 1600;
-    UINT mHeight = 800;
+    static inline UINT mWidth = 1600;
+    static inline UINT mHeight = 800;
 
 
 };

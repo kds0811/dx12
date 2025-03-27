@@ -4,7 +4,7 @@
 class Device
 {
     Microsoft::WRL::ComPtr<IDXGIFactory7> mFactory = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Device8> mDevice = nullptr;
+    static inline Microsoft::WRL::ComPtr<ID3D12Device8> mDevice = nullptr;
 
 public:
     Device();
@@ -14,7 +14,7 @@ public:
     Device(const Device&& rhs) = delete;
     Device& operator=(const Device&& rhs) = delete;
 
-    [[nodiscard]] inline ID3D12Device* GetDevice() const noexcept { return mDevice.Get(); }
+    [[nodiscard]] static inline ID3D12Device* GetDevice() noexcept { return mDevice.Get(); }
 
 private:
     void Initialize();

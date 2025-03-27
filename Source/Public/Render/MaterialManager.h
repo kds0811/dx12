@@ -9,6 +9,8 @@
 class MaterialManager
 {
     std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
+    static inline size_t mMaterialCount = 0;
+
 
 public:
     MaterialManager();
@@ -20,6 +22,7 @@ public:
 
     const Material* GetMaterial(const std::string& materialName) const;
 
+    static inline size_t GetMaterialCount() noexcept { return mMaterialCount; }
 
 private:
     void CreateBaseMaterials();

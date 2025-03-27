@@ -47,6 +47,7 @@ void MaterialManager::CreateMaterial(const std::string name, EMaterialType type,
     }
 
     mMaterials[name] = std::make_unique<Material>(name, type, color, fresnel, roughness);
+    ++mMaterialCount;
 }
 
 void MaterialManager::SetMaterialBaseColor(const std::string& materialName, Texture* baseColor)

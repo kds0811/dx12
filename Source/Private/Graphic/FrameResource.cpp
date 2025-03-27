@@ -1,7 +1,7 @@
 #include "FrameResource.h"
 #include "cassert"
 
-FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT waveVertCount, UINT materialCount)
+FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount)
 {
     assert(device);
 
@@ -16,7 +16,6 @@ FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCo
 
     ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(device, objectCount, true);
 
-    WavesVB = std::make_unique<UploadBuffer<Vertex>>(device, waveVertCount, false);
 }
 
 FrameResource::~FrameResource() {}
