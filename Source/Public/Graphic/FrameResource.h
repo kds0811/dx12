@@ -94,15 +94,15 @@ struct Vertex
 // for a frame.
 struct FrameResource
 {
-public:
-
+private:
+    UINT64 mFence = 0;
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc = nullptr;
     std::unique_ptr<UploadBuffer<PassConstants>> PassCB = nullptr;
     std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
-    std::unique_ptr<UploadBuffer<Vertex>> WavesVB = nullptr;
 
-    UINT64 Fence = 0;
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc;
+
+
 
 public:
     FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount);
@@ -111,5 +111,13 @@ public:
     FrameResource(const FrameResource&& rhs) = delete;
     FrameResource& operator=(const FrameResource&& rhs) = delete;
     ~FrameResource();
+
+    [[nodiscard]] inline UINT64 GetFenceValue() noexcept { return mFence; }
+    inline void SetFenceValue(UINT64 value) noexcept { mFence = value; }
+
+    [[nodiscard]] inline UploadBuffer<PassConstants>* GetPassConstants() noexcept{ return PassCB.get(); }
+    [[nodiscard]] inline UploadBuffer<MaterialConstants>* GetMaterialConstants() noexcept { return MaterialCB.get(); }
+    [[nodiscard]] inline UploadBuffer<ObjectConstants>* GetObjectConstants() noexcept { return ObjectCB.get(); }
+    [[nodiscard]] inline ID3D12CommandAllocator* GetCommandListAllocator() noexcept { return CmdListAlloc.Get(); }
 
 };
