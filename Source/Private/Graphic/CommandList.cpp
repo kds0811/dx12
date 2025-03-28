@@ -1,10 +1,33 @@
 #include "CommandList.h"
 #include "Pso.h"
+#include "CommandAllocator.h"
 
 CommandList::CommandList(ID3D12Device* device)
 {
     assert(device);
     Initialize(device);
+}
+
+ID3D12GraphicsCommandList* CommandList::GetCommandList() const
+{
+    assert(mCommandList);
+    if (mCommandList)
+    {
+        return mCommandList.Get();
+    }
+    LOG_ERROR("try to get ID3D12GraphicsCommandList* when it is nullptr");
+    return nullptr;
+}
+
+ID3D12GraphicsCommandList* CommandList::GetCommandList()
+{
+    assert(mCommandList);
+    if (mCommandList)
+    {
+        return mCommandList.Get();
+    }
+    LOG_ERROR("try to get ID3D12GraphicsCommandList* when it is nullptr");
+    return nullptr;
 }
 
 void CommandList::Close()
@@ -20,33 +43,58 @@ void CommandList::Close()
     }
 }
 
-void CommandList::ResetWithOwnAlloc(Pso* pso)
+bool CommandList::ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue)
 {
-    mCommandAlloc->Reset() >> Kds::App::Check;
-    mCommandList->Reset(mCommandAlloc.Get(), pso->GetPso()) >> Kds::App::Check;
-    bIsClossed = false;
+    if (!bIsClossed)
+    {
+        LOG_ERROR("Command list allready is open");
+        return false;
+    }
+
+    if (mCommandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue))
+    {
+        mCommandList->Reset(mCommandAllocator->GetCommandListAllocator(), pso->GetPso()) >> Kds::App::Check;
+        bIsClossed = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
-void CommandList::ResetWithAnotherAlloc(ID3D12CommandAllocator* alloc, Pso* pso)
+bool CommandList::ResetWithAnotherAlloc(CommandAllocator* commandAllocator, Pso* pso, UINT64 queueLastCompletedFenceValue)
 {
-    alloc->Reset() >> Kds::App::Check;
-    mCommandList->Reset(alloc, pso->GetPso()) >> Kds::App::Check;
-    bIsClossed = false;
+    if (!bIsClossed)
+    {
+        LOG_ERROR("Command list allready is open");
+        return false;
+    }
+
+    if (commandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue))
+    {
+        mCommandList->Reset(commandAllocator->GetCommandListAllocator(), pso->GetPso()) >> Kds::App::Check;
+        bIsClossed = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void CommandList::Initialize(ID3D12Device* device)
 {
-    if (mCommandAlloc && mCommandList)
+    if (mCommandAllocator && mCommandList)
     {
         LOG_WARNING("CommandList is already initialized.");
         return;
     }
 
-    device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAlloc.GetAddressOf())) >> Kds::App::Check;
-    mCommandAlloc->SetName(L"Command List Allocator");
-    LOG_MESSAGE("Command List Allocator has been created");
+    mCommandAllocator = std::make_unique<CommandAllocator>(device);
 
-    device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAlloc.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >> Kds::App::Check;
+    device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator->GetCommandListAllocator(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >>
+        Kds::App::Check;
     mCommandList->SetName(L"Command List");
     LOG_MESSAGE("Command List has been created");
 

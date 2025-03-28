@@ -56,3 +56,4 @@ void CommandAllocator::Initialize(ID3D12Device* device)
         LOG_ERROR("Error when creating a Command List Allocator");
     }
 }
+ 
