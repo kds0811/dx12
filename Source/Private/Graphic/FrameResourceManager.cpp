@@ -4,7 +4,6 @@
 #include "Device.h"
 #include "SceneManager.h"
 
-
 FrameResourceManager::FrameResourceManager()
 {
     BuildFrameResources();
@@ -18,13 +17,13 @@ void FrameResourceManager::CycleToNextFrameResource()
     mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 }
 
-void FrameResourceManager::BuildFrameResources() 
+void FrameResourceManager::BuildFrameResources()
 {
     mNumFrameResources = Settings::mNumFrameResources;
-    for (int i = 0; i < mNumFrameResources; ++i)
+    for (size_t i = 0; i < mNumFrameResources; ++i)
     {
         mFrameResources.push_back(
-            std::make_unique<FrameResource>(Device::GetDevice(), mPassConstantCount, (UINT)SceneManager::GetSceneObjectsCount(), (UINT)MaterialManager::GetMaterialCount()));
+            std::make_unique<FrameResource>(Device::GetDevice(), mPassConstantCount, SceneManager::GetSceneObjectsCount(), MaterialManager::GetMaterialCount()));
     }
 
     mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();

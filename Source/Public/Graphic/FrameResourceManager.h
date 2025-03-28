@@ -1,22 +1,22 @@
 #pragma once
 #include "FrameResource.h"
-#include "Logger.h"
 
 class FrameResourceManager
 {
     std::vector<std::unique_ptr<FrameResource>> mFrameResources;
     FrameResource* mCurrFrameResource = nullptr;
-    int mCurrFrameResourceIndex = 0;
-    static constexpr size_t mPassConstantCount = 2;
+    UINT mCurrFrameResourceIndex = 0;
+    static constexpr UINT mPassConstantCount = 2;
 
     // Cache number of frame resources
-    size_t mNumFrameResources = 0;
+    UINT mNumFrameResources = 0;
 
 public:
     FrameResourceManager();
     ~FrameResourceManager();
 
     void CycleToNextFrameResource();
+
     [[nodiscard]] inline UINT64 GetCurrentFenceValue()
     {
         assert(mCurrFrameResource);
@@ -57,7 +57,7 @@ public:
         return mCurrFrameResource->GetObjectConstants();
     }
 
-    [[nodiscard]] inline ID3D12CommandAllocator* GetCurrentCommandListAllocator()
+    [[nodiscard]] inline ID3D12CommandAllocator* GetCurrentCommandListAllocator() const
     {
         assert(mCurrFrameResource);
         if (!mCurrFrameResource)
@@ -67,7 +67,17 @@ public:
         return mCurrFrameResource->GetCommandListAllocator();
     }
 
-    inline void ResetCurrentCommandListallocator() { mCurrFrameResource->GetCommandListAllocator()->Reset(); }
+       [[nodiscard]] inline ID3D12CommandAllocator* GetCurrentCommandListAllocator()
+    {
+        assert(mCurrFrameResource);
+        if (!mCurrFrameResource)
+        {
+            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
+        }
+        return mCurrFrameResource->GetCommandListAllocator();
+    }
+
+    inline bool ResetCurrentCommandListAllocator(UINT64 fenceValue) { mCurrFrameResource->ResetCommandAllocatorIfFenceComplited(fenceValue); }
 
     inline void SetFenceValueToCurrentFrameResource(UINT64 value) { mCurrFrameResource->SetFenceValue(value); }
 

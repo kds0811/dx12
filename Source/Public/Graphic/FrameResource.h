@@ -42,43 +42,20 @@ struct PassConstants
     // are spot lights for a maximum of MaxLights per object.
     Light Lights[MaxLights];
 
-DirectX::XMFLOAT4 gBaseColors[32] = {
-        DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-        DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-        DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-        DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f),
-        DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f),
-        DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f),
-        DirectX::XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f),
-        DirectX::XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f),
-        DirectX::XMFLOAT4(0.0f, 1.0f, 0.5f, 1.0f),
-        DirectX::XMFLOAT4(1.0f, 0.0f, 0.5f, 1.0f),
-        DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
+    DirectX::XMFLOAT4 gBaseColors[32] = {DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+        DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),
         DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
 
-        DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f),  
-        DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f),  
-        DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),  
-        DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f),  
-        DirectX::XMFLOAT4(0.5f, 0.0f, 0.5f, 1.0f),  
-        DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f),  
-        DirectX::XMFLOAT4(1.0f, 0.25f, 0.0f, 1.0f), 
-        DirectX::XMFLOAT4(0.75f, 0.0f, 1.0f, 1.0f), 
-        DirectX::XMFLOAT4(0.0f, 1.0f, 0.25f, 1.0f), 
-        DirectX::XMFLOAT4(1.0f, 0.0f, 0.25f, 1.0f), 
+        DirectX::XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(0.5f, 0.0f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.25f, 0.0f, 1.0f),
+        DirectX::XMFLOAT4(0.75f, 0.0f, 1.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.25f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.25f, 1.0f),
 
-        DirectX::XMFLOAT4(0.9f, 0.6f, 0.6f, 1.0f), 
-        DirectX::XMFLOAT4(0.6f, 0.9f, 0.6f, 1.0f), 
-        DirectX::XMFLOAT4(0.6f, 0.6f, 0.9f, 1.0f), 
-        DirectX::XMFLOAT4(0.9f, 0.9f, 0.6f, 1.0f), 
-        DirectX::XMFLOAT4(0.9f, 0.6f, 0.9f, 1.0f), 
-        DirectX::XMFLOAT4(0.6f, 0.9f, 0.9f, 1.0f), 
+        DirectX::XMFLOAT4(0.9f, 0.6f, 0.6f, 1.0f), DirectX::XMFLOAT4(0.6f, 0.9f, 0.6f, 1.0f), DirectX::XMFLOAT4(0.6f, 0.6f, 0.9f, 1.0f), DirectX::XMFLOAT4(0.9f, 0.9f, 0.6f, 1.0f),
+        DirectX::XMFLOAT4(0.9f, 0.6f, 0.9f, 1.0f), DirectX::XMFLOAT4(0.6f, 0.9f, 0.9f, 1.0f),
 
-        DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f),    
-        DirectX::XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f), 
-        DirectX::XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f), 
-        DirectX::XMFLOAT4(0.5f, 0.25f, 0.0f, 1.0f)    
-    };
+        DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f), DirectX::XMFLOAT4(0.75f, 0.75f, 0.75f, 1.0f),
+        DirectX::XMFLOAT4(0.5f, 0.25f, 0.0f, 1.0f)};
 };
 
 struct Vertex
@@ -88,21 +65,17 @@ struct Vertex
     DirectX::XMFLOAT2 TexC = {0.0f, 0.0f};
 };
 
-
+class CommandAllocator;
 
 // Stores the resources needed for the CPU to build the command lists
 // for a frame.
-struct FrameResource
+class FrameResource
 {
 private:
-    UINT64 mFence = 0;
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CmdListAlloc = nullptr;
+    std::unique_ptr<CommandAllocator> mCommandAllocator;
     std::unique_ptr<UploadBuffer<PassConstants>> PassCB = nullptr;
     std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
-
-
-
 
 public:
     FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount);
@@ -112,12 +85,17 @@ public:
     FrameResource& operator=(const FrameResource&& rhs) = delete;
     ~FrameResource();
 
-    [[nodiscard]] inline UINT64 GetFenceValue() noexcept { return mFence; }
-    inline void SetFenceValue(UINT64 value) noexcept { mFence = value; }
+    UINT64 GetFenceValue() noexcept;
+    void SetFenceValue(UINT64 value) noexcept;
 
-    [[nodiscard]] inline UploadBuffer<PassConstants>* GetPassConstants() noexcept{ return PassCB.get(); }
+    [[nodiscard]] inline UploadBuffer<PassConstants>* GetPassConstants() noexcept { return PassCB.get(); }
     [[nodiscard]] inline UploadBuffer<MaterialConstants>* GetMaterialConstants() noexcept { return MaterialCB.get(); }
     [[nodiscard]] inline UploadBuffer<ObjectConstants>* GetObjectConstants() noexcept { return ObjectCB.get(); }
-    [[nodiscard]] inline ID3D12CommandAllocator* GetCommandListAllocator() noexcept { return CmdListAlloc.Get(); }
+    ID3D12CommandAllocator* GetCommandListAllocator() noexcept;
+    ID3D12CommandAllocator* GetCommandListAllocator() const noexcept;
 
+    bool ResetCommandAllocatorIfFenceComplited(UINT64 fence);
+
+private:
+    void Initialize(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount);
 };
