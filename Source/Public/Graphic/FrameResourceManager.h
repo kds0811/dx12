@@ -14,6 +14,10 @@ class FrameResourceManager
 public:
     FrameResourceManager();
     ~FrameResourceManager();
+    FrameResourceManager(const FrameResourceManager&) = delete;
+    FrameResourceManager& operator=(const FrameResourceManager&) = delete;
+    FrameResourceManager(FrameResourceManager&& other) noexcept;
+    FrameResourceManager& operator=(FrameResourceManager&& other) noexcept;
 
     void CycleToNextFrameResource();
 

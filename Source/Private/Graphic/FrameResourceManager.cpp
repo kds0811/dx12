@@ -11,6 +11,23 @@ FrameResourceManager::FrameResourceManager()
 
 FrameResourceManager::~FrameResourceManager() = default;
 
+FrameResourceManager::FrameResourceManager(FrameResourceManager&& other) noexcept
+    :
+    mFrameResources(std::move(other.mFrameResources)),
+    mCurrFrameResource(std::move(other.mCurrFrameResource)),
+    mCurrFrameResourceIndex(other.mCurrFrameResourceIndex),
+    mNumFrameResources(other.mNumFrameResources)
+{}
+
+FrameResourceManager& FrameResourceManager::operator=(FrameResourceManager&& other) noexcept
+{
+    mFrameResources = std::move(other.mFrameResources);
+    mCurrFrameResource =std::move(other.mCurrFrameResource);
+    mCurrFrameResourceIndex = other.mCurrFrameResourceIndex;
+    mNumFrameResources = other.mNumFrameResources;
+    return *this;
+}
+
 void FrameResourceManager::CycleToNextFrameResource()
 {
     mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % mNumFrameResources;

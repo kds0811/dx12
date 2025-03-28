@@ -6,6 +6,21 @@ CommandAllocator::CommandAllocator(ID3D12Device* device)
     Initialize(device);
 }
 
+CommandAllocator::~CommandAllocator() = default;
+
+CommandAllocator::CommandAllocator(CommandAllocator&& other) noexcept
+    :
+    mFence(other.mFence),
+    mCommandAlloc(std::move(other.mCommandAlloc))
+{}
+
+CommandAllocator& CommandAllocator::operator=(CommandAllocator&& other) noexcept
+{
+    mFence = other.mFence;
+    mCommandAlloc = std::move(other.mCommandAlloc);
+    return *this;
+}
+
 ID3D12CommandAllocator* CommandAllocator::GetCommandListAllocator()
 {
     if (!mCommandAlloc)

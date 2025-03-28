@@ -15,6 +15,35 @@ CommandQueue::~CommandQueue()
     }
 }
 
+CommandQueue::CommandQueue(CommandQueue&& other) noexcept
+    :
+    mCurrentFenceValue(other.mCurrentFenceValue),
+    mLastCompletedFenceValue(other.mLastCompletedFenceValue),
+    mFence(std::move(other.mFence)),
+    mCommandQueue(std::move(other.mCommandQueue)),
+    mEventHandle(other.mEventHandle),
+    mType(other.mType)
+{}
+
+CommandQueue& CommandQueue::operator=(CommandQueue&& other) noexcept
+{
+    if (this != &other)
+    {
+        if (mEventHandle)
+        {
+            CloseHandle(mEventHandle);
+            mEventHandle = nullptr;
+        }
+        mCurrentFenceValue = other.mCurrentFenceValue;
+        mLastCompletedFenceValue = other.mLastCompletedFenceValue;
+        mFence = std::move(other.mFence);
+        mCommandQueue = std::move(other.mCommandQueue);
+        mEventHandle = other.mEventHandle;
+        mType = other.mType;
+    }
+    return *this;
+}
+
 UINT64 CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list)
 {
     std::lock_guard<std::mutex> LockGuard(mFenceMutex);

@@ -8,6 +8,11 @@ class CommandAllocator
 
 public:
     CommandAllocator(ID3D12Device* device);
+    ~CommandAllocator();
+    CommandAllocator(const CommandAllocator&) = delete;
+    CommandAllocator& operator=(const CommandAllocator&) = delete;
+    CommandAllocator(CommandAllocator&& other) noexcept;
+    CommandAllocator& operator=(CommandAllocator&& other) noexcept;
 
     inline UINT64 GetFenceValue() noexcept { return mFence; }
     inline void SetFenceValue(UINT64 value) noexcept { mFence = value; }

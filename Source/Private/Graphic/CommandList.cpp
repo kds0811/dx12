@@ -8,6 +8,29 @@ CommandList::CommandList(ID3D12Device* device)
     Initialize(device);
 }
 
+CommandList::~CommandList() = default;
+
+CommandList::CommandList(CommandList&& other) noexcept
+    :
+    mCommandAllocator(std::move(other.mCommandAllocator)),
+    mCommandList(std::move(other.mCommandList)),
+    bIsClossed(other.bIsClossed)
+{
+    other.bIsClossed = true;
+}
+
+CommandList& CommandList::operator=(CommandList&& other) noexcept
+{
+    if (this != &other)
+    {
+        mCommandAllocator = std::move(other.mCommandAllocator);
+        mCommandList = std::move(other.mCommandList);
+        bIsClossed = other.bIsClossed;
+        other.bIsClossed = true;
+    }   
+    return *this;
+}
+
 ID3D12GraphicsCommandList* CommandList::GetCommandList() const
 {
     assert(mCommandList);

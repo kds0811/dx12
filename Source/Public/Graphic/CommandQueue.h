@@ -9,13 +9,17 @@ class CommandQueue
     Microsoft::WRL::ComPtr<ID3D12Fence1> mFence = nullptr;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue = nullptr;
     HANDLE mEventHandle = nullptr;
-    const D3D12_COMMAND_LIST_TYPE mType;
+    D3D12_COMMAND_LIST_TYPE mType;
     std::mutex mFenceMutex;
     std::mutex mEventMutex;
 
 public:
     CommandQueue(D3D12_COMMAND_LIST_TYPE Type, ID3D12Device* device);
     ~CommandQueue();
+    CommandQueue(const CommandQueue&) = delete;
+    CommandQueue& operator=(const CommandQueue&) = delete;
+    CommandQueue(CommandQueue&& other) noexcept;
+    CommandQueue& operator=(CommandQueue&& other) noexcept;
 
     UINT64 ExecuteCommandList(ID3D12GraphicsCommandList* list);
     void WaitForFence(UINT64 fenceValue);
