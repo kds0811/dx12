@@ -1,5 +1,6 @@
 #include "CommandQueue.h"
 #include <MathHelper.h>
+#include "CommandList.h"
 
 CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ID3D12Device* device) : mType(type)
 {
@@ -12,18 +13,15 @@ CommandQueue::~CommandQueue()
     if (mEventHandle)
     {
         CloseHandle(mEventHandle);
+        mEventHandle = nullptr;
     }
 }
 
 CommandQueue::CommandQueue(CommandQueue&& other) noexcept
-    :
-    mCurrentFenceValue(other.mCurrentFenceValue),
-    mLastCompletedFenceValue(other.mLastCompletedFenceValue),
-    mFence(std::move(other.mFence)),
-    mCommandQueue(std::move(other.mCommandQueue)),
-    mEventHandle(other.mEventHandle),
-    mType(other.mType)
-{}
+    : mCurrentFenceValue(other.mCurrentFenceValue), mLastCompletedFenceValue(other.mLastCompletedFenceValue), mFence(std::move(other.mFence)),
+      mCommandQueue(std::move(other.mCommandQueue)), mEventHandle(other.mEventHandle), mType(other.mType)
+{
+}
 
 CommandQueue& CommandQueue::operator=(CommandQueue&& other) noexcept
 {
@@ -44,24 +42,40 @@ CommandQueue& CommandQueue::operator=(CommandQueue&& other) noexcept
     return *this;
 }
 
-UINT64 CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list)
+std::pair<bool, UINT64> CommandQueue::ExecuteCommandList(CommandList* list)
 {
+    if (!IsValidState()) return std::pair(false, 0u);
+
+    if (!list)
+    {
+        LOG_ERROR("CommandQueue::ExecuteCommandList: list pointer is nullptr");
+        return std::pair(false, 0u);
+    }
+
+    if (list->IsClosed()) return std::pair(false, 0u);
+
+    list->Close();
+
     std::lock_guard<std::mutex> LockGuard(mFenceMutex);
 
-    list->Close() >> Kds::App::Check;
-    ID3D12CommandList* cmdsLists[] = {list};
+    ID3D12CommandList* cmdsLists[] = {list->GetCommands()};
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue);
 
-    return mCurrentFenceValue;
+    return std::pair(true, mCurrentFenceValue);
 }
 
 void CommandQueue::WaitForFence(UINT64 fenceValue)
 {
-    if (IsFenceComplete(fenceValue)) return;
-
+    if (IsFenceComplete(fenceValue))
     {
+        return;
+    }
+    else
+    {
+        if (!IsValidState()) return;
+
         std::lock_guard<std::mutex> LockGuard(mEventMutex);
 
         mFence->SetEventOnCompletion(fenceValue, mEventHandle);
@@ -72,6 +86,8 @@ void CommandQueue::WaitForFence(UINT64 fenceValue)
 
 void CommandQueue::FlushCommandQueue()
 {
+    if (!IsValidState()) return;
+
     std::lock_guard<std::mutex> LockGuard(mEventMutex);
 
     mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue) >> Kds::App::Check;
@@ -122,3 +138,27 @@ void CommandQueue::Initialize(ID3D12Device* device)
     device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)) >> Kds::App::Check;
 }
 
+bool CommandQueue::IsValidState()
+{
+    assert(mFence && mCommandQueue && mEventHandle);
+
+    if (!mFence)
+    {
+        LOG_ERROR("CommandQueue: Attempt to access a nullptr mFence");
+        return false;
+    }
+
+    if (!mCommandQueue)
+    {
+        LOG_ERROR("CommandQueue: Attempt to access a nullptr mCommandQueue");
+        return false;
+    }
+
+    if (!mEventHandle)
+    {
+        LOG_ERROR("CommandQueue: Attempt to access a nullptr mEventHandle");
+        return false;
+    }
+
+    return true;
+}

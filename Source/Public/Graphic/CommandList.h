@@ -1,11 +1,14 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
+#include "CommandQueue.h"
 
 class Pso;
 class CommandAllocator;
 
 class CommandList
 {
+    friend CommandQueue;
+
     std::unique_ptr<CommandAllocator> mCommandAllocator;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
     bool bIsClosed = false;
@@ -25,7 +28,7 @@ public:
 
     [[nodiscard]] bool ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue);
     [[nodiscard]] bool ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator);
-
+    
 
     void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers);
     void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* rects);
@@ -49,4 +52,6 @@ private:
     [[nodiscard]] bool IsValidStateForReset();
 
     [[nodiscard]] bool ResetCommandList(ID3D12CommandAllocator* allocator, ID3D12PipelineState* pipelineState);
+
+    [[nodiscard]] inline ID3D12GraphicsCommandList* GetCommands() const noexcept { return mCommandList.Get(); }
 };

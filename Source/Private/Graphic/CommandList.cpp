@@ -32,7 +32,7 @@ void CommandList::Close()
 {
     if (IsValidState())
     {
-        mCommandList->Close();
+        mCommandList->Close() >> Kds::App::Check;
         bIsClosed = true;
     }
 }
