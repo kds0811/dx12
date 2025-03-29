@@ -24,11 +24,12 @@ public:
 
     [[nodiscard]] inline bool IsClosed() const noexcept { return bIsClosed; }
     [[nodiscard]] inline bool IsInitialized() const noexcept { return mCommandAllocator && mCommandList; }
-    void Close();
+    [[nodiscard]] bool Close();
 
     [[nodiscard]] bool ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue);
     [[nodiscard]] bool ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator);
-    
+    UINT64 GetFenceValue() noexcept;
+    void SetFenceValue(UINT64 value) noexcept;
 
     void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers);
     void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* rects);

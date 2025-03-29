@@ -42,19 +42,20 @@ CommandQueue& CommandQueue::operator=(CommandQueue&& other) noexcept
     return *this;
 }
 
-std::pair<bool, UINT64> CommandQueue::ExecuteCommandList(CommandList* list)
+bool CommandQueue::ExecuteCommandList(CommandList* list)
 {
-    if (!IsValidState()) return std::pair(false, 0u);
+    if (!IsValidState()) return false;
 
     if (!list)
     {
         LOG_ERROR("CommandQueue::ExecuteCommandList: list pointer is nullptr");
-        return std::pair(false, 0u);
+        return false;
     }
 
-    if (list->IsClosed()) return std::pair(false, 0u);
-
-    list->Close();
+    if (!list->Close())
+    {
+        LOG_MESSAGE("Command list allready is closed");
+    }
 
     std::lock_guard<std::mutex> LockGuard(mFenceMutex);
 
@@ -63,7 +64,9 @@ std::pair<bool, UINT64> CommandQueue::ExecuteCommandList(CommandList* list)
 
     mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue);
 
-    return std::pair(true, mCurrentFenceValue);
+    list->SetFenceValue(mCurrentFenceValue);
+
+    return true;
 }
 
 void CommandQueue::WaitForFence(UINT64 fenceValue)

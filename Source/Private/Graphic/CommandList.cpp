@@ -28,13 +28,15 @@ CommandList& CommandList::operator=(CommandList&& other) noexcept
     return *this;
 }
 
-void CommandList::Close()
+bool CommandList::Close()
 {
-    if (IsValidState())
-    {
-        mCommandList->Close() >> Kds::App::Check;
-        bIsClosed = true;
-    }
+    if (!IsValidState()) return false;
+
+    if (IsClosed()) return false;
+
+    mCommandList->Close() >> Kds::App::Check;
+    bIsClosed = true;
+    return true;
 }
 
 bool CommandList::ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue)
@@ -65,7 +67,16 @@ bool CommandList::ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFence
     if (!commandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue)) return false;
 
     return ResetCommandList(commandAllocator->GetCommandListAllocator(), pso->GetPso());
+}
 
+UINT64 CommandList::GetFenceValue() noexcept
+{
+    return mCommandAllocator->GetFenceValue();
+}
+
+void CommandList::SetFenceValue(UINT64 value) noexcept
+{
+    mCommandAllocator->SetFenceValue(value);
 }
 
 void CommandList::Initialize(ID3D12Device* device)

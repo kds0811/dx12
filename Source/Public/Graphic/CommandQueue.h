@@ -23,10 +23,7 @@ public:
     CommandQueue(CommandQueue&& other) noexcept;
     CommandQueue& operator=(CommandQueue&& other) noexcept;
 
-    /// \brief Executes a command list on the queue.
-    /// \param list CommandList to execute. Must not be nullptr or closed.
-    /// \return Pair: success flag and fence value (0 on failure).
-    [[nodiscard]] std::pair<bool, UINT64> ExecuteCommandList(CommandList* list);
+    [[nodiscard]] bool ExecuteCommandList(CommandList* list);
 
     void WaitForFence(UINT64 fenceValue);
     void FlushCommandQueue();
