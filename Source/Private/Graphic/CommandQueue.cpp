@@ -121,3 +121,4 @@ void CommandQueue::Initialize(ID3D12Device* device)
 
     device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)) >> Kds::App::Check;
 }
+

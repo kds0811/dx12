@@ -11,12 +11,9 @@ CommandList::CommandList(ID3D12Device* device)
 CommandList::~CommandList() = default;
 
 CommandList::CommandList(CommandList&& other) noexcept
-    :
-    mCommandAllocator(std::move(other.mCommandAllocator)),
-    mCommandList(std::move(other.mCommandList)),
-    bIsClossed(other.bIsClossed)
+    : mCommandAllocator(std::move(other.mCommandAllocator)), mCommandList(std::move(other.mCommandList)), bIsClosed(other.bIsClosed)
 {
-    other.bIsClossed = true;
+    other.bIsClosed = true;
 }
 
 CommandList& CommandList::operator=(CommandList&& other) noexcept
@@ -25,85 +22,50 @@ CommandList& CommandList::operator=(CommandList&& other) noexcept
     {
         mCommandAllocator = std::move(other.mCommandAllocator);
         mCommandList = std::move(other.mCommandList);
-        bIsClossed = other.bIsClossed;
-        other.bIsClossed = true;
-    }   
+        bIsClosed = other.bIsClosed;
+        other.bIsClosed = true;
+    }
     return *this;
-}
-
-ID3D12GraphicsCommandList* CommandList::GetCommandList() const
-{
-    assert(mCommandList);
-    if (mCommandList)
-    {
-        return mCommandList.Get();
-    }
-    LOG_ERROR("try to get ID3D12GraphicsCommandList* when it is nullptr");
-    return nullptr;
-}
-
-ID3D12GraphicsCommandList* CommandList::GetCommandList()
-{
-    assert(mCommandList);
-    if (mCommandList)
-    {
-        return mCommandList.Get();
-    }
-    LOG_ERROR("try to get ID3D12GraphicsCommandList* when it is nullptr");
-    return nullptr;
 }
 
 void CommandList::Close()
 {
-    if (!bIsClossed)
+    if (IsValidState())
     {
         mCommandList->Close();
-        bIsClossed = true;
-    }
-    else
-    {
-        LOG_ERROR("attempt to close an already closed Command List");
+        bIsClosed = true;
     }
 }
 
 bool CommandList::ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue)
 {
-    if (!bIsClossed)
+    if (!pso)
     {
-        LOG_ERROR("Command list allready is open");
+        LOG_ERROR("Pso pointer is nullptr");
         return false;
     }
 
-    if (mCommandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue))
-    {
-        mCommandList->Reset(mCommandAllocator->GetCommandListAllocator(), pso->GetPso()) >> Kds::App::Check;
-        bIsClossed = false;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    if (!IsValidStateForReset()) return false;
+
+    if (!mCommandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue)) return false;
+
+    return ResetCommandList(mCommandAllocator->GetCommandListAllocator(), pso->GetPso());
 }
 
 bool CommandList::ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator)
 {
-    if (!bIsClossed)
+    if (!pso)
     {
-        LOG_ERROR("Command list allready is open");
+        LOG_ERROR("Pso pointer is nullptr");
         return false;
     }
 
-    if (commandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue))
-    {
-        mCommandList->Reset(commandAllocator->GetCommandListAllocator(), pso->GetPso()) >> Kds::App::Check;
-        bIsClossed = false;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    if (!IsValidStateForReset()) return false;
+
+    if (!commandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue)) return false;
+
+    return ResetCommandList(commandAllocator->GetCommandListAllocator(), pso->GetPso());
+
 }
 
 void CommandList::Initialize(ID3D12Device* device)
@@ -122,5 +84,121 @@ void CommandList::Initialize(ID3D12Device* device)
     LOG_MESSAGE("Command List has been created");
 
     mCommandList->Close();
-    bIsClossed = true;
+    bIsClosed = true;
+}
+
+void CommandList::ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers)
+{
+    if (IsValidState())
+    {
+        mCommandList->ResourceBarrier(numBarriers, barriers);
+    }
+}
+
+void CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* rects)
+{
+    if (IsValidState())
+    {
+        mCommandList->ClearRenderTargetView(renderTargetView, colorRGBA, numRects, rects);
+    }
+}
+
+void CommandList::DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation)
+{
+    if (IsValidState())
+    {
+        mCommandList->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
+    }
+}
+
+void CommandList::SetPipelineState(ID3D12PipelineState* pipelineState)
+{
+    if (IsValidState())
+    {
+        mCommandList->SetPipelineState(pipelineState);
+    }
+}
+
+void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* rootSignature)
+{
+    if (IsValidState())
+    {
+        mCommandList->SetGraphicsRootSignature(rootSignature);
+    }
+}
+
+void CommandList::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology)
+{
+    if (IsValidState())
+    {
+        mCommandList->IASetPrimitiveTopology(primitiveTopology);
+    }
+}
+
+void CommandList::IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views)
+{
+    if (IsValidState())
+    {
+        mCommandList->IASetVertexBuffers(startSlot, numViews, views);
+    }
+}
+
+void CommandList::OMSetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
+    const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilDescriptor)
+{
+    if (IsValidState())
+    {
+        mCommandList->OMSetRenderTargets(numRenderTargetDescriptors, renderTargetDescriptors, singleDescriptorHandle, depthStencilDescriptor);
+    }
+}
+
+bool CommandList::IsValidState()
+{
+    assert(mCommandList && !bIsClosed);
+
+    if (!mCommandList)
+    {
+        LOG_ERROR("CommandList: Attempt to access a nullptr command list");
+        return false;
+    }
+
+    if (bIsClosed)
+    {
+        LOG_ERROR("CommandList: Attempt to add a command to a closed command list");
+        return false;
+    }
+
+    return true;
+}
+
+bool CommandList::IsValidStateForReset()
+{
+    assert(mCommandList && bIsClosed);
+
+    if (!mCommandList)
+    {
+        LOG_ERROR("CommandList: Attempt to reset a nullptr command list");
+        return false;
+    }
+
+    if (!bIsClosed)
+    {
+        LOG_ERROR("CommandList: Attempting to reset an open command list");
+        return false;
+    }
+
+    return true;
+}
+
+bool CommandList::ResetCommandList(ID3D12CommandAllocator* allocator, ID3D12PipelineState* pipelineState)
+{
+    if (!allocator || !pipelineState)
+    {
+        LOG_ERROR("Invalid allocator or pipeline state");
+        return false;
+    }
+
+    mCommandList->Reset(allocator, pipelineState) >> Kds::App::Check;
+    bIsClosed = false;
+    return true;
 }
