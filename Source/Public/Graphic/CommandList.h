@@ -1,6 +1,5 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
-#include <memory>
 
 class Pso;
 class CommandAllocator;
@@ -29,7 +28,7 @@ public:
     void Close();
 
     bool ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue);
-    bool ResetWithAnotherAlloc(CommandAllocator* commandAllocator, Pso* pso, UINT64 queueLastCompletedFenceValue);
+    bool ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator);
 
 private:
     void Initialize(ID3D12Device* device);

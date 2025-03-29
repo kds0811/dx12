@@ -86,7 +86,7 @@ bool CommandList::ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValu
     }
 }
 
-bool CommandList::ResetWithAnotherAlloc(CommandAllocator* commandAllocator, Pso* pso, UINT64 queueLastCompletedFenceValue)
+bool CommandList::ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator)
 {
     if (!bIsClossed)
     {

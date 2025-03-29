@@ -8,3 +8,4 @@
 #include <DirectXMath.h>
 #include "Logger.h"
 #include <cassert>
+#include <memory>

@@ -26,7 +26,6 @@ public:
     void FlushCommandQueue();
     bool IsFenceComplete(UINT64 FenceValue);
     [[nodiscard]] ID3D12CommandQueue* GetCommandQueue() const noexcept { return mCommandQueue.Get(); }
-    [[nodiscard]] bool IsFenceComplete(UINT64 fenceValue) noexcept { return mFence->GetCompletedValue() >= fenceValue; }
     [[nodiscard]] D3D12_COMMAND_LIST_TYPE GetType() const noexcept { return mType; }
     [[nodiscard]] UINT64 GetCurrentFenceValue() const noexcept { return mCurrentFenceValue; }
     [[nodiscard]] UINT64 GetLastCompletedFenceValue() const noexcept { return mLastCompletedFenceValue; }
