@@ -7,6 +7,6 @@ class Pso
 
 public:
     Pso();
-    [[nodiscard]] inline ID3D12PipelineState* GetPso() const noexcept { return mPso.Get(); }
+    [[nodiscard]] inline ID3D12PipelineState* GetPso() noexcept { return mPso.Get(); }
 
 };

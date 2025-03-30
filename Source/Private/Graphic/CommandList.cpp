@@ -4,6 +4,7 @@
 #include "CommandQueue.h"
 #include "CommandManager.h"
 #include "string"
+#include "ResourceManager.h"
 
 CommandList::CommandList(ID3D12Device* device, UINT id)
 {

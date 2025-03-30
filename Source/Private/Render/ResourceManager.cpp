@@ -1,4 +1,12 @@
 #include "ResourceManager.h"
+#include "MaterialManager.h"
+#include "TextureManager.h"
+#include "Material.h"
+#include "GeometryManager.h"
+#include "CommandManager.h"
+#include "Device.h"
+#include "PsoManager.h"
+#include "CommandList.h"
 
 ResourceManager::ResourceManager()
 {
@@ -11,6 +19,8 @@ ResourceManager::ResourceManager()
     AddTexturesToStandartMaterial();
 }
 
+ResourceManager::~ResourceManager() = default;
+
 const Material* ResourceManager::GetMaterial(const std::string& name) const
 {
     return mMaterialManager->GetMaterial(name);
@@ -18,18 +28,15 @@ const Material* ResourceManager::GetMaterial(const std::string& name) const
 
 void ResourceManager::BuildResources()
 {
-    // open command list
-    mCommandList->Reset(mCommandAllocator.Get(), nullptr) >> Kds::App::Check;
+    auto commandList = CommandManager::GetFreeCommandListAndResetIt(PsoManager::GetStandartPso()); 
+    auto device = Device::GetDevice();
 
-    mTextureManager->CreateBaseTextures(pDevice, mCommandList.Get());
-    mGeometryManager->CreateBaseGeometries(pDevice, mCommandList.Get());
+    mTextureManager->CreateBaseTextures(device, commandList->GetCommandList());
+    mGeometryManager->CreateBaseGeometries(device, commandList->GetCommandList());
     mGeometryManager->CreatePrimitiveStaticMeshes();
 
-    // add on queue and execute commands
-    mCommandList->Close() >> Kds::App::Check;
-    ID3D12CommandList* cmdsLists[] = {mCommandList.Get()};
-    pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-    FlushCommandQueue();
+    CommandManager::ReturnAndExecuteCommandList(commandList);
+    CommandManager::FlushCommandQueue();
 }
 
 

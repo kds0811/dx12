@@ -4,6 +4,7 @@
 class Pso;
 class CommandAllocator;
 class CommandManager;
+class ResourceManager;
 
 /// \brief Represents a Direct3D 12 command list and provides methods for recording and managing GPU commands.
 ///
@@ -19,6 +20,7 @@ class CommandList
 {
     friend CommandQueue;
     friend CommandManager;
+    friend ResourceManager;
 
     std::unique_ptr<CommandAllocator> mCommandAllocator;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;

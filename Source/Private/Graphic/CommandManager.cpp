@@ -56,7 +56,6 @@ void CommandManager::FlushCommandQueue()
     mCommandQueueDirect->FlushCommandQueue();
 }
 
-
 void CommandManager::Initialize(ID3D12Device* device)
 {
     mCommandQueueDirect = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT, device);
