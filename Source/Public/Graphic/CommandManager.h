@@ -13,6 +13,17 @@ class CommandList;
 using VectorCommandListPtr = std::vector<CommandList*>;
 auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
 
+
+/// \brief Manages a pool of CommandLists and provides an interface to retrieve, reset, and execute them.
+///
+/// This class is responsible for maintaining a pool of reusable CommandLists. It ensures efficient resource usage by recycling CommandLists after they have been executed. The
+/// class also provides thread-safe access to the pool through a mutex.
+///
+/// Key responsibilities:
+/// - Maintaining ownership of all CommandLists (`mCommandListStorage`).
+/// - Providing free CommandLists via `GetFreeCommandListAndResetIt`.
+/// - Returning executed CommandLists to the pool via `ReturnAndExecuteCommandList`.
+/// - Managing the CommandQueue (`mCommandQueueDirect`) for executing commands.
 class CommandManager
 {
     static inline std::unique_ptr<CommandQueue> mCommandQueueDirect;
@@ -46,7 +57,7 @@ public:
     /// 
     /// This function checks if the CommandQueue is valid and then calls its FlushCommandQueue method.
     /// Flushing the queue ensures that all previously submitted commands are completed before proceeding.
-    void FlushCommandQueue();
+    static void FlushCommandQueue();
 
 private:
     void Initialize(ID3D12Device* device);

@@ -1,6 +1,17 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 
+
+/// \brief Represents a Direct3D 12 command allocator and manages its lifecycle.
+///
+/// This class encapsulates a Direct3D 12 command allocator, which is used to allocate memory for recording command lists. It ensures proper synchronization with the GPU using
+/// fences and provides methods for resetting the allocator when it is safe to do so.
+///
+/// Key responsibilities:
+/// - Allocating memory for command lists.
+/// - Managing GPU/CPU synchronization using fences (`mFence`).
+/// - Resetting the allocator when it is no longer in use by the GPU.
+/// - Providing access to the underlying ID3D12CommandAllocator object.
 class CommandAllocator
 {
     UINT64 mFence = 0;

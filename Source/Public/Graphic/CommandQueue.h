@@ -4,6 +4,16 @@
 
 class CommandList;
 
+/// \brief Represents a Direct3D 12 command queue and manages GPU synchronization using fences.
+///
+/// This class encapsulates the functionality of a Direct3D 12 command queue, including executing CommandLists, managing fences for synchronization, and ensuring that GPU resources
+/// are properly synchronized with the CPU.
+///
+/// Key responsibilities:
+/// - Executing CommandLists submitted by the application.
+/// - Managing GPU/CPU synchronization using fences (`mFence`, `mCurrentFenceValue`, `mLastCompletedFenceValue`).
+/// - Flushing the command queue to ensure all pending commands are completed.
+/// - Waiting for specific fence values to be signaled by the GPU.
 class CommandQueue
 {
     UINT64 mCurrentFenceValue = 0;

@@ -5,6 +5,16 @@ class Pso;
 class CommandAllocator;
 class CommandManager;
 
+/// \brief Represents a Direct3D 12 command list and provides methods for recording and managing GPU commands.
+///
+/// This class encapsulates a Direct3D 12 command list and its associated command allocator. It provides methods for recording GPU commands (e.g., drawing, setting pipeline states)
+/// and ensures proper state management (e.g., open/closed state).
+///
+/// Key responsibilities:
+/// - Recording GPU commands (e.g., `DrawInstanced`, `ResourceBarrier`, etc.).
+/// - Managing the lifecycle of the command list (e.g., resetting, closing).
+/// - Synchronizing with the GPU using fences (`mFenceValue`).
+/// - Ensuring thread safety and valid state transitions (e.g., checking if the command list is closed before adding commands).
 class CommandList
 {
     friend CommandQueue;
