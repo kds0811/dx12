@@ -59,7 +59,7 @@ bool CommandQueue::ExecuteCommandList(CommandList* list)
 
     std::lock_guard<std::mutex> LockGuard(mFenceMutex);
 
-    ID3D12CommandList* cmdsLists[] = {list->GetCommands()};
+    ID3D12CommandList* cmdsLists[] = {list->GetCommandList()};
     mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
     mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue);

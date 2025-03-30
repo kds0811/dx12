@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 #include "CommandQueue.h"
+#include "CommandManager.h"
+#include "ResourceManager.h"
 
 class Pso;
 class CommandAllocator;
@@ -12,6 +14,8 @@ class CommandList
     std::unique_ptr<CommandAllocator> mCommandAllocator;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
     bool bIsClosed = false;
+
+    int mID = -1;
 
 public:
     CommandList(ID3D12Device* device);
@@ -28,8 +32,11 @@ public:
 
     [[nodiscard]] bool ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue);
     [[nodiscard]] bool ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator);
-    UINT64 GetFenceValue() noexcept;
+    UINT64 GetFenceValue() const noexcept;
     void SetFenceValue(UINT64 value) noexcept;
+
+    inline void SetID(int id) noexcept { mID = id; }
+
 
     void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers);
     void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* rects);
@@ -54,5 +61,5 @@ private:
 
     [[nodiscard]] bool ResetCommandList(ID3D12CommandAllocator* allocator, ID3D12PipelineState* pipelineState);
 
-    [[nodiscard]] inline ID3D12GraphicsCommandList* GetCommands() const noexcept { return mCommandList.Get(); }
+    [[nodiscard]] inline ID3D12GraphicsCommandList* GetCommandList() const noexcept { return mCommandList.Get(); }
 };

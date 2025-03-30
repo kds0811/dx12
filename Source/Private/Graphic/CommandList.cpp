@@ -69,7 +69,7 @@ bool CommandList::ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFence
     return ResetCommandList(commandAllocator->GetCommandListAllocator(), pso->GetPso());
 }
 
-UINT64 CommandList::GetFenceValue() noexcept
+UINT64 CommandList::GetFenceValue() const noexcept
 {
     return mCommandAllocator->GetFenceValue();
 }
@@ -78,6 +78,7 @@ void CommandList::SetFenceValue(UINT64 value) noexcept
 {
     mCommandAllocator->SetFenceValue(value);
 }
+
 
 void CommandList::Initialize(ID3D12Device* device)
 {

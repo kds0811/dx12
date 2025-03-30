@@ -1,6 +1,6 @@
 #include "CommandManager.h"
 #include "CommandQueue.h"
-#include "CommandList.h"
+
 #include "Pso.h"
 #include "CommandAllocator.h"
 
@@ -13,19 +13,27 @@ CommandManager::CommandManager(ID3D12Device* device)
 
 CommandManager::~CommandManager() = default;
 
-CommandManager::CommandManager(CommandManager&& rhs) noexcept : mCommandQueueDirect(std::move(rhs.mCommandQueueDirect)), mCommandList(std::move(rhs.mCommandList)) {}
-
-CommandManager& CommandManager::operator=(CommandManager&& rhs) noexcept
+CommandList* CommandManager::GetFreeCommandList()
 {
-    if (this != &rhs)
-    {
-        mCommandQueueDirect.reset();
-        mCommandList.reset();
+    std::lock_guard<std::mutex> LockGuard(mGetCommandListMutex);
 
-        mCommandQueueDirect = std::move(rhs.mCommandQueueDirect);
-        mCommandList = std::move(rhs.mCommandList);
+    if (!mFreeCommandListPtrPool.empty())
+    {
+        auto cmdListPtr = mFreeCommandListPtrPool.top();
+        mFreeCommandListPtrPool.pop();
+        return cmdListPtr;
     }
-    return *this;
+    else
+    {
+        // TODO need implement waitng free command list
+        return nullptr;
+    }
+}
+
+void CommandManager::ReturnAndExecuteCommandList(CommandList* commandList)
+{
+    mCommandQueueDirect->ExecuteCommandList(commandList);
+    mFreeCommandListPtrPool.push(commandList);
 }
 
 bool CommandManager::ExecuteCommandList()
@@ -154,5 +162,18 @@ bool CommandManager::IsCommandListClosed() const
 void CommandManager::Initialize(ID3D12Device* device)
 {
     mCommandQueueDirect = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT, device);
-    mCommandList = std::make_unique<CommandList>(device);
+
+    for (size_t i = 0; i < mNumCommandList; ++i)
+    {
+        mCommandListStorage[i] = std::make_unique<CommandList>(device);
+        if (mCommandListStorage[i])
+        {
+            mCommandListStorage[i]->SetID(i);
+            mFreeCommandListPtrPool.push(mCommandListStorage[i].get());
+        }
+        else
+        {
+            LOG_ERROR("CommandList with Index: ", i, " was not created");
+        }
+    }
 }

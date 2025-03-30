@@ -10,15 +10,6 @@
 
 class ResourceManager
 {
-    // pointer to Graphic DirectX fields
-    ID3D12Device8* pDevice = nullptr;
-    ID3D12CommandQueue* pCommandQueue = nullptr;
-
-    // own DirectX fields
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> mCommandList = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Fence> mFence = nullptr;
-    UINT64 mCurrentFenceValue = 0;
 
     // Managers
     std::unique_ptr<GeometryManager> mGeometryManager;
@@ -27,13 +18,11 @@ class ResourceManager
 
 
 public:
-    ResourceManager(ID3D12Device8* device, ID3D12CommandQueue* commandQueue);
+    ResourceManager();
 
     const Material* GetMaterial(const std::string& name) const;
 
 private:
     void BuildResources();
-    void CreateCommandList();
-    void FlushCommandQueue();
     void AddTexturesToStandartMaterial();
 };
