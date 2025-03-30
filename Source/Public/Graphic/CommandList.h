@@ -27,7 +27,7 @@ class CommandList
     int mID = -1;
 
 public:
-    CommandList(ID3D12Device* device);
+    CommandList(ID3D12Device* device, UINT id);
     ~CommandList();
     CommandList(const CommandList&) = delete;
     CommandList& operator=(const CommandList&) = delete;
@@ -51,7 +51,7 @@ public:
         const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilDescriptor);
 
 private:
-    void Initialize(ID3D12Device* device);
+    void Initialize(ID3D12Device* device, UINT id);
 
     /// \brief Checks if the command list is in a valid state for adding commands.
     /// \return True if the command list is valid, false otherwise.
@@ -68,8 +68,6 @@ private:
     [[nodiscard]] bool ResetAllocatorAndCommandList(Pso* pso, UINT64 queueLastCompletedFenceValue);
 
     [[nodiscard]] bool Close();
-
-    inline void SetID(int id) noexcept { mID = id; }
 
     void SetFenceValue(UINT64 value) noexcept;
 };

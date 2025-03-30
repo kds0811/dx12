@@ -139,6 +139,7 @@ void CommandQueue::Initialize(ID3D12Device* device)
     queueDesc.NodeMask = 0;
 
     device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mCommandQueue)) >> Kds::App::Check;
+    mCommandQueue->SetName(L"Command Queue");
 }
 
 bool CommandQueue::IsValidState()

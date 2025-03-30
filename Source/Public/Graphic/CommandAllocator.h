@@ -16,9 +16,10 @@ class CommandAllocator
 {
     UINT64 mFence = 0;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAlloc = nullptr;
+    int mID = -1;
 
 public:
-    CommandAllocator(ID3D12Device* device);
+    CommandAllocator(ID3D12Device* device, UINT id);
     ~CommandAllocator();
     CommandAllocator(const CommandAllocator&) = delete;
     CommandAllocator& operator=(const CommandAllocator&) = delete;
@@ -33,5 +34,5 @@ public:
     bool ResetCommandAllocatorIfFenceComplited(UINT64 fence);
 
 private:
-    void Initialize(ID3D12Device* device);
+    void Initialize(ID3D12Device* device, UINT id);
 };

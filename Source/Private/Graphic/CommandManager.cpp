@@ -63,15 +63,14 @@ void CommandManager::Initialize(ID3D12Device* device)
 
     for (size_t i = 0; i < mNumCommandList; ++i)
     {
-        mCommandListStorage[i] = std::make_unique<CommandList>(device);
+        mCommandListStorage[i] = std::make_unique<CommandList>(device, i);
         if (mCommandListStorage[i])
         {
-            mCommandListStorage[i]->SetID(i);
             mPoolFreeCommandListPtr.push(mCommandListStorage[i].get());
         }
         else
         {
-            LOG_ERROR("CommandList with Index: ", i, " was not created");
+            LOG_ERROR("CommandList with ID: ", i, " was not created");
         }
     }
 }

@@ -3,11 +3,12 @@
 #include "CommandAllocator.h"
 #include "CommandQueue.h"
 #include "CommandManager.h"
+#include "string"
 
-CommandList::CommandList(ID3D12Device* device)
+CommandList::CommandList(ID3D12Device* device, UINT id)
 {
     assert(device);
-    Initialize(device);
+    Initialize(device, id);
 }
 
 CommandList::~CommandList() = default;
@@ -56,7 +57,6 @@ bool CommandList::ResetAllocatorAndCommandList(Pso* pso, UINT64 queueLastComplet
     return ResetCommandList(mCommandAllocator->GetCommandListAllocator(), pso->GetPso());
 }
 
-
 UINT64 CommandList::GetFenceValue() const noexcept
 {
     return mCommandAllocator->GetFenceValue();
@@ -67,8 +67,7 @@ void CommandList::SetFenceValue(UINT64 value) noexcept
     mCommandAllocator->SetFenceValue(value);
 }
 
-
-void CommandList::Initialize(ID3D12Device* device)
+void CommandList::Initialize(ID3D12Device* device, UINT id)
 {
     if (mCommandAllocator && mCommandList)
     {
@@ -80,11 +79,13 @@ void CommandList::Initialize(ID3D12Device* device)
 
     device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator->GetCommandListAllocator(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())) >>
         Kds::App::Check;
-    mCommandList->SetName(L"Command List");
-    LOG_MESSAGE("Command List has been created");
 
     mCommandList->Close();
     bIsClosed = true;
+    mID = static_cast<int>(id);
+    std::wstring name = L"Command List ID: " + std::to_wstring(mID);
+    mCommandList->SetName(name.c_str());
+    LOG_MESSAGE("Command List has been created");
 }
 
 void CommandList::ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers)

@@ -4,15 +4,12 @@
 #include <mutex>
 #include <queue>
 
-
 class CommandQueue;
 class Pso;
 class CommandAllocator;
 class CommandList;
 
-using VectorCommandListPtr = std::vector<CommandList*>;
 auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
-
 
 /// \brief Manages a pool of CommandLists and provides an interface to retrieve, reset, and execute them.
 ///
@@ -32,7 +29,7 @@ class CommandManager
 
     static inline std::array<std::unique_ptr<CommandList>, mNumCommandList> mCommandListStorage;  // ownership of resources
 
-    static inline std::priority_queue<CommandList*, VectorCommandListPtr, decltype(CommandListComparator)> mPoolFreeCommandListPtr;  // Pool of Free Command Lists 
+    static inline std::priority_queue<CommandList*, std::vector<CommandList*>, decltype(CommandListComparator)> mPoolFreeCommandListPtr;  // Pool of Free Command Lists 
 
     static inline std::mutex mGetCommandListMutex;
 

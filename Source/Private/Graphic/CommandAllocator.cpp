@@ -1,7 +1,8 @@
 #include "CommandAllocator.h"
+#include <string>
 
 
-CommandAllocator::CommandAllocator(ID3D12Device* device)
+CommandAllocator::CommandAllocator(ID3D12Device* device, UINT id)
 {
     Initialize(device);
 }
@@ -52,14 +53,16 @@ bool CommandAllocator::ResetCommandAllocatorIfFenceComplited(UINT64 fence)
     return true;
 }
 
-void CommandAllocator::Initialize(ID3D12Device* device)
+void CommandAllocator::Initialize(ID3D12Device* device, UINT id)
 {
     assert(device);
-
+    mID = static_cast<int>(id);
     if (device)
     {
         device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAlloc.GetAddressOf())) >> Kds::App::Check;
-        mCommandAlloc->SetName(L"Command List Allocator");
+
+        std::wstring name = L"Command List Allocator ID: " + std::to_wstring(mID);
+        mCommandAlloc->SetName(name.c_str());
     }
 
     if (mCommandAlloc)

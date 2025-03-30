@@ -61,29 +61,6 @@ public:
         return mCurrFrameResource->GetObjectConstants();
     }
 
-    [[nodiscard]] inline ID3D12CommandAllocator* GetCurrentCommandListAllocator() const
-    {
-        assert(mCurrFrameResource);
-        if (!mCurrFrameResource)
-        {
-            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
-        }
-        return mCurrFrameResource->GetCommandListAllocator();
-    }
-
-       [[nodiscard]] inline ID3D12CommandAllocator* GetCurrentCommandListAllocator()
-    {
-        assert(mCurrFrameResource);
-        if (!mCurrFrameResource)
-        {
-            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
-        }
-        return mCurrFrameResource->GetCommandListAllocator();
-    }
-
-    inline bool ResetCurrentCommandListAllocator(UINT64 fenceValue) { mCurrFrameResource->ResetCommandAllocatorIfFenceComplited(fenceValue); }
-
-    inline void SetFenceValueToCurrentFrameResource(UINT64 value) { mCurrFrameResource->SetFenceValue(value); }
 
 private:
     void BuildFrameResources();

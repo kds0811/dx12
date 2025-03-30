@@ -1,15 +1,11 @@
 #include "FrameResource.h"
 
-
-
 FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount)
 {
     Initialize(device,  passCount, objectCount, materialCount);
 }
 
 FrameResource::~FrameResource() = default;
-
-
 
 void FrameResource::Initialize(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount)
 {
