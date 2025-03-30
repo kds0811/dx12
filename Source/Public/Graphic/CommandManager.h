@@ -3,11 +3,12 @@
 #include <array>
 #include <mutex>
 #include <queue>
-#include "CommandList.h"
+
 
 class CommandQueue;
 class Pso;
 class CommandAllocator;
+class CommandList;
 
 using VectorCommandListPtr = std::vector<CommandList*>;
 auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
@@ -20,7 +21,7 @@ class CommandManager
 
     static inline std::array<std::unique_ptr<CommandList>, mNumCommandList> mCommandListStorage;  // ownership of resources
 
-    static inline std::priority_queue<CommandList*, VectorCommandListPtr, decltype(CommandListComparator)> mFreeCommandListPtrPool; // Pool of ready to distribute Command Lists 
+    static inline std::priority_queue<CommandList*, VectorCommandListPtr, decltype(CommandListComparator)> mPoolFreeCommandListPtr;  // Pool of Free Command Lists 
 
     static inline std::mutex mGetCommandListMutex;
 
@@ -32,21 +33,20 @@ public:
     CommandManager(CommandManager&& rhs) noexcept = delete;
     CommandManager& operator=(CommandManager&& rhs) noexcept = delete;
 
-    static CommandList* GetFreeCommandList();
+    /// \brief Retrieves a free CommandList from the pool, resets it, and prepares it for reuse.
+    /// \param pso Pointer to the Pipeline State Object (PSO) used to reset the CommandList.
+    /// \return A pointer to the ready-to-use CommandList, or nullptr if no free CommandList is available.
+    static CommandList* GetFreeCommandListAndResetIt(Pso* pso);
+
+    /// \brief Executes the given CommandList and returns it to the pool of free CommandLists.
+    /// \param commandList Pointer to the CommandList to execute and return to the pool.
     static void ReturnAndExecuteCommandList(CommandList* commandList);
 
-    [[nodiscard]] bool ExecuteCommandList();
+    /// \brief Flushes the command queue to ensure all pending commands are executed.
+    /// 
+    /// This function checks if the CommandQueue is valid and then calls its FlushCommandQueue method.
+    /// Flushing the queue ensures that all previously submitted commands are completed before proceeding.
     void FlushCommandQueue();
-    void WaitForExternalFence(UINT64 fenceValue);
-    void WaitForInternalFence();
-    [[nodiscard]] bool IsExternalFenceComplete(UINT64 fenceValue);
-    [[nodiscard]] bool IsInternalFenceComplete();
-    [[nodiscard]] bool CloseCommandList();
-    [[nodiscard]] bool ResetCommandListWithOwnAlloc(Pso* pso);
-    [[nodiscard]] bool ResetCommandListWithAnotherAlloc(Pso* pso, CommandAllocator* commandAllocator);
-    [[nodiscard]] UINT64 GetCurrentQueueFenceValue() const;
-    [[nodiscard]] UINT64 GetLastCompletedQueueFenceValue() const;
-    [[nodiscard]] bool IsCommandListClosed() const;
 
 private:
     void Initialize(ID3D12Device* device);

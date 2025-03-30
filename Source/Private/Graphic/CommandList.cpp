@@ -1,6 +1,8 @@
 #include "CommandList.h"
 #include "Pso.h"
 #include "CommandAllocator.h"
+#include "CommandQueue.h"
+#include "CommandManager.h"
 
 CommandList::CommandList(ID3D12Device* device)
 {
@@ -39,7 +41,7 @@ bool CommandList::Close()
     return true;
 }
 
-bool CommandList::ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue)
+bool CommandList::ResetAllocatorAndCommandList(Pso* pso, UINT64 queueLastCompletedFenceValue)
 {
     if (!pso)
     {
@@ -54,20 +56,6 @@ bool CommandList::ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValu
     return ResetCommandList(mCommandAllocator->GetCommandListAllocator(), pso->GetPso());
 }
 
-bool CommandList::ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator)
-{
-    if (!pso)
-    {
-        LOG_ERROR("Pso pointer is nullptr");
-        return false;
-    }
-
-    if (!IsValidStateForReset()) return false;
-
-    if (!commandAllocator->ResetCommandAllocatorIfFenceComplited(queueLastCompletedFenceValue)) return false;
-
-    return ResetCommandList(commandAllocator->GetCommandListAllocator(), pso->GetPso());
-}
 
 UINT64 CommandList::GetFenceValue() const noexcept
 {

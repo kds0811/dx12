@@ -1,15 +1,14 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
-#include "CommandQueue.h"
-#include "CommandManager.h"
-#include "ResourceManager.h"
 
 class Pso;
 class CommandAllocator;
+class CommandManager;
 
 class CommandList
 {
     friend CommandQueue;
+    friend CommandManager;
 
     std::unique_ptr<CommandAllocator> mCommandAllocator;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
@@ -28,14 +27,7 @@ public:
 
     [[nodiscard]] inline bool IsClosed() const noexcept { return bIsClosed; }
     [[nodiscard]] inline bool IsInitialized() const noexcept { return mCommandAllocator && mCommandList; }
-    [[nodiscard]] bool Close();
-
-    [[nodiscard]] bool ResetWithOwnAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue);
-    [[nodiscard]] bool ResetWithAnotherAlloc(Pso* pso, UINT64 queueLastCompletedFenceValue, CommandAllocator* commandAllocator);
     UINT64 GetFenceValue() const noexcept;
-    void SetFenceValue(UINT64 value) noexcept;
-
-    inline void SetID(int id) noexcept { mID = id; }
 
 
     void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers);
@@ -62,4 +54,12 @@ private:
     [[nodiscard]] bool ResetCommandList(ID3D12CommandAllocator* allocator, ID3D12PipelineState* pipelineState);
 
     [[nodiscard]] inline ID3D12GraphicsCommandList* GetCommandList() const noexcept { return mCommandList.Get(); }
+
+    [[nodiscard]] bool ResetAllocatorAndCommandList(Pso* pso, UINT64 queueLastCompletedFenceValue);
+
+    [[nodiscard]] bool Close();
+
+    inline void SetID(int id) noexcept { mID = id; }
+
+    void SetFenceValue(UINT64 value) noexcept;
 };
