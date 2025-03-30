@@ -3,6 +3,7 @@
 #include <mutex>
 
 class CommandList;
+class CommandManager;
 
 /// \brief Represents a Direct3D 12 command queue and manages GPU synchronization using fences.
 ///
@@ -16,6 +17,8 @@ class CommandList;
 /// - Waiting for specific fence values to be signaled by the GPU.
 class CommandQueue
 {
+    friend CommandManager;
+
     UINT64 mCurrentFenceValue = 0;
     UINT64 mLastCompletedFenceValue = 0;
     Microsoft::WRL::ComPtr<ID3D12Fence1> mFence = nullptr;
@@ -39,12 +42,12 @@ public:
     void FlushCommandQueue();
     [[nodiscard]] bool IsFenceComplete(UINT64 FenceValue);
 
-    [[nodiscard]] D3D12_COMMAND_LIST_TYPE GetType() const noexcept { return mType; }
-    [[nodiscard]] UINT64 GetCurrentFenceValue() const noexcept { return mCurrentFenceValue; }
-    [[nodiscard]] UINT64 GetLastCompletedFenceValue() const noexcept { return mLastCompletedFenceValue; }
+    [[nodiscard]] inline D3D12_COMMAND_LIST_TYPE GetType() const noexcept { return mType; }
+    [[nodiscard]] inline UINT64 GetCurrentFenceValue() const noexcept { return mCurrentFenceValue; }
+    [[nodiscard]] inline UINT64 GetLastCompletedFenceValue() const noexcept { return mLastCompletedFenceValue; }
 
 private:
     void Initialize(ID3D12Device* device);
-    
+    [[nodiscard]] inline ID3D12CommandQueue* GetCommandQueue() const noexcept { return mCommandQueue.Get(); }
     [[nodiscard]] bool IsValidState();
 };

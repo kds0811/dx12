@@ -8,6 +8,7 @@ class CommandQueue;
 class Pso;
 class CommandAllocator;
 class CommandList;
+class SwapChain;
 
 auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
 
@@ -23,14 +24,12 @@ auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->G
 /// - Managing the CommandQueue (`mCommandQueueDirect`) for executing commands.
 class CommandManager
 {
-    static inline std::unique_ptr<CommandQueue> mCommandQueueDirect;
+    friend SwapChain;  // friend to access ID3D12CommandQueue* GetCommandQueue()
 
+    static inline std::unique_ptr<CommandQueue> mCommandQueueDirect = nullptr;
     static constexpr UINT mNumCommandList = 10;
-
-    static inline std::array<std::unique_ptr<CommandList>, mNumCommandList> mCommandListStorage;  // ownership of resources
-
-    static inline std::priority_queue<CommandList*, std::vector<CommandList*>, decltype(CommandListComparator)> mPoolFreeCommandListPtr;  // Pool of Free Command Lists 
-
+    static inline std::array<std::unique_ptr<CommandList>, mNumCommandList> mCommandListStorage;                                          // ownership of resources
+    static inline std::priority_queue<CommandList*, std::vector<CommandList*>, decltype(CommandListComparator)> mPoolFreeCommandListPtr;  // Pool of Free Command Lists
     static inline std::mutex mGetCommandListMutex;
 
 public:
@@ -51,11 +50,19 @@ public:
     static void ReturnAndExecuteCommandList(CommandList* commandList);
 
     /// \brief Flushes the command queue to ensure all pending commands are executed.
-    /// 
+    ///
     /// This function checks if the CommandQueue is valid and then calls its FlushCommandQueue method.
     /// Flushing the queue ensures that all previously submitted commands are completed before proceeding.
     static void FlushCommandQueue();
 
 private:
     void Initialize(ID3D12Device* device);
+
+    static inline ID3D12CommandQueue* GetCommandQueue() noexcept
+    {
+        assert(mCommandQueueDirect);
+        if (!mCommandQueueDirect) return nullptr;
+
+        return mCommandQueueDirect->GetCommandQueue();
+    }
 };

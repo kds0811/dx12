@@ -25,12 +25,7 @@ private:
 
    
 
-    // SwapChain and Backbuffer Fields
-    static constexpr UINT mSwapChainBufferCount = 2;
-    Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
-    Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[mSwapChainBufferCount];
-    DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    int mCurrBackBuffer = 0;
+
 
     // Depth Stencil Fields
     Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
@@ -120,10 +115,6 @@ public:
     void SetWireframe(bool state);
     void SetSobel(bool state);
     void SetBlur(bool state);
-
-    ID3D12Device8* GetDevice() { return mDevice.Get(); }
-    ID3D12GraphicsCommandList6* GetCommandList() { return mCommandList.Get(); }
-    ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); }
 
     void InitResources(size_t sceneObjectCount, size_t wavesVertCount, size_t materialsCount, std::unordered_map<EMaterialType, std::unique_ptr<Texture>>& textures);
 

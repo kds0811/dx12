@@ -1,6 +1,7 @@
 #include "CommandQueue.h"
 #include <MathHelper.h>
 #include "CommandList.h"
+#include "CommandManager.h"
 
 CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ID3D12Device* device) : mType(type)
 {

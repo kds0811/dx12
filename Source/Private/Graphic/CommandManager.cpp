@@ -3,6 +3,7 @@
 #include "Pso.h"
 #include "CommandAllocator.h"
 #include "CommandList.h"
+#include "SwapChain.h"
 
 using namespace Kds::App;
 

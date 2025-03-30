@@ -31,6 +31,12 @@ void ResourceManager::BuildResources()
     auto commandList = CommandManager::GetFreeCommandListAndResetIt(PsoManager::GetStandartPso()); 
     auto device = Device::GetDevice();
 
+    assert(commandList && device);
+    if (!commandList || !device)
+    {
+        LOG_ERROR("command list or device pointers is nullptr");
+    }
+
     mTextureManager->CreateBaseTextures(device, commandList->GetCommandList());
     mGeometryManager->CreateBaseGeometries(device, commandList->GetCommandList());
     mGeometryManager->CreatePrimitiveStaticMeshes();
