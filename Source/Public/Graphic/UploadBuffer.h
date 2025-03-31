@@ -5,7 +5,6 @@
 #include <d3dcompiler.h>
 #include <directx/d3dx12.h>
 #include "GraphicError.h"
-//#include "D3D12Utils.h"
 
 template <typename T>
 class UploadBuffer

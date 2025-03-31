@@ -15,7 +15,9 @@ public:
     Device& operator=(const Device&& rhs) = delete;
 
     [[nodiscard]] static inline ID3D12Device* GetDevice() noexcept { return mDevice.Get(); }
-    [[nodiscard]] static inline IDXGIFactory7* GetFactory() noexcept { return mFactory.Get(); }
+    [[nodiscard]] static inline IDXGIFactory* GetFactory() noexcept { return mFactory.Get(); }
+    [[nodiscard]] static inline ID3D12Device8* GetDevice8() noexcept { return mDevice.Get(); }
+    [[nodiscard]] static inline IDXGIFactory7* GetFactory7() noexcept { return mFactory.Get(); }
 
 
 private:

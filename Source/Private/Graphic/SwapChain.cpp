@@ -33,7 +33,7 @@ void SwapChain::Initialize( HWND windowHandle)
 
     ComPtr<IDXGISwapChain1> swapChainTemp;
 
-    auto factory = Device::GetFactory();
+    auto factory = Device::GetFactory7();
     auto commandQueue = CommandManager::GetCommandQueue();
 
     assert(factory && commandQueue);
