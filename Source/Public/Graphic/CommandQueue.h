@@ -48,6 +48,6 @@ public:
 
 private:
     void Initialize(ID3D12Device* device);
-    [[nodiscard]] inline ID3D12CommandQueue* GetCommandQueue() const noexcept { return mCommandQueue.Get(); }
+    [[nodiscard]] inline ID3D12CommandQueue* GetCommandQueue() const { return mCommandQueue.Get(); }
     [[nodiscard]] bool IsValidState();
 };

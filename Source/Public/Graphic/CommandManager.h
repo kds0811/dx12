@@ -58,7 +58,7 @@ public:
 private:
     void Initialize(ID3D12Device* device);
 
-    static inline ID3D12CommandQueue* GetCommandQueue() noexcept
+    static inline ID3D12CommandQueue* GetCommandQueue()
     {
         assert(mCommandQueueDirect);
         if (!mCommandQueueDirect) return nullptr;

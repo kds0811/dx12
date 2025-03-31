@@ -14,10 +14,10 @@ public:
     Device(const Device&& rhs) = delete;
     Device& operator=(const Device&& rhs) = delete;
 
-    [[nodiscard]] static inline ID3D12Device* GetDevice() noexcept { return mDevice.Get(); }
-    [[nodiscard]] static inline IDXGIFactory* GetFactory() noexcept { return mFactory.Get(); }
-    [[nodiscard]] static inline ID3D12Device8* GetDevice8() noexcept { return mDevice.Get(); }
-    [[nodiscard]] static inline IDXGIFactory7* GetFactory7() noexcept { return mFactory.Get(); }
+    [[nodiscard]] static inline ID3D12Device* GetDevice() { return mDevice.Get(); }
+    [[nodiscard]] static inline IDXGIFactory* GetFactory() { return mFactory.Get(); }
+    [[nodiscard]] static inline ID3D12Device8* GetDevice8()  { return mDevice.Get(); }
+    [[nodiscard]] static inline IDXGIFactory7* GetFactory7()  { return mFactory.Get(); }
 
 
 private:
