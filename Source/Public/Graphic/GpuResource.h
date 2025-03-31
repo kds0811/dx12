@@ -1,6 +1,9 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 
+class CommandList;
+
+
 class GpuResource
 {
 protected:
@@ -10,41 +13,20 @@ protected:
     uint32_t mVersionID = 0;
 
 public:
-    GpuResource() = default;
+    GpuResource();
+    GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState);
+    ~GpuResource();
 
-    GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState)
-        :  mResource(pResource), mCurrenState(CurrentState)
-    {  }
+    virtual void Destroy();
+    virtual void CreateResource(ID3D12Device* device, const D3D12_RESOURCE_DESC& desc, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
 
-    ~GpuResource() { Destroy(); }
+    [[nodiscard]] inline ID3D12Resource* GetResource()  { return mResource.Get(); }
+    inline const ID3D12Resource* GetResource() const { return mResource.Get(); }
+    inline ID3D12Resource** GetAddressOf() { return mResource.GetAddressOf(); }
+    inline D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const noexcept { return mGpuVirtualAddress; }
+    inline uint32_t GetVersionID() const noexcept { return mVersionID; }
+    inline void IncrementVersion() { ++mVersionID; }
 
-    virtual void Destroy()
-    {
-        mResource = nullptr;
-        mGpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
-        ++mVersionID;
-    }
-
-    [[nodiscard]] inline ID3D12Resource* GetResource() { return mResource.Get(); }
-    const ID3D12Resource* GetResource() const  { return mResource.Get(); }
-
-    ID3D12Resource** GetAddressOf() { return mResource.GetAddressOf(); }
-    D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const noexcept { return mGpuVirtualAddress; }
-    uint32_t GetVersionID() const noexcept { return mVersionID; }
-
-    [[nodiscard]] inline bool ChangeState(ID3D12GraphicsCommandList* cmdList, D3D12_RESOURCE_STATES newState)
-    {
-        if (newState == mCurrenState)
-        {
-            LOG_ERROR("Current D3D12_RESOURCE_STATES is same new State");
-            return false;
-        }
-        auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(mResource.Get(), mCurrenState, newState);
-        cmdList->ResourceBarrier(1, &ResBar);
-        mCurrenState = newState;
-        return true;
-    }
-    
+    [[nodiscard]] bool ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState);
     [[nodiscard]] inline D3D12_RESOURCE_STATES GetCurrentState() const noexcept { return mCurrenState; }
-
 };

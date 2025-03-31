@@ -19,7 +19,6 @@ public:
     [[nodiscard]] static inline ID3D12Device8* GetDevice8()  { return mDevice.Get(); }
     [[nodiscard]] static inline IDXGIFactory7* GetFactory7()  { return mFactory.Get(); }
 
-
 private:
     void Initialize();
 };
