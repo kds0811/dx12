@@ -1,8 +1,5 @@
 #pragma once
-#include <string>
 #include "GpuResource.h"
-#include <memory>
-#include <cstdint>
 
 enum class ETextureType : std::uint8_t
 {
@@ -13,24 +10,23 @@ enum class ETextureType : std::uint8_t
     Default
 };
 
-class Texture
+class Texture : public GpuResource
 {
     ETextureType mType = ETextureType::Default;
     std::string mName;
     std::wstring mFilename;
-    int mSrvHeapIndex = -1;
 
-    std::unique_ptr<GpuResource> mResource = nullptr;
-    std::unique_ptr<GpuResource> mUploadHeap = nullptr;
+    UINT mWidth = 0;
+    UINT mHeight = 0;
+    DXGI_FORMAT mFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> mUploadHeap = nullptr;
 
 public:
     Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
 
     inline ETextureType GetTextureType() noexcept { return mType; }
     inline std::string GetName() { return mName.empty() ? " Unnamed Object " : mName; }
-    inline int GetSrvIndex() noexcept { return mSrvHeapIndex; }
-
-    
 
 private:
     void LoadFromFile(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
