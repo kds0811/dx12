@@ -1,21 +1,31 @@
 #include "DescriptorHeapAllocator.h"
 #include "Device.h"
 
-DescriptorAllocator::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type) : mType(type)
+
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+DescriptorAllocator<heapFlag>::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type) : mType(type), mHeapFlag(heapFlag)
 {
-    mCurrentHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
     auto device = Device::GetDevice();
     assert(device);
     if (device)
     {
         mDescriptorSize = Device::GetDevice()->GetDescriptorHandleIncrementSize(mType);
     }
+
+    if (mHeapFlag == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
+    {
+        bIsGpuVisible = true;
+        mNumDescriptorsPerHeap = 1024;
+    }
+
 }
 
-DescriptorAllocator::~DescriptorAllocator() = default;
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+DescriptorAllocator<heapFlag>::~DescriptorAllocator() = default;
 
-DescriptorAllocator::DescriptorAllocator(DescriptorAllocator&& other) noexcept
-    :  mDescriptorHeapPool(std::move(other.mDescriptorHeapPool)), mType(other.mType), mCurrentHeap(other.mCurrentHeap),
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+DescriptorAllocator<heapFlag>::DescriptorAllocator(DescriptorAllocator&& other) noexcept
+    : mDescriptorHeapPool(std::move(other.mDescriptorHeapPool)), mType(other.mType), mHeapFlag(heapFlag), mCurrentHeap(other.mCurrentHeap),
       mCurrentHandle(other.mCurrentHandle), mDescriptorSize(other.mDescriptorSize), mRemainingFreeHandles(other.mRemainingFreeHandles)
 {
     other.mCurrentHeap = nullptr;
@@ -24,12 +34,14 @@ DescriptorAllocator::DescriptorAllocator(DescriptorAllocator&& other) noexcept
     other.mRemainingFreeHandles = 0;
 }
 
-DescriptorAllocator& DescriptorAllocator::operator=(DescriptorAllocator&& other) noexcept
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+DescriptorAllocator<heapFlag>& DescriptorAllocator<heapFlag>::operator=(DescriptorAllocator<heapFlag>&& other) noexcept
 {
     if (this != &other)
     {
         mDescriptorHeapPool = std::move(other.mDescriptorHeapPool);
         mType = other.mType;
+        mHeapFlag = other.mHeapFlag;
         mCurrentHeap = other.mCurrentHeap;
         mCurrentHandle = other.mCurrentHandle;
         mDescriptorSize = other.mDescriptorSize;
@@ -42,31 +54,42 @@ DescriptorAllocator& DescriptorAllocator::operator=(DescriptorAllocator&& other)
     return *this;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorAllocator::Allocate(UINT32 count)
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+DescriptorHandle DescriptorAllocator<heapFlag>::Allocate(UINT32 count)
 {
+    assert(count > 0);
+    assert(mRemainingFreeHandles >= 0 && "Negative number of remaining free handles!");
+
     std::lock_guard<std::mutex> lockGuard(mAllocationMutex);
 
     if (mCurrentHeap == nullptr || mRemainingFreeHandles < count)
     {
-        mCurrentHeap = RequestNewHeap(mType);
-        mCurrentHandle = mCurrentHeap->GetCPUDescriptorHandleForHeapStart();
+        mCurrentHeap = RequestNewHeap();
+        if (bIsGpuVisible)
+        {
+            mCurrentHandle = DescriptorHandle{mCurrentHeap->GetCPUDescriptorHandleForHeapStart(), mCurrentHeap->GetGPUDescriptorHandleForHeapStart()};
+        }
+        else
+        {
+            mCurrentHandle = DescriptorHandle{mCurrentHeap->GetCPUDescriptorHandleForHeapStart()};
+        }
         mRemainingFreeHandles = mNumDescriptorsPerHeap;
     }
 
     D3D12_CPU_DESCRIPTOR_HANDLE ret = mCurrentHandle;
-    mCurrentHandle.ptr += count * mDescriptorSize;
+    mCurrentHandle += count * mDescriptorSize;
     mRemainingFreeHandles -= count;
     return ret;
 }
 
 
-
-ID3D12DescriptorHeap* DescriptorAllocator::RequestNewHeap(D3D12_DESCRIPTOR_HEAP_TYPE type)
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+ID3D12DescriptorHeap* DescriptorAllocator<heapFlag>::RequestNewHeap()
 {
     D3D12_DESCRIPTOR_HEAP_DESC Desc{};
-    Desc.Type = type;
+    Desc.Type = mType;
     Desc.NumDescriptors = mNumDescriptorsPerHeap;
-    Desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    Desc.Flags = mHeapFlag;
     Desc.NodeMask = 1;
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> pHeap;
