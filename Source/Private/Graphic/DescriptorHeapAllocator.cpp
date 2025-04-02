@@ -5,6 +5,8 @@
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
 DescriptorAllocator<heapFlag>::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type) : mType(type), mHeapFlag(heapFlag)
 {
+    static_assert(heapFlag == D3D12_DESCRIPTOR_HEAP_FLAG_NONE || heapFlag == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, "Invalid heap flag for DescriptorAllocator!");
+
     auto device = Device::GetDevice();
     assert(device);
     if (device)
@@ -18,6 +20,7 @@ DescriptorAllocator<heapFlag>::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE ty
         mNumDescriptorsPerHeap = 1024;
     }
 
+    CreateNewHeapAndHandle();
 }
 
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
@@ -64,20 +67,11 @@ DescriptorHandle DescriptorAllocator<heapFlag>::Allocate(UINT32 count)
 
     if (mCurrentHeap == nullptr || mRemainingFreeHandles < count)
     {
-        mCurrentHeap = RequestNewHeap();
-        if (bIsGpuVisible)
-        {
-            mCurrentHandle = DescriptorHandle{mCurrentHeap->GetCPUDescriptorHandleForHeapStart(), mCurrentHeap->GetGPUDescriptorHandleForHeapStart()};
-        }
-        else
-        {
-            mCurrentHandle = DescriptorHandle{mCurrentHeap->GetCPUDescriptorHandleForHeapStart()};
-        }
-        mRemainingFreeHandles = mNumDescriptorsPerHeap;
+        CreateNewHeapAndHandle();
     }
 
-    D3D12_CPU_DESCRIPTOR_HANDLE ret = mCurrentHandle;
-    mCurrentHandle += count * mDescriptorSize;
+    DescriptorHandle ret = mCurrentHandle;
+    mCurrentHandle += count;
     mRemainingFreeHandles -= count;
     return ret;
 }
@@ -104,3 +98,28 @@ ID3D12DescriptorHeap* DescriptorAllocator<heapFlag>::RequestNewHeap()
     LOG_MESSAGE("Create new descriptor heap");
     return pHeap.Get();
 }
+
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+void DescriptorAllocator<heapFlag>::CreateNewHandle()
+{
+    if (bIsGpuVisible)
+    {
+        mCurrentHandle = DescriptorHandle{mCurrentHeap->GetCPUDescriptorHandleForHeapStart(), mCurrentHeap->GetGPUDescriptorHandleForHeapStart(), mDescriptorSize};
+    }
+    else
+    {
+        mCurrentHandle = DescriptorHandle{mCurrentHeap->GetCPUDescriptorHandleForHeapStart(), mDescriptorSize};
+    }
+}
+
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+void DescriptorAllocator<heapFlag>::CreateNewHeapAndHandle()
+{
+    mCurrentHeap = RequestNewHeap();
+    assert(mCurrentHeap && "Failed to create a new descriptor heap!");
+
+    CreateNewHandle();
+    mRemainingFreeHandles = mNumDescriptorsPerHeap;
+}
+
+
