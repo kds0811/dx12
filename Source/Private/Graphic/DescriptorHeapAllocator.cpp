@@ -1,7 +1,6 @@
 #include "DescriptorHeapAllocator.h"
 #include "Device.h"
 
-
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
 DescriptorAllocator<heapFlag>::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type) : mType(type), mHeapFlag(heapFlag)
 {
@@ -12,6 +11,11 @@ DescriptorAllocator<heapFlag>::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE ty
     if (device)
     {
         mDescriptorSize = Device::GetDevice()->GetDescriptorHandleIncrementSize(mType);
+    }
+
+    if (mType == D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
+    {
+        mNumDescriptorsPerHeap = 128;
     }
 
     if (mHeapFlag == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
@@ -28,8 +32,8 @@ DescriptorAllocator<heapFlag>::~DescriptorAllocator() = default;
 
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
 DescriptorAllocator<heapFlag>::DescriptorAllocator(DescriptorAllocator&& other) noexcept
-    : mDescriptorHeapPool(std::move(other.mDescriptorHeapPool)), mType(other.mType), mHeapFlag(heapFlag), mCurrentHeap(other.mCurrentHeap),
-      mCurrentHandle(other.mCurrentHandle), mDescriptorSize(other.mDescriptorSize), mRemainingFreeHandles(other.mRemainingFreeHandles)
+    : mDescriptorHeapPool(std::move(other.mDescriptorHeapPool)), mType(other.mType), mHeapFlag(heapFlag), mCurrentHeap(other.mCurrentHeap), mCurrentHandle(other.mCurrentHandle),
+      mDescriptorSize(other.mDescriptorSize), mRemainingFreeHandles(other.mRemainingFreeHandles)
 {
     other.mCurrentHeap = nullptr;
     other.mCurrentHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
@@ -76,7 +80,6 @@ DescriptorHandle DescriptorAllocator<heapFlag>::Allocate(UINT32 count)
     return ret;
 }
 
-
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
 ID3D12DescriptorHeap* DescriptorAllocator<heapFlag>::RequestNewHeap()
 {
@@ -121,5 +124,3 @@ void DescriptorAllocator<heapFlag>::CreateNewHeapAndHandle()
     CreateNewHandle();
     mRemainingFreeHandles = mNumDescriptorsPerHeap;
 }
-
-

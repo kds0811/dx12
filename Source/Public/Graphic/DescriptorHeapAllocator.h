@@ -35,15 +35,15 @@ public:
 
     bool operator!=(const DescriptorHandle& other) const { return !(*this == other); }
 
-    D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() { return mCpuHandle; }
-    D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() { return mGpuHandle; }
+    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const { return mCpuHandle; }
+    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return mGpuHandle; }
 
-    size_t GetCpuPtr() const { return mCpuHandle.ptr; }
-    uint64_t GetGpuPtr() const { return mGpuHandle.ptr; }
+    [[nodiscard]] size_t GetCpuPtr() const { return mCpuHandle.ptr; }
+    [[nodiscard]] uint64_t GetGpuPtr() const { return mGpuHandle.ptr; }
 
-    bool IsNull() const { return mCpuHandle.ptr == D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
+    [[nodiscard]] bool IsNull() const { return mCpuHandle.ptr == D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
 
-    bool IsShaderVisible() const { return mGpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
+    [[nodiscard]] bool IsShaderVisible() const { return mGpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
 
 
 };
@@ -72,7 +72,7 @@ public:
     DescriptorAllocator(DescriptorAllocator&& other) noexcept;
     DescriptorAllocator& operator=(DescriptorAllocator&& other) noexcept;
 
-    DescriptorHandle Allocate(UINT32 count = 1);
+    [[nodiscard]] DescriptorHandle Allocate(UINT32 count = 1);
 
 private:
     ID3D12DescriptorHeap* RequestNewHeap();
