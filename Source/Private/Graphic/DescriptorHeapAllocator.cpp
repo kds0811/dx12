@@ -67,7 +67,27 @@ DescriptorHandle DescriptorAllocator<heapFlag>::Allocate(UINT32 count)
     assert(count > 0);
     assert(mRemainingFreeHandles >= 0 && "Negative number of remaining free handles!");
 
+    if (count > mNumDescriptorsPerHeap)
+    {
+        LOG_ERROR("Requested number of descriptors exceeds the maximum per heap.");
+        return;
+    }
+
     std::lock_guard<std::mutex> lockGuard(mAllocationMutex);
+
+    if (!mReleasedDescriptorHandle.empty())
+    {
+        if (mReleasedDescriptorHandle.contains(count))
+        {
+            auto it = mReleasedDescriptorHandle.find(count);
+            if (it != mReleasedDescriptorHandle.end())
+            {
+                DescriptorHandle retH = it->second;
+                mReleasedDescriptorHandle.erase(it);
+                return retH;
+            }
+        }
+    }
 
     if (mCurrentHeap == nullptr || mRemainingFreeHandles < count)
     {
@@ -78,6 +98,15 @@ DescriptorHandle DescriptorAllocator<heapFlag>::Allocate(UINT32 count)
     mCurrentHandle += count;
     mRemainingFreeHandles -= count;
     return ret;
+}
+
+template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
+void DescriptorAllocator<heapFlag>::Deallocate(DescriptorHandle handle)
+{
+    if (!handle.IsNull())
+    {
+        mReleasedDescriptorHandle.emplace(handle.GetDescriptorSize(), handle);
+    }
 }
 
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>

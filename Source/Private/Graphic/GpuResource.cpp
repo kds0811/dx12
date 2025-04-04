@@ -3,11 +3,19 @@
 
 GpuResource::GpuResource() = default;
 
-GpuResource::GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState) : mResource(pResource), mCurrenState(CurrentState) {}
+GpuResource::GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState) : mResource(pResource), mCurrenState(CurrentState)
+{
+    assert(pResource);
+    if (!pResource)
+    {
+        LOG_ERROR("Invalid resource pointer passed to GpuResource constructor.");
+    }
+    mGpuVirtualAddress = pResource->GetGPUVirtualAddress();
+}
 
 GpuResource::~GpuResource() = default;
 
-void GpuResource::Destroy()
+void GpuResource::DestroyResource()
 {
     mResource = nullptr;
     mGpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;

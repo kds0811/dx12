@@ -2,9 +2,7 @@
 #include "GraphicCommonHeaders.h"
 #include "DescriptorHeapAllocator.h"
 
-
 class CommandList;
-
 
 class GpuResource
 {
@@ -20,7 +18,7 @@ public:
     GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState);
     ~GpuResource();
 
-    virtual void Destroy();
+    void DestroyResource();
     [[nodiscard]] inline ID3D12Resource* GetResource()  { return mResource.Get(); }
     [[nodiscard]] inline const ID3D12Resource* GetResource() const { return mResource.Get(); }
     [[nodiscard]] inline ID3D12Resource** GetAddressOf() { return mResource.GetAddressOf(); }

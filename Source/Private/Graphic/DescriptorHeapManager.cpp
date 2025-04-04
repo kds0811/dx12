@@ -43,3 +43,12 @@ DescriptorHandle DescriptorHeapManager::AllocateCbvSrvUav(UINT32 count)
 
     return mCbvSrvUavAllocator->Allocate(count);
 }
+
+void DescriptorHeapManager::DeallocateRtv(DescriptorHandle descriptorHandle)
+{}
+
+void DescriptorHeapManager::DeallocateDsv(DescriptorHandle descriptorHandle) 
+{}
+
+void DescriptorHeapManager::DeallocateCbvSrvUav(DescriptorHandle descriptorHandle) 
+{}

@@ -28,6 +28,10 @@ public:
     [[nodiscard]] static DescriptorHandle AllocateDsv(UINT32 count = 1);
     [[nodiscard]] static DescriptorHandle AllocateCbvSrvUav(UINT32 count = 1);
 
+    static void DeallocateRtv(DescriptorHandle descriptorHandle);
+    static void DeallocateDsv(DescriptorHandle descriptorHandle);
+    static void DeallocateCbvSrvUav(DescriptorHandle descriptorHandle);
+
 
 };
  
