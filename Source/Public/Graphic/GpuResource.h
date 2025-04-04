@@ -1,5 +1,7 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
+#include "DescriptorHeapAllocator.h"
+
 
 class CommandList;
 
@@ -11,6 +13,7 @@ protected:
     D3D12_RESOURCE_STATES mCurrenState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
     D3D12_GPU_VIRTUAL_ADDRESS mGpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
     uint32_t mVersionID = 0;
+    std::wstring mName{};
 
 public:
     GpuResource();
@@ -18,8 +21,6 @@ public:
     ~GpuResource();
 
     virtual void Destroy();
-    virtual void CreateResource(ID3D12Device* device, const D3D12_RESOURCE_DESC& desc, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
-
     [[nodiscard]] inline ID3D12Resource* GetResource()  { return mResource.Get(); }
     [[nodiscard]] inline const ID3D12Resource* GetResource() const { return mResource.Get(); }
     [[nodiscard]] inline ID3D12Resource** GetAddressOf() { return mResource.GetAddressOf(); }

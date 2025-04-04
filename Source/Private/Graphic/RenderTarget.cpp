@@ -1,47 +1,17 @@
-//***************************************************************************************
-// RenderTarget.cpp by Frank Luna (C) 2011 All Rights Reserved.
-//***************************************************************************************
-
 #include "RenderTarget.h"
+#include "Device.h"
+#include "DescriptorHeapManager.h"
 
-RenderTarget::RenderTarget(ID3D12Device* device, UINT width, UINT height, DXGI_FORMAT format)
+RenderTarget::RenderTarget(std::wstring name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension)
+    :
+    mWidth(width),
+    mHeight(height),
+    mFormat(format),
+    mClearValue(clearValue),
+    mResourceDimension(resourceDimension)
 {
-    mDevice = device;
-
-    mWidth = width;
-    mHeight = height;
-    mFormat = format;
-    mTexture = std::make_unique<GpuResource>(
-        mDevice, mWidth, mHeight, L"OffscreenTex", D3D12_RESOURCE_STATE_GENERIC_READ, mFormat, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, DirectX::XMFLOAT4{0.7f, 0.7f, 0.7f, 1.0f});
-}
-
-GpuResource* RenderTarget::GetGpuResource()
-{
-    return mTexture.get();
-}
-
-ID3D12Resource* RenderTarget::Resource()
-{
-    return mTexture->GetResource();
-}
-
-CD3DX12_GPU_DESCRIPTOR_HANDLE RenderTarget::Srv()
-{
-    return mhGpuSrv;
-}
-
-CD3DX12_CPU_DESCRIPTOR_HANDLE RenderTarget::Rtv()
-{
-    return mhCpuRtv;
-}
-
-void RenderTarget::BuildDescriptors(CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuSrv, CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuSrv, CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuRtv)
-{
-    // Save references to the descriptors.
-    mhCpuSrv = hCpuSrv;
-    mhGpuSrv = hGpuSrv;
-    mhCpuRtv = hCpuRtv;
-
+    mName = std::move(name);
+    BuildResource();
     BuildDescriptors();
 }
 
@@ -52,15 +22,39 @@ void RenderTarget::OnResize(UINT newWidth, UINT newHeight)
         mWidth = newWidth;
         mHeight = newHeight;
 
-        mTexture->OnResize(mWidth, mHeight);
-
-        // New resource, so we need new descriptors to that resource.
+        BuildResource();
         BuildDescriptors();
     }
 }
 
+void RenderTarget::BuildResource()
+{
+    CD3DX12_HEAP_PROPERTIES HeapProps(D3D12_HEAP_TYPE_DEFAULT);
+
+    D3D12_RESOURCE_DESC resourceDesc;
+    ZeroMemory(&resourceDesc, sizeof(D3D12_RESOURCE_DESC));
+    resourceDesc.Dimension = mResourceDimension;
+    resourceDesc.Alignment = 0;
+    resourceDesc.Width = mWidth;
+    resourceDesc.Height = mHeight;
+    resourceDesc.DepthOrArraySize = 1;
+    resourceDesc.MipLevels = 1;
+    resourceDesc.Format = mFormat;
+    resourceDesc.SampleDesc.Count = 1;
+    resourceDesc.SampleDesc.Quality = 0;
+    resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+    Device::GetDevice()->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &mClearValue, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
+
+    mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
+}
+
 void RenderTarget::BuildDescriptors()
 {
+    mSrvDescriptorHandle = DescriptorHeapManager::AllocateCbvSrvUav();
+    mRtvDescriptorHandle = DescriptorHeapManager::AllocateRtv();
+
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.Format = mFormat;
@@ -68,7 +62,7 @@ void RenderTarget::BuildDescriptors()
     srvDesc.Texture2D.MostDetailedMip = 0;
     srvDesc.Texture2D.MipLevels = 1;
 
-    mDevice->CreateShaderResourceView(mTexture->GetResource(), &srvDesc, mhCpuSrv);
+    Device::GetDevice()->CreateShaderResourceView(mResource.Get(), &srvDesc, mSrvDescriptorHandle.GetCpuHandle());
 
-    mDevice->CreateRenderTargetView(mTexture->GetResource(), nullptr, mhCpuRtv);
+    Device::GetDevice()->CreateRenderTargetView(mResource.Get(), nullptr, mRtvDescriptorHandle.GetCpuHandle());
 }

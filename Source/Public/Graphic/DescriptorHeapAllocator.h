@@ -14,17 +14,11 @@ public:
         mCpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
         mGpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
     }
-    DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle, UINT32 descriptorSize)
-        :
-        mCpuHandle(CpuHandle),
-        mDescriptorSize(descriptorSize)
-    {}
+    DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle, UINT32 descriptorSize) : mCpuHandle(CpuHandle), mDescriptorSize(descriptorSize) {}
     DescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE CpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE GpuHandle, UINT32 descriptorSize)
-        :
-        mCpuHandle(CpuHandle),
-        mGpuHandle(GpuHandle),
-        mDescriptorSize(descriptorSize)
-    {}
+        : mCpuHandle(CpuHandle), mGpuHandle(GpuHandle), mDescriptorSize(descriptorSize)
+    {
+    }
 
     void operator+=(INT countSecriptors)
     {
@@ -35,17 +29,19 @@ public:
 
     bool operator!=(const DescriptorHandle& other) const { return !(*this == other); }
 
-    [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const { return mCpuHandle; }
-    [[nodiscard]] D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return mGpuHandle; }
+    [[nodiscard]] inline D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const noexcept { return mCpuHandle; }
+    [[nodiscard]] inline D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const noexcept { return mGpuHandle; }
+    [[nodiscard]] inline size_t GetCpuPtr() const noexcept { return mCpuHandle.ptr; }
+    [[nodiscard]] inline uint64_t GetGpuPtr() const noexcept { return mGpuHandle.ptr; }
+    [[nodiscard]] inline bool IsNull() const noexcept { return mCpuHandle.ptr == D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
+    [[nodiscard]] inline bool IsShaderVisible() const noexcept { return mGpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
 
-    [[nodiscard]] size_t GetCpuPtr() const { return mCpuHandle.ptr; }
-    [[nodiscard]] uint64_t GetGpuPtr() const { return mGpuHandle.ptr; }
-
-    [[nodiscard]] bool IsNull() const { return mCpuHandle.ptr == D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
-
-    [[nodiscard]] bool IsShaderVisible() const { return mGpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
-
-
+    inline void Reset() noexcept
+    {
+        mCpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
+        mGpuHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
+        mDescriptorSize = 0;
+    }
 };
 
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>

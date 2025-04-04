@@ -15,12 +15,6 @@ void GpuResource::Destroy()
     ++mVersionID;
 }
 
-void GpuResource::CreateResource(ID3D12Device* device, const D3D12_RESOURCE_DESC& desc, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState)
-{
-    device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(heapType), D3D12_HEAP_FLAG_NONE, &desc, initialState, nullptr, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
-    mCurrenState = initialState;
-    mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
-}
 
 bool GpuResource::ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState)
 {
