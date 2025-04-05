@@ -23,9 +23,20 @@ void SwapChain::PreperingToStartDrawingFrame(CommandList* cmdList)
     cmdList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
 }
 
+void SwapChain::PreperingToEndFrame(CommandList* cmdList)
+{
+    mCurrBackBuffer->ChangeState(cmdList, D3D12_RESOURCE_STATE_PRESENT);
+}
+
+void SwapChain::Present()
+{
+    mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING) >> Check;
+}
+
 void SwapChain::CycleToNextBackBuffer() 
 {
-
+    mCurrBackBufferIndex = (mCurrBackBufferIndex + 1) % mSwapChainBufferCount;
+    mCurrBackBuffer = mSwapChainBuffer[mCurrBackBufferIndex].get();
 }
 
 void SwapChain::Initialize(HWND windowHandle)
@@ -102,6 +113,4 @@ D3D12_CPU_DESCRIPTOR_HANDLE SwapChain::GetCurrentBackBufferView()
         LOG_ERROR("mCurrBackBuffer is nullptr");
         return D3D12_CPU_DESCRIPTOR_HANDLE{};
     }
-    
-    
 }

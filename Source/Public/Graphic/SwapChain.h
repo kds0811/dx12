@@ -10,7 +10,7 @@ class SwapChain
     static constexpr UINT mSwapChainBufferCount = 2;
     Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
     std::array<std::unique_ptr<RenderTarget>, mSwapChainBufferCount> mSwapChainBuffer;
-    int mCurrBackBufferIndex = 0;
+    UINT mCurrBackBufferIndex = 0;
     RenderTarget* mCurrBackBuffer;
     DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     UINT mWidth = 1600;
@@ -22,6 +22,8 @@ public:
     ~SwapChain();
 
     void PreperingToStartDrawingFrame(CommandList* cmdList);
+    void PreperingToEndFrame(CommandList* cmdList);
+    void Present();
 
     void CycleToNextBackBuffer();
 
