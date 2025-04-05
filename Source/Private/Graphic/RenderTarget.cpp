@@ -2,19 +2,60 @@
 #include "Device.h"
 #include "DescriptorHeapManager.h"
 
-RenderTarget::RenderTarget(std::wstring name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension)
-    : mWidth(width), mHeight(height), mFormat(format), mClearValue(clearValue), mResourceDimension(resourceDimension)
+bool RenderTarget::Initialize(std::wstring name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension)
 {
     assert(mWidth > 0 && mWidth < 1000000 && mHeight > 0 && mHeight < 1000000);
     if (mWidth == 0 || mHeight == 0)
     {
         LOG_ERROR("Width and height must be greater than zero.");
-        return;
+        return false;
     }
 
+    mWidth = width;
+    mHeight = height;
+    mFormat = format;
+    mClearValue = clearValue;
+    mResourceDimension = resourceDimension;
     mName = std::move(name);
-    BuildResource();
-    BuildDescriptors();
+
+    if (BuildResource())
+    {
+        if (BuildDescriptors())
+        {
+            return true;
+        }
+    }
+
+    LOG_ERROR("RenderTarget: ", mName,  " initialization failed!");
+    return false;
+}
+
+bool RenderTarget::Initialize(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format)
+{
+    assert(existingResource != nullptr);
+    if (!existingResource)
+    {
+        LOG_ERROR("Existing resource is null.");
+        return false;
+    }
+
+    mResource = existingResource;
+    mName = std::move(name);
+    mFormat = format;
+
+    const D3D12_RESOURCE_DESC& desc = mResource->GetDesc();
+    mWidth = static_cast<UINT>(desc.Width);
+    mHeight = desc.Height;
+    mResourceDimension = desc.Dimension;
+    
+
+    if (!BuildDescriptors())
+    {
+        LOG_ERROR("Failed to build descriptors for RenderTarget.");
+        return false;
+    }
+
+    return true;
 }
 
 RenderTarget::~RenderTarget()
@@ -34,12 +75,23 @@ void RenderTarget::OnResize(UINT newWidth, UINT newHeight)
         mWidth = newWidth;
         mHeight = newHeight;
 
-        BuildResource();
-        BuildDescriptors();
+        if (!BuildResource())
+        {
+            LOG_ERROR("Failed BuildResource on resize RenderTarget.");
+            assert(0);
+            return;
+        }
+
+        if (!BuildDescriptors())
+        {
+            LOG_ERROR("Failed BuildDescriptors on resize RenderTarget.");
+            assert(0);
+            return;
+        }
     }
 }
 
-void RenderTarget::BuildResource()
+bool RenderTarget::BuildResource()
 {
     CD3DX12_HEAP_PROPERTIES HeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -63,28 +115,30 @@ void RenderTarget::BuildResource()
     if (mResource)
     {
         mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
+        return true;
     }
     else
     {
         LOG_ERROR("Failed to create resource.");
         assert(0);
+        return false;
     }
 }
 
-void RenderTarget::BuildDescriptors()
+bool RenderTarget::BuildDescriptors()
 {
     mSrvDescriptorHandle = DescriptorHeapManager::AllocateCbvSrvUav();
     if (mSrvDescriptorHandle.IsNull())
     {
         LOG_ERROR("Failed to allocate SRV descriptor.");
-        return;
+        return false;
     }
 
     mRtvDescriptorHandle = DescriptorHeapManager::AllocateRtv();
     if (mRtvDescriptorHandle.IsNull())
     {
         LOG_ERROR("Failed to allocate RTV descriptor.");
-        return;
+        return false;
     }
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -95,17 +149,17 @@ void RenderTarget::BuildDescriptors()
     srvDesc.Texture2D.MipLevels = 1;
 
     Device::GetDevice()->CreateShaderResourceView(mResource.Get(), &srvDesc, mSrvDescriptorHandle.GetCpuHandle());
-
     Device::GetDevice()->CreateRenderTargetView(mResource.Get(), nullptr, mRtvDescriptorHandle.GetCpuHandle());
+    return true;
 }
 
-void RenderTarget::Destroy() 
+void RenderTarget::Destroy()
 {
     DestroyResource();
     DestroyDescriptorHandles();
 }
 
-void RenderTarget::DestroyDescriptorHandles() 
+void RenderTarget::DestroyDescriptorHandles()
 {
     DescriptorHeapManager::DeallocateRtv(mRtvDescriptorHandle);
     DescriptorHeapManager::DeallocateCbvSrvUav(mSrvDescriptorHandle);

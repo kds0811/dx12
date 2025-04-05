@@ -22,11 +22,6 @@ class Graphic
 private:
     // Main Fields
 
-
-   
-
-
-
     // Depth Stencil Fields
     Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
     DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

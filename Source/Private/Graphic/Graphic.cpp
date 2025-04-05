@@ -454,34 +454,6 @@ void Graphic::InitPipeline()
 {
   
 
-    // Create SwapChain
-    mSwapChain.Reset();
-    DXGI_SWAP_CHAIN_DESC1 sd = {};
-    sd.Width = mClientWidth;
-    sd.Height = mClientHeight;
-    sd.Format = mBackBufferFormat;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.BufferCount = mSwapChainBufferCount;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.Scaling = DXGI_SCALING_STRETCH;
-    sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-    ComPtr<IDXGISwapChain1> swapChainTemp;
-    mFactory->CreateSwapChainForHwnd(mCommandQueue.Get(), mWindowHandle, &sd, nullptr, nullptr, swapChainTemp.GetAddressOf()) >> Check;
-    swapChainTemp.As(&mSwapChain);
-    assert(mSwapChain);
-
-    // Create RTV Descriptor Heap
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
-    rtvHeapDesc.NumDescriptors = mSwapChainBufferCount + 1;
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    rtvHeapDesc.NodeMask = 0;
-    mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())) >> Check;
-    assert(mRtvHeap);
-
     // Create DSV Descriptor Heap
     D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc{};
     dsvHeapDesc.NumDescriptors = 1;
@@ -491,17 +463,8 @@ void Graphic::InitPipeline()
     mDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())) >> Check;
     assert(mDsvHeap);
 
-    // Create RTV for SWAPCHAIN
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
-    for (UINT i = 0; i < mSwapChainBufferCount; i++)
-    {
-        mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mSwapChainBuffer[i])) >> Check;
-        mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
 
-        std::wstring Name = L"SwapChainBuffer " + i;
-        mSwapChainBuffer[i]->SetName(Name.c_str());
-        rtvHeapHandle.Offset(1, mRtvDescriptorSize);
-    }
+
 
     // Create DSV ForSwapChain
     D3D12_RESOURCE_DESC depthStencilDesc{};

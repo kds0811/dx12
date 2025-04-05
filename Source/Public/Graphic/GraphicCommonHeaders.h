@@ -6,6 +6,7 @@
 #include <directx/d3dx12.h>
 #include "GraphicError.h"
 #include <DirectXMath.h>
+#include <DirectXColors.h>
 #include "Logger.h"
 #include <cassert>
 #include <memory>
