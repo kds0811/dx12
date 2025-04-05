@@ -18,7 +18,6 @@ DescriptorHandle DescriptorHeapManager::AllocateRtv(UINT32 count)
         LOG_ERROR("mRtvAllocator is nullptr");
         return DescriptorHandle{};
     }
-
     return mRtvAllocator->Allocate(count);
 }
 
@@ -29,7 +28,6 @@ DescriptorHandle DescriptorHeapManager::AllocateDsv(UINT32 count)
         LOG_ERROR("mDsvAllocator is nullptr");
         return DescriptorHandle{};
     }
-
     return mDsvAllocator->Allocate(count);
 }
 
@@ -40,15 +38,35 @@ DescriptorHandle DescriptorHeapManager::AllocateCbvSrvUav(UINT32 count)
         LOG_ERROR("mRtvAllocator is nullptr");
         return DescriptorHandle{};
     }
-
     return mCbvSrvUavAllocator->Allocate(count);
 }
 
 void DescriptorHeapManager::DeallocateRtv(DescriptorHandle descriptorHandle)
-{}
+{
+    if (!mRtvAllocator)
+    {
+        LOG_ERROR("mRtvAllocator is nullptr");
+        return;
+    }
+    mRtvAllocator->Deallocate(descriptorHandle);
+}
 
 void DescriptorHeapManager::DeallocateDsv(DescriptorHandle descriptorHandle) 
-{}
+{
+    if (!mDsvAllocator)
+    {
+        LOG_ERROR("mDsvAllocator is nullptr");
+        return;
+    }
+    mDsvAllocator->Deallocate(descriptorHandle);
+}
 
 void DescriptorHeapManager::DeallocateCbvSrvUav(DescriptorHandle descriptorHandle) 
-{}
+{
+    if (!mCbvSrvUavAllocator)
+    {
+        LOG_ERROR("mRtvAllocator is nullptr");
+        return;
+    }
+    mCbvSrvUavAllocator->Deallocate(descriptorHandle);
+}

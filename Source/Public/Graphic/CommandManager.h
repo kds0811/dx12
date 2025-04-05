@@ -3,11 +3,11 @@
 #include <array>
 #include <mutex>
 #include <queue>
+#include "CommandList.h"
 
 class CommandQueue;
 class Pso;
 class CommandAllocator;
-class CommandList;
 class SwapChain;
 
 auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
@@ -37,8 +37,8 @@ public:
     ~CommandManager();
     CommandManager(const CommandManager&) = delete;
     CommandManager& operator=(const CommandManager&) = delete;
-    CommandManager(CommandManager&& rhs) noexcept = delete;
-    CommandManager& operator=(CommandManager&& rhs) noexcept = delete;
+    CommandManager(CommandManager&&) noexcept = delete;
+    CommandManager& operator=(CommandManager&&) noexcept = delete;
 
     /// \brief Retrieves a free CommandList from the pool, resets it, and prepares it for reuse.
     /// \param pso Pointer to the Pipeline State Object (PSO) used to reset the CommandList.
@@ -57,12 +57,5 @@ public:
 
 private:
     void Initialize(ID3D12Device* device);
-
-    static inline ID3D12CommandQueue* GetCommandQueue()
-    {
-        assert(mCommandQueueDirect);
-        if (!mCommandQueueDirect) return nullptr;
-
-        return mCommandQueueDirect->GetCommandQueue();
-    }
+    static ID3D12CommandQueue* GetCommandQueue();
 };

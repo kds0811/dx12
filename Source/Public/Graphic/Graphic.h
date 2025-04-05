@@ -30,8 +30,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
 
-
-
     // Viewport and window fields
     D3D12_VIEWPORT mScreenViewport;
     UINT mClientWidth = 0u;

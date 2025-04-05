@@ -1,7 +1,6 @@
 #pragma once
 #include "Transform.h"
 #include <DirectXMath.h>
-#include "GraphicGlobals.h"
 #include "MovementComponent.h"
 #include "BaseComponent.h"
 

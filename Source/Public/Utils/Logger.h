@@ -96,8 +96,7 @@ static std::string Logs(std::wstring& arg)
         throw std::runtime_error("Failed to convert wstring to string");
     }
 
-    // Создаем буфер для результата
-    std::string result(size - 1, '\0');  // size - 1, чтобы исключить завершающий ноль
+    std::string result(size - 1, '\0');  
     WideCharToMultiByte(CP_UTF8, 0, arg.c_str(), -1, &result[0], size, nullptr, nullptr);
 
     return result;
@@ -152,7 +151,7 @@ static std::string Logs(T& arg)
     return result;
 }
 
-// perfect forwarding
+
 template <typename... Types>
 static std::string Logs(Types&&... args)
 {

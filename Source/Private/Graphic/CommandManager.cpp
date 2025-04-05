@@ -2,7 +2,6 @@
 #include "CommandQueue.h"
 #include "Pso.h"
 #include "CommandAllocator.h"
-#include "CommandList.h"
 #include "SwapChain.h"
 
 using namespace Kds::App;
@@ -73,4 +72,12 @@ void CommandManager::Initialize(ID3D12Device* device)
             LOG_ERROR("CommandList with ID: ", i, " was not created");
         }
     }
+}
+
+ID3D12CommandQueue* CommandManager::GetCommandQueue()
+{
+    assert(mCommandQueueDirect);
+    if (!mCommandQueueDirect) return nullptr;
+
+    return mCommandQueueDirect->GetCommandQueue();
 }

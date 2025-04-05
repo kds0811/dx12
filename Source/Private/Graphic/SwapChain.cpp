@@ -51,13 +51,6 @@ void SwapChain::Initialize(HWND windowHandle)
         LOG_ERROR("Create Swap chain is failed");
     }
 
-    D3D12_CLEAR_VALUE clearValue = {};
-    clearValue.Format = mBackBufferFormat;
-    clearValue.Color[0] = mClearColor.x;
-    clearValue.Color[1] = mClearColor.y;
-    clearValue.Color[2] = mClearColor.z;
-    clearValue.Color[3] = mClearColor.w;
-
     for (UINT i = 0; i < mSwapChainBufferCount; i++)
     {
         std::wstring nameRes = L"SwapChain Buffer Resource N: " + std::to_wstring(i);

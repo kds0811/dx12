@@ -18,21 +18,24 @@ bool RenderTarget::Initialize(std::wstring name, UINT width, UINT height, DXGI_F
     mResourceDimension = resourceDimension;
     mName = std::move(name);
 
-    if (BuildResource())
+    if (!BuildResource())
     {
-        if (BuildDescriptors())
-        {
-            return true;
-        }
+        LOG_ERROR("RenderTarget: ", mName, " Build Resource is failed!");
+        return false;
     }
 
-    LOG_ERROR("RenderTarget: ", mName,  " initialization failed!");
-    return false;
+    if (!BuildDescriptors())
+    {
+        LOG_ERROR("RenderTarget: ", mName, " BuildDescriptors is failed!");
+        return false;
+    }
+
+    return true;
 }
 
 bool RenderTarget::Initialize(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format)
 {
-    assert(existingResource != nullptr);
+    assert(existingResource);
     if (!existingResource)
     {
         LOG_ERROR("Existing resource is null.");
@@ -47,7 +50,8 @@ bool RenderTarget::Initialize(ID3D12Resource* existingResource, std::wstring nam
     mWidth = static_cast<UINT>(desc.Width);
     mHeight = desc.Height;
     mResourceDimension = desc.Dimension;
-    
+
+    mResource->SetName(mName.c_str());
 
     if (!BuildDescriptors())
     {

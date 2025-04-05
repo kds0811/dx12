@@ -1,17 +1,21 @@
 #pragma once
 #include <memory>
 
-//forward declaration
 class Device;
-class DescriptorManager;
+class CommandManager;
+class DescriptorHeapManager;
+class SwapChain;
+
 
 class GraphicEngine
 {
     std::unique_ptr<Device> mDevice;
-    std::unique_ptr<DescriptorManager> mDescriptorManager;
+    std::unique_ptr<CommandManager> mCommandManager;
+    std::unique_ptr<DescriptorHeapManager> mDescriptorHeapManager;
+    std::unique_ptr<SwapChain> mSwapChain;
 
 public:
-    GraphicEngine();
+    GraphicEngine(HWND windowHandle);
     ~GraphicEngine();
     GraphicEngine(const GraphicEngine&) = delete;
     GraphicEngine& operator=(const GraphicEngine&) = delete;
