@@ -21,42 +21,29 @@ public:
 
     void CycleToNextFrameResource();
 
-    [[nodiscard]] inline UINT64 GetCurrentFenceValue()
-    {
-        assert(mCurrFrameResource);
-        if (!mCurrFrameResource)
-        {
-            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
-        }
-        return mCurrFrameResource->GetFenceValue();
-    }
-
     [[nodiscard]] inline UploadBuffer<PassConstants>* GetCurrentPassConstants()
     {
-        assert(mCurrFrameResource);
-        if (!mCurrFrameResource)
+        if (!CurrFrameResourceIsValid())
         {
-            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
+            return nullptr;
         }
         return mCurrFrameResource->GetPassConstants();
     }
 
     [[nodiscard]] inline UploadBuffer<MaterialConstants>* GetCurrentMaterialConstants()
     {
-        assert(mCurrFrameResource);
-        if (!mCurrFrameResource)
+        if (!CurrFrameResourceIsValid())
         {
-            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
+            return nullptr;
         }
         return mCurrFrameResource->GetMaterialConstants();
     }
 
     [[nodiscard]] inline UploadBuffer<ObjectConstants>* GetCurrentObjectConstants()
     {
-        assert(mCurrFrameResource);
-        if (!mCurrFrameResource)
+        if (!CurrFrameResourceIsValid())
         {
-            LOG_ERROR("Cuurent Frame Resource pointer is nullptr");
+            return nullptr;
         }
         return mCurrFrameResource->GetObjectConstants();
     }
@@ -64,4 +51,5 @@ public:
 
 private:
     void BuildFrameResources();
+    bool CurrFrameResourceIsValid();
 };

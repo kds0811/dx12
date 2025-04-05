@@ -8,7 +8,7 @@ class GpuResource
 {
 protected:
     Microsoft::WRL::ComPtr<ID3D12Resource> mResource = nullptr;
-    D3D12_RESOURCE_STATES mCurrenState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+    D3D12_RESOURCE_STATES mCurrentState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
     D3D12_GPU_VIRTUAL_ADDRESS mGpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
     uint32_t mVersionID = 0;
     std::wstring mName{};
@@ -27,7 +27,7 @@ public:
     inline void IncrementVersion() { ++mVersionID; }
 
     [[nodiscard]] bool ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState);
-    [[nodiscard]] inline D3D12_RESOURCE_STATES GetCurrentState() const noexcept { return mCurrenState; }
+    [[nodiscard]] inline D3D12_RESOURCE_STATES GetCurrentState() const noexcept { return mCurrentState; }
     Microsoft::WRL::ComPtr<ID3D12Resource>& GetComPtr() { return mResource; }
 
 };

@@ -17,6 +17,7 @@ bool RenderTarget::Initialize(std::wstring name, UINT width, UINT height, DXGI_F
     mClearValue = clearValue;
     mResourceDimension = resourceDimension;
     mName = std::move(name);
+    mCurrentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
     if (!BuildResource())
     {
@@ -33,7 +34,7 @@ bool RenderTarget::Initialize(std::wstring name, UINT width, UINT height, DXGI_F
     return true;
 }
 
-bool RenderTarget::Initialize(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format)
+bool RenderTarget::InitializeAsBackBuffer(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format)
 {
     assert(existingResource);
     if (!existingResource)
@@ -45,6 +46,7 @@ bool RenderTarget::Initialize(ID3D12Resource* existingResource, std::wstring nam
     mResource = existingResource;
     mName = std::move(name);
     mFormat = format;
+    mCurrentState = D3D12_RESOURCE_STATE_PRESENT;
 
     const D3D12_RESOURCE_DESC& desc = mResource->GetDesc();
     mWidth = static_cast<UINT>(desc.Width);
@@ -113,7 +115,9 @@ bool RenderTarget::BuildResource()
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-    Device::GetDevice()->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, &mClearValue, IID_PPV_ARGS(&mResource)) >>
+    
+
+    Device::GetDevice()->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, mCurrentState, &mClearValue, IID_PPV_ARGS(&mResource)) >>
         Kds::App::Check;
 
     if (mResource)

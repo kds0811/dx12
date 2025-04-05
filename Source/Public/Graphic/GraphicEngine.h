@@ -4,7 +4,8 @@
 class Device;
 class CommandManager;
 class DescriptorHeapManager;
-class SwapChain;
+class Renderer;
+
 
 
 class GraphicEngine
@@ -12,7 +13,7 @@ class GraphicEngine
     std::unique_ptr<Device> mDevice;
     std::unique_ptr<CommandManager> mCommandManager;
     std::unique_ptr<DescriptorHeapManager> mDescriptorHeapManager;
-    std::unique_ptr<SwapChain> mSwapChain;
+    std::unique_ptr<Renderer> mRenderer;
 
 public:
     GraphicEngine(HWND windowHandle);

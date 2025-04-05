@@ -22,7 +22,7 @@ FrameResourceManager::FrameResourceManager(FrameResourceManager&& other) noexcep
 FrameResourceManager& FrameResourceManager::operator=(FrameResourceManager&& other) noexcept
 {
     mFrameResources = std::move(other.mFrameResources);
-    mCurrFrameResource =std::move(other.mCurrFrameResource);
+    mCurrFrameResource = std::move(other.mCurrFrameResource);
     mCurrFrameResourceIndex = other.mCurrFrameResourceIndex;
     mNumFrameResources = other.mNumFrameResources;
     return *this;
@@ -45,4 +45,18 @@ void FrameResourceManager::BuildFrameResources()
 
     mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
     LOG_MESSAGE("Frame resources is builded");
+}
+
+bool FrameResourceManager::CurrFrameResourceIsValid()
+{
+    assert(mCurrFrameResource);
+    if (!mCurrFrameResource)
+    {
+        LOG_ERROR("Current Frame Resource pointer is nullptr");
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }

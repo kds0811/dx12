@@ -17,6 +17,17 @@ SwapChain::SwapChain(HWND windowHandle)
 
 SwapChain::~SwapChain() = default;
 
+void SwapChain::PreperingToStartDrawingFrame(CommandList* cmdList) 
+{
+    mCurrBackBuffer->ChangeState(cmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    cmdList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+}
+
+void SwapChain::CycleToNextBackBuffer() 
+{
+
+}
+
 void SwapChain::Initialize(HWND windowHandle)
 {
     mSwapChain.Reset();
@@ -53,15 +64,44 @@ void SwapChain::Initialize(HWND windowHandle)
 
     for (UINT i = 0; i < mSwapChainBufferCount; i++)
     {
+        mSwapChainBuffer[i] = std::make_unique<RenderTarget>();
+
         std::wstring nameRes = L"SwapChain Buffer Resource N: " + std::to_wstring(i);
 
         Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
         mSwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)) >> Check;
 
-        if (!mSwapChainBuffer[i].Initialize(backBuffer.Get(), nameRes, mBackBufferFormat))
+        if (!mSwapChainBuffer[i]->InitializeAsBackBuffer(backBuffer.Get(), nameRes, mBackBufferFormat))
         {
             LOG_ERROR("Failed to initialize RenderTarget for SwapChain buffer.");
             assert(0);
         }
     }
+
+    mCurrBackBuffer = mSwapChainBuffer[mCurrBackBufferIndex].get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE SwapChain::GetCurrentBackBufferView()
+{
+    assert(mCurrBackBuffer);
+    if (mCurrBackBuffer)
+    {
+        auto handle = mCurrBackBuffer->GetRtvDescriptorHandle();
+        if (!handle.IsNull())
+        {
+            return handle.GetCpuHandle();
+        }
+        else
+        {
+            LOG_ERROR("Current Back Buffer handle to view is Null");
+            return D3D12_CPU_DESCRIPTOR_HANDLE{};
+        }
+    }
+    else
+    {
+        LOG_ERROR("mCurrBackBuffer is nullptr");
+        return D3D12_CPU_DESCRIPTOR_HANDLE{};
+    }
+    
+    
 }

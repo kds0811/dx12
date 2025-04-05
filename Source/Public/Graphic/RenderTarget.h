@@ -16,7 +16,7 @@ class RenderTarget : public GpuResource
 public:
     RenderTarget() = default;
     bool Initialize(std::wstring name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
-    bool Initialize(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format);
+    bool InitializeAsBackBuffer(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format);
 
 
     RenderTarget(const RenderTarget& rhs) = delete;
@@ -24,7 +24,7 @@ public:
     ~RenderTarget();
 
     [[nodiscard]] inline DescriptorHandle& GetSrvDescriptorHandle() noexcept { return mSrvDescriptorHandle; }
-    [[nodiscard]] inline DescriptorHandle& RtvDescriptorHandle() noexcept { return mRtvDescriptorHandle; }
+    [[nodiscard]] inline DescriptorHandle& GetRtvDescriptorHandle() noexcept { return mRtvDescriptorHandle; }
     [[nodiscard]] bool IsInitialized() const noexcept { return mResource && !mSrvDescriptorHandle.IsNull() && !mRtvDescriptorHandle.IsNull(); }
     void OnResize(UINT newWidth, UINT newHeight);
 
@@ -36,4 +36,3 @@ private:
     void DestroyDescriptorHandles();
 
 };
-    
