@@ -115,8 +115,6 @@ bool RenderTarget::BuildResource()
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-    
-
     Device::GetDevice()->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, mCurrentState, &mClearValue, IID_PPV_ARGS(&mResource)) >>
         Kds::App::Check;
 
