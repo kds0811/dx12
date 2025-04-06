@@ -51,6 +51,8 @@ public:
     void IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views);
     void OMSetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
         const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilDescriptor);
+    void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView,  D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 stencil,  UINT numRects,
+         const D3D12_RECT* pRects);
 
 private:
     void Initialize(ID3D12Device* device, UINT id);

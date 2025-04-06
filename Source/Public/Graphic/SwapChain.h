@@ -4,6 +4,7 @@
 #include <RenderTarget.h>
 
 class CommandList;
+class DepthStencil;
 
 class SwapChain
 {
@@ -15,6 +16,8 @@ class SwapChain
     DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     UINT mWidth = 1600;
     UINT mHeight = 800;
+
+
     
 
 public:
@@ -29,7 +32,6 @@ public:
 
 private:
     void Initialize(HWND windowHandle);
-
     D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView();
 
 }; 

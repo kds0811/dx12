@@ -154,6 +154,12 @@ void CommandList::OMSetRenderTargets(UINT numRenderTargetDescriptors, const D3D1
     }
 }
 
+void CommandList::ClearDepthStencilView(
+    D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView, D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects)
+{
+    mCommandList->ClearDepthStencilView(depthStencilView, clearFlags, depth, stencil, numRects, pRects);
+}
+
 bool CommandList::IsValidState()
 {
     assert(mCommandList && !bIsClosed);

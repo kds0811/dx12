@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "Device.h"
 #include "CommandManager.h"
+#include "DepthStencil.h"
 
 using namespace DirectX;
 using namespace Kds::App;
@@ -91,6 +92,7 @@ void SwapChain::Initialize(HWND windowHandle)
 
     mCurrBackBuffer = mSwapChainBuffer[mCurrBackBufferIndex].get();
 }
+
 
 D3D12_CPU_DESCRIPTOR_HANDLE SwapChain::GetCurrentBackBufferView()
 {
