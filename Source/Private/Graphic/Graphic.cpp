@@ -452,47 +452,7 @@ ID3D12Resource* Graphic::CurrentBackBuffer() const noexcept
 
 void Graphic::InitPipeline()
 {
-  
-
- 
-
-
-    // Create DSV ForSwapChain
-    D3D12_RESOURCE_DESC depthStencilDesc{};
-    depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    depthStencilDesc.Alignment = 0;
-    depthStencilDesc.Width = mClientWidth;
-    depthStencilDesc.Height = mClientHeight;
-    depthStencilDesc.DepthOrArraySize = 1;
-    depthStencilDesc.MipLevels = 1;
-    depthStencilDesc.Format = mDepthStencilFormat;
-    depthStencilDesc.SampleDesc.Count = 1;
-    depthStencilDesc.SampleDesc.Quality = 0;
-    depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-    D3D12_CLEAR_VALUE optClear{};
-    optClear.Format = mDepthStencilFormat;
-    optClear.DepthStencil.Depth = 1.0f;
-    optClear.DepthStencil.Stencil = 0;
-
-    CD3DX12_HEAP_PROPERTIES HeapProp(D3D12_HEAP_TYPE_DEFAULT);
-
-    mDevice->CreateCommittedResource(
-        &HeapProp, D3D12_HEAP_FLAG_NONE, &depthStencilDesc, D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())) >>
-        Check;
-
-    mDepthStencilBuffer->SetName(L"DepthStencilBuffer") >> Check;
-
-    mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, GetDepthStencilView());
-
-    auto ResBar = CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-    // Reset the command list to prep for initialization commands.
-    mCommandList->Reset(mCommandAlloc.Get(), nullptr) >> Check;
-
-    mCommandList->ResourceBarrier(1, &ResBar);
-
-    assert(mDepthStencilBuffer);
+   
 
     // Create And SetViewport
     mScreenViewport.TopLeftX = 0.0f;

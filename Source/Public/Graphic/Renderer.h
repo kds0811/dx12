@@ -5,12 +5,19 @@
 class FrameResourceManager;
 class SwapChain;
 class DepthStencil;
+class D3D12_CPU_DESCRIPTOR_HANDLE;
+class CommandList;
+class Viewport;
+class ScissorRect;
 
 class Renderer
 {
+    CommandList* cmdList = nullptr;
     std::unique_ptr<FrameResourceManager> mFrameResourceManager;
     std::unique_ptr<SwapChain> mSwapChain;
     std::unique_ptr<DepthStencil> mDepthStencil;
+    std::unique_ptr<Viewport> mViewport;
+    std::unique_ptr<ScissorRect> mScissorRect;
 
 public:
     Renderer(HWND windowHandle);
@@ -19,6 +26,8 @@ public:
     Renderer& operator=(const Renderer&) = delete;
     Renderer(const Renderer&& rhs) = delete;
     Renderer& operator=(const Renderer&& rhs) = delete;
+
+    void StartDrawFrame();
 
 private:
     void InitDepthStencil();
