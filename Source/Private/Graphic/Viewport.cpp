@@ -1,4 +1,5 @@
 #include "Viewport.h"
+#include "CommandList.h"
 
 Viewport::Viewport(float topLeftX, float topLeftY, float width, float height, float minDepth, float maxDepth)
 {
@@ -20,12 +21,12 @@ void Viewport::Set(const D3D12_VIEWPORT& viewport)
     mViewport = viewport;
 }
 
-void Viewport::Apply(ID3D12GraphicsCommandList* commandList) const
+void Viewport::SetToPipeline(CommandList* commandList) const
 {
     assert(commandList);
     if (commandList)
     {
-        commandList->RSSetViewports(1, &mViewport);
+        commandList->SetViewports(1, &mViewport);
     }
 
 }

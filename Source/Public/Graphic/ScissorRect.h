@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 
+class CommandList;
+
 class ScissorRect
 {
 private:
@@ -15,5 +17,5 @@ public:
     [[nodiscard]] const D3D12_RECT& GetScissorRect() const noexcept { return mRect; }
     [[nodiscard]] D3D12_RECT& GetScissorRect() noexcept { return mRect; }
 
-    void Apply(ID3D12GraphicsCommandList* commandList) const;
+    void SetToPipeline(CommandList* commandList) const;
 };

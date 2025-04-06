@@ -129,7 +129,7 @@ void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* rootSignature)
     }
 }
 
-void CommandList::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology)
+void CommandList::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology)
 {
     if (IsValidState())
     {
@@ -137,7 +137,7 @@ void CommandList::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopol
     }
 }
 
-void CommandList::IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views)
+void CommandList::SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views)
 {
     if (IsValidState())
     {
@@ -145,7 +145,7 @@ void CommandList::IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_
     }
 }
 
-void CommandList::OMSetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
+void CommandList::SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
     const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilDescriptor)
 {
     if (IsValidState())
@@ -157,7 +157,26 @@ void CommandList::OMSetRenderTargets(UINT numRenderTargetDescriptors, const D3D1
 void CommandList::ClearDepthStencilView(
     D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView, D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects)
 {
-    mCommandList->ClearDepthStencilView(depthStencilView, clearFlags, depth, stencil, numRects, pRects);
+    if (IsValidState())
+    {
+        mCommandList->ClearDepthStencilView(depthStencilView, clearFlags, depth, stencil, numRects, pRects);
+    }
+}
+
+void CommandList::SetViewports(UINT NumViewports, const D3D12_VIEWPORT* pViewports)
+{
+    if (IsValidState())
+    {
+        mCommandList->RSSetViewports(1, pViewports);
+    }
+}
+
+void CommandList::SetScissorRects(UINT NumRects, const D3D12_RECT* pRects)
+{
+    if (IsValidState())
+    {
+        mCommandList->RSSetScissorRects(1, pRects);
+    }
 }
 
 bool CommandList::IsValidState()

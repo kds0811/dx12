@@ -27,6 +27,15 @@ void Renderer::StartDrawFrame()
     cmdList = CommandManager::GetFreeCommandListAndResetIt(&dummyPso);
     assert(cmdList);
 
+    if (!cmdList)
+    {
+        LOG_ERROR("StartDrawFrame: Received CommandList is nullptr");
+        return;
+    }
+    
+    mViewport->SetToPipeline(cmdList);
+    mScissorRect->SetToPipeline(cmdList);
+
 
 
 

@@ -47,12 +47,14 @@ public:
     void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation);
     void SetPipelineState(ID3D12PipelineState* pipelineState);
     void SetGraphicsRootSignature(ID3D12RootSignature* rootSignature);
-    void IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
-    void IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views);
-    void OMSetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
+    void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
+    void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views);
+    void SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
         const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilDescriptor);
     void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView,  D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 stencil,  UINT numRects,
          const D3D12_RECT* pRects);
+    void SetViewports(UINT NumViewports, const D3D12_VIEWPORT* pViewports);
+    void SetScissorRects( UINT NumRects, const D3D12_RECT* pRects);
 
 private:
     void Initialize(ID3D12Device* device, UINT id);

@@ -1,4 +1,5 @@
 #include "ScissorRect.h"
+#include "CommandList.h"
 
 ScissorRect::ScissorRect(UINT left, UINT top, UINT right, UINT bottom)
 {
@@ -18,11 +19,11 @@ void ScissorRect::Set(const D3D12_RECT& rect)
     mRect = rect;
 }
 
-void ScissorRect::Apply(ID3D12GraphicsCommandList* commandList) const
+void ScissorRect::SetToPipeline(CommandList* commandList) const
 {
     assert(commandList);
     if (commandList)
     {
-        commandList->RSSetScissorRects(1, &mRect);
+        commandList->SetScissorRects(1, &mRect);
     }
 }

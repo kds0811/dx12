@@ -1,6 +1,8 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 
+class CommandList;
+
 class Viewport
 {
 private:
@@ -15,5 +17,5 @@ public:
     [[nodiscard]] const D3D12_VIEWPORT& GetViewport() const noexcept { return mViewport; }
     [[nodiscard]] D3D12_VIEWPORT& GetViewport() noexcept { return mViewport; }
 
-    void Apply(ID3D12GraphicsCommandList* commandList) const;
+    void SetToPipeline(CommandList* commandList) const;
 };

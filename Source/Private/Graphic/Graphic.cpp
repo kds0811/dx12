@@ -454,19 +454,6 @@ void Graphic::InitPipeline()
 {
    
 
-    // Create And SetViewport
-    mScreenViewport.TopLeftX = 0.0f;
-    mScreenViewport.TopLeftY = 0.0f;
-    mScreenViewport.Width = static_cast<float>(mClientWidth);
-    mScreenViewport.Height = static_cast<float>(mClientHeight);
-    mScreenViewport.MinDepth = 0.0f;
-    mScreenViewport.MaxDepth = 1.0f;
-    mCommandList->RSSetViewports(1, &mScreenViewport);
-
-    // Create Scissor Rect
-    mScissorRect = {0, 0, static_cast<long>(mClientWidth), static_cast<long>(mClientHeight)};
-    mCommandList->RSSetScissorRects(1, &mScissorRect);
-
     // Init Projection matrix
     XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, GetAspectRatio(), 1.0f, 100000.0f);
     XMStoreFloat4x4(&mProj, P);
