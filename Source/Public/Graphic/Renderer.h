@@ -2,10 +2,10 @@
 #include <memory>
 #include <windef.h>
 
+struct D3D12_CPU_DESCRIPTOR_HANDLE;
 class FrameResourceManager;
 class SwapChain;
 class DepthStencil;
-class D3D12_CPU_DESCRIPTOR_HANDLE;
 class CommandList;
 class Viewport;
 class ScissorRect;
