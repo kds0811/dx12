@@ -47,5 +47,22 @@ public:
         }
         mMappedData = nullptr;
     }
-    void CopyData(int elementIndex, const T& data) { memcpy(&mMappedData[elementIndex * mElementByteSize], &data, sizeof(T)); }
+
+    void CopyData(int elementIndex, const T& data)
+    {
+        if (!mMappedData)
+        {
+            LOG_ERROR("UploadBuffer is not mapped.");
+            assert(false);
+        }
+
+        if (elementIndex < 0)
+        {
+            LOG_ERROR("Invalid element index in CopyData.");
+            assert(false);
+        }
+
+        memcpy(&mMappedData[elementIndex * mElementByteSize], &data, sizeof(T));
+    }
+
 };
