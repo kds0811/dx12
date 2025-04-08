@@ -4,7 +4,7 @@
 IndexBuffer::IndexBuffer(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const void* initData, UINT indexCount, DXGI_FORMAT format)
 {
     Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer;
-    D3D12Utils::CreateDefaultBuffer(device, cmdList, initData, mBufferSize, uploadBuffer);
+    mResource = D3D12Utils::CreateDefaultBuffer(device, cmdList, initData, mBufferSize, uploadBuffer);
 
     // Устанавливаем GPU-адрес
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
