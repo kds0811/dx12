@@ -16,7 +16,7 @@ protected:
 public:
     GpuResource();
     GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState);
-    ~GpuResource();
+    virtual ~GpuResource();
 
     void DestroyResource();
     [[nodiscard]] inline ID3D12Resource* GetResource()  { return mResource.Get(); }

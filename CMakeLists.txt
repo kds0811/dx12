@@ -55,16 +55,9 @@ endfunction()
 # Function for automatic source grouping with a base group and base directory  
 function(auto_source_group base_group base_dir)  
     foreach(FILE ${ARGN})  
-        # Вычисляем относительный путь относительно base_dir  
         file(RELATIVE_PATH REL_FILE "${base_dir}" "${FILE}")  
-        
-        # Получаем директорию от относительного пути  
         get_filename_component(DIR_PATH "${REL_FILE}" DIRECTORY)  
-        
-        # Заменяем "/" на "\\" для корректного отображения в Visual Studio  
         string(REPLACE "/" "\\" GROUP_PATH "${DIR_PATH}")  
-        
-        # Создаем группу в Visual Studio  
         source_group("${base_group}\\${GROUP_PATH}" FILES "${FILE}")  
     endforeach()  
 endfunction()   
@@ -84,7 +77,6 @@ find_package(directx-headers CONFIG REQUIRED)
 find_package(directxtk12 CONFIG REQUIRED)  
 find_package(assimp CONFIG REQUIRED)
 
-# Основной исполняемый файл  
 add_executable(dx12 WIN32
   ${PRIVATE_SOURCES}
   ${PUBLIC_HEADERS}
@@ -93,36 +85,31 @@ add_executable(dx12 WIN32
  
   function(add_non_compiled_sources target)  
       foreach(FILE ${ARGN})  
-          # Устанавливаем файл как не участвующий в компиляции  
           set_source_files_properties(${FILE}   
               PROPERTIES   
               HEADER_FILE_ONLY TRUE  
               EXCLUDE_FROM_ALL TRUE  
           )  
-          
-          # Опционально: группируем файлы  
+           
           get_filename_component(FILE_PATH "${FILE}" DIRECTORY)  
           file(RELATIVE_PATH REL_PATH "${SHADERS_DIR}" "${FILE_PATH}")  
           source_group("Shaders\\${REL_PATH}" FILES "${FILE}")  
       endforeach()  
   endfunction()  
   
-  # Заменяем существующую строку группировки шейдеров  
+
   add_non_compiled_sources(dx12 ${SHADER_SOURCES})  
 
 
 
 
-# Автоматическое включение директорий  
-auto_include_directories(dx12 "${CMAKE_SOURCE_DIR}/Source")  
 
-# Группируем публичные заголовочные файлы под "Public"  
+auto_include_directories(dx12 "${CMAKE_SOURCE_DIR}/Source")  
+ 
 auto_source_group("Public" "${PUBLIC_DIR}" ${PUBLIC_HEADERS})  
 
-# Группируем приватные исходные файлы под "Private"  
 auto_source_group("Private" "${PRIVATE_DIR}" ${PRIVATE_SOURCES})  
 
-# Группируем шейдеры под "Shaders"  
 auto_source_group("Shaders" "${SHADERS_DIR}" ${SHADER_SOURCES}) 
 
 
