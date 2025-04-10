@@ -15,7 +15,7 @@ CommandManager::~CommandManager() = default;
 
 CommandList* CommandManager::GetFreeCommandListAndResetIt(Pso* pso)
 {
-    std::lock_guard<std::mutex> lockGuard(mGetCommandListMutex);
+    std::lock_guard<std::mutex> lockGuard(mCommandListMutex);
 
     if (!mPoolFreeCommandListPtr.empty())
     {
@@ -25,7 +25,7 @@ CommandList* CommandManager::GetFreeCommandListAndResetIt(Pso* pso)
             mCommandQueueDirect->WaitForFence(cmdListPtr->GetFenceValue());
         }
 
-        if(!cmdListPtr->ResetAllocatorAndCommandList(pso, mCommandQueueDirect->GetLastCompletedFenceValue()));
+        if (!cmdListPtr->ResetAllocatorAndCommandList(pso, mCommandQueueDirect->GetLastCompletedFenceValue()))
         {
             LOG_ERROR("Error ResetAllocatorAndCommandList");
             return nullptr;
@@ -42,18 +42,25 @@ CommandList* CommandManager::GetFreeCommandListAndResetIt(Pso* pso)
     }
 }
 
-void CommandManager::ReturnAndExecuteCommandList(CommandList* commandList)
-{
-    mCommandQueueDirect->ExecuteCommandList(commandList);
+UINT64 CommandManager::ReturnAndExecuteCommandList(CommandList* commandList)
+{    
+    std::lock_guard<std::mutex> lockGuard(mCommandListMutex);
+    UINT64 fenceValue = mCommandQueueDirect->ExecuteCommandList(commandList);
     mPoolFreeCommandListPtr.push(commandList);
+    return fenceValue;
 }
 
-void CommandManager::FlushCommandQueue()
+bool CommandManager::FlushCommandQueue()
 {
     assert(mCommandQueueDirect);
-    if (!mCommandQueueDirect) return;
+    if (!mCommandQueueDirect) return false;
 
-    mCommandQueueDirect->FlushCommandQueue();
+    return mCommandQueueDirect->FlushCommandQueue();
+}
+
+bool CommandManager::WaitForFence(UINT64 fenceValue)
+{
+    return mCommandQueueDirect->WaitForFence(fenceValue);
 }
 
 void CommandManager::Initialize(ID3D12Device* device)

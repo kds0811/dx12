@@ -13,7 +13,10 @@ CommandQueue::~CommandQueue()
 {
     if (mEventHandle)
     {
-        CloseHandle(mEventHandle);
+        if (!CloseHandle(mEventHandle))
+        {
+            LOG_ERROR("Failed to close event handle.");
+        }
         mEventHandle = nullptr;
     }
 }
@@ -43,14 +46,14 @@ CommandQueue& CommandQueue::operator=(CommandQueue&& other) noexcept
     return *this;
 }
 
-bool CommandQueue::ExecuteCommandList(CommandList* list)
+UINT64 CommandQueue::ExecuteCommandList(CommandList* list)
 {
-    if (!IsValidState()) return false;
+    if (!IsValidState()) return 0;
 
     if (!list)
     {
         LOG_ERROR("CommandQueue::ExecuteCommandList: list pointer is nullptr");
-        return false;
+        return 0;
     }
 
     if (!list->Close())
@@ -67,35 +70,33 @@ bool CommandQueue::ExecuteCommandList(CommandList* list)
 
     list->SetFenceValue(mCurrentFenceValue);
 
-    return true;
+    return mCurrentFenceValue;
 }
 
-void CommandQueue::WaitForFence(UINT64 fenceValue)
+bool CommandQueue::WaitForFence(UINT64 fenceValue)
 {
+    if (!IsValidState()) return false;
+
     if (IsFenceComplete(fenceValue))
     {
-        return;
+        return true;
     }
     else
     {
-        if (!IsValidState()) return;
-
         std::lock_guard<std::mutex> LockGuard(mEventMutex);
-
         mFence->SetEventOnCompletion(fenceValue, mEventHandle);
         WaitForSingleObject(mEventHandle, INFINITE);
         mLastCompletedFenceValue = fenceValue;
+        return true;
     }
 }
 
-void CommandQueue::FlushCommandQueue()
+bool CommandQueue::FlushCommandQueue()
 {
-    if (!IsValidState()) return;
+    if (!IsValidState()) return false;
 
     std::lock_guard<std::mutex> LockGuard(mEventMutex);
-
     mCommandQueue->Signal(mFence.Get(), ++mCurrentFenceValue) >> Kds::App::Check;
-
     if (mFence->GetCompletedValue() < mCurrentFenceValue)
     {
         mFence->SetEventOnCompletion(mCurrentFenceValue, mEventHandle);
@@ -103,6 +104,7 @@ void CommandQueue::FlushCommandQueue()
     }
     LOG_MESSAGE("Command queue has been flushed.");
     mLastCompletedFenceValue = mCurrentFenceValue;
+    return true;
 }
 
 bool CommandQueue::IsFenceComplete(UINT64 FenceValue)
@@ -128,6 +130,7 @@ void CommandQueue::Initialize(ID3D12Device* device)
     {
         LOG_ERROR("Failed to create event handle.");
         assert(false);
+        return;
     }
 
     // Create Command Objects

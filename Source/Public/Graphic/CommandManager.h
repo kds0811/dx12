@@ -10,6 +10,7 @@ class Pso;
 class CommandAllocator;
 class SwapChain;
 
+// Comparator for priority queue of CommandLists. Compares FenceValues.
 auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
 
 /// \brief Manages a pool of CommandLists and provides an interface to retrieve, reset, and execute them.
@@ -30,7 +31,7 @@ class CommandManager
     static constexpr UINT mNumCommandList = 10;
     static inline std::array<std::unique_ptr<CommandList>, mNumCommandList> mCommandListStorage;                                          // ownership of resources
     static inline std::priority_queue<CommandList*, std::vector<CommandList*>, decltype(CommandListComparator)> mPoolFreeCommandListPtr;  // Pool of Free Command Lists
-    static inline std::mutex mGetCommandListMutex;
+    static inline std::mutex mCommandListMutex;
 
 public:
     CommandManager(ID3D12Device* device);
@@ -43,17 +44,22 @@ public:
     /// \brief Retrieves a free CommandList from the pool, resets it, and prepares it for reuse.
     /// \param pso Pointer to the Pipeline State Object (PSO) used to reset the CommandList.
     /// \return A pointer to the ready-to-use CommandList, or nullptr if no free CommandList is available.
-    static CommandList* GetFreeCommandListAndResetIt(Pso* pso);
+    [[nodiscard]] static CommandList* GetFreeCommandListAndResetIt(Pso* pso);
 
     /// \brief Executes the given CommandList and returns it to the pool of free CommandLists.
     /// \param commandList Pointer to the CommandList to execute and return to the pool.
-    static void ReturnAndExecuteCommandList(CommandList* commandList);
+    /// \return The fence value associated with the executed CommandList.
+    [[nodiscard]] static UINT64 ReturnAndExecuteCommandList(CommandList* commandList);
 
     /// \brief Flushes the command queue to ensure all pending commands are executed.
-    ///
     /// This function checks if the CommandQueue is valid and then calls its FlushCommandQueue method.
     /// Flushing the queue ensures that all previously submitted commands are completed before proceeding.
-    static void FlushCommandQueue();
+    [[nodiscard]] static bool FlushCommandQueue();
+
+    /// \brief Waits for a specific fence value to be signaled by the GPU.
+    /// \param fenceValue The fence value to wait for.
+    /// \return True if the fence value is successfully waited for, false otherwise.
+    [[nodiscard]] static bool WaitForFence(UINT64 fenceValue);
 
 private:
     void Initialize(ID3D12Device* device);

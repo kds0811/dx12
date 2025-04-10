@@ -45,6 +45,7 @@ bool CommandList::Close()
 
 bool CommandList::ResetAllocatorAndCommandList(Pso* pso, UINT64 queueLastCompletedFenceValue)
 {
+    assert(pso);
     if (!pso)
     {
         LOG_ERROR("Pso pointer is nullptr");
