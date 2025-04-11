@@ -18,7 +18,6 @@ void RenderTarget::Initialize(const std::wstring& name, UINT width, UINT height,
     mFormat = format;
     mClearValue = clearValue;
     mResourceDimension = resourceDimension;
-
     BuildResource();
     BuildDescriptors();
 }
@@ -50,7 +49,6 @@ void RenderTarget::OnResize(UINT newWidth, UINT newHeight)
 {
     if ((mWidth != newWidth) || (mHeight != newHeight))
     {
-
         mWidth = newWidth;
         mHeight = newHeight;
         Destroy();

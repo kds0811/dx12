@@ -10,29 +10,14 @@ class UploadBuffer : public GpuResource
     bool mIsConstantBuffer = false;
 
 public:
-    UploadBuffer(UINT elementCount, bool isConstantBuffer) : mIsConstantBuffer(isConstantBuffer)
+    UploadBuffer(const std::wstring& name, UINT elementCount, bool isConstantBuffer) : mIsConstantBuffer(isConstantBuffer)
     {
+        SetName(name);
         isConstantBuffer ? mElementByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(T)) : mElementByteSize = sizeof(T);
-
         auto HeapUploadProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-
         auto BufferDesc = CD3DX12_RESOURCE_DESC::Buffer(mElementByteSize * elementCount);
-
-        device->CreateCommittedResource(&HeapUploadProp, D3D12_HEAP_FLAG_NONE, &BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&mResource)) >>
-            Kds::App::Check;
-
-        mCurrentState = D3D12_RESOURCE_STATE_GENERIC_READ;
-
-        mResource->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData)) >> Kds::App::Check;
-
-        if (mResource)
-        {
-            mResource->SetName(L"UploadBuffer");
-        }
-        else
-        {
-            LOG_ERROR("UploadBuffer creation failed");
-        }
+        CreateResource(&HeapUploadProp, D3D12_HEAP_FLAG_NONE, &BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
+        GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData)) >> Kds::App::Check;
     }
 
     UploadBuffer(const UploadBuffer& rhs) = delete;
@@ -40,9 +25,9 @@ public:
 
     ~UploadBuffer()
     {
-        if (mResource)
+        if (ResourceIsInitialized())
         {
-            mResource->Unmap(0, nullptr);
+            GetResource()->Unmap(0, nullptr);
             DestroyResource();
         }
         mMappedData = nullptr;
@@ -50,19 +35,11 @@ public:
 
     void CopyData(int elementIndex, const T& data)
     {
-        if (!mMappedData)
-        {
-            LOG_ERROR("UploadBuffer is not mapped.");
-            assert(false);
-        }
-
         if (elementIndex < 0)
         {
             LOG_ERROR("Invalid element index in CopyData.");
             assert(false);
         }
-
         memcpy(&mMappedData[elementIndex * mElementByteSize], &data, sizeof(T));
     }
-
 };

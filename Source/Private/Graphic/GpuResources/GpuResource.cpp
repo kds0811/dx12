@@ -75,6 +75,15 @@ void GpuResource::CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D
     mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
 }
 
+void GpuResource::CreateResource(
+    const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState)
+{
+    Device::GetDevice()->CreateCommittedResource(pHeapProperties, HeapFlags, pDesc, InitialResourceState, nullptr, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
+    mCurrentState = InitialResourceState;
+    mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
+    mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
+}
+
 void GpuResource::DestroyResource()
 {
     mResource = nullptr;
