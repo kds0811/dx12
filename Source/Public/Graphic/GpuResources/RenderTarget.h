@@ -15,8 +15,9 @@ class RenderTarget : public GpuResource
 
 public:
     RenderTarget() = default;
-    bool Initialize(std::wstring name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
-    bool InitializeAsBackBuffer(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format);
+    RenderTarget(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
+    void Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
+    void InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format);
 
 
     RenderTarget(const RenderTarget& rhs) = delete;
@@ -25,12 +26,12 @@ public:
 
     [[nodiscard]] inline DescriptorHandle& GetSrvDescriptorHandle() noexcept { return mSrvDescriptorHandle; }
     [[nodiscard]] inline DescriptorHandle& GetRtvDescriptorHandle() noexcept { return mRtvDescriptorHandle; }
-    [[nodiscard]] bool IsInitialized() const noexcept { return mResource && !mSrvDescriptorHandle.IsNull() && !mRtvDescriptorHandle.IsNull(); }
+    [[nodiscard]] bool IsInitialized() const noexcept { return ResourceIsInitialized() && !mSrvDescriptorHandle.IsNull() && !mRtvDescriptorHandle.IsNull(); }
     void OnResize(UINT newWidth, UINT newHeight);
 
 private:
-    [[nodiscard]] bool BuildResource();
-    [[nodiscard]] bool BuildDescriptors();
+    void BuildResource();
+    void BuildDescriptors();
 
     void Destroy();
     void DestroyDescriptorHandles();

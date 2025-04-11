@@ -10,7 +10,7 @@ class UploadBuffer : public GpuResource
     bool mIsConstantBuffer = false;
 
 public:
-    UploadBuffer(ID3D12Device* device, UINT elementCount, bool isConstantBuffer) : mIsConstantBuffer(isConstantBuffer)
+    UploadBuffer(UINT elementCount, bool isConstantBuffer) : mIsConstantBuffer(isConstantBuffer)
     {
         isConstantBuffer ? mElementByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(T)) : mElementByteSize = sizeof(T);
 

@@ -26,15 +26,15 @@ Buffer::Buffer(ID3D12Device* device, std::wstring name, UINT bufferSize, D3D12_H
     mResource->SetName(mName.c_str());
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Buffer::CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
+GpuResource Buffer::CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
 {
-    ComPtr<ID3D12Resource> defaultBuffer;
-    const auto ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
+    GpuResource buffer;
+    const CD3DX12_RESOURCE_DESC ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
 
     // Create the actual default buffer resource.
     const auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-    device->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(defaultBuffer.GetAddressOf())) >> Check;
+    device->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(buffer.GetAddressOf())) >> Kds::App::Check;
 
     // In order to copy CPU memory data into our default buffer, we need to create
     // an intermediate upload heap.
@@ -56,5 +56,5 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Buffer::CreateDefaultBuffer(ID3D12Device*
     const auto ResBarCopyToState = CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
     cmdList->ResourceBarrier(1, &ResBarCopyToState);
 
-    return defaultBuffer;
+    return buffer;
 }

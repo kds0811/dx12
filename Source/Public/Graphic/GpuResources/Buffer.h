@@ -25,5 +25,5 @@ public:
     [[nodiscard]] inline UINT GetBufferSize() const noexcept { return mBufferSize; }
 
 private:
-    Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer);
+    GpuResource CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer);
 };

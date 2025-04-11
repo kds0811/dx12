@@ -11,20 +11,20 @@ class DepthStencil : public GpuResource
 
 public:
     DepthStencil() = default;
+    DepthStencil(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format);
     DepthStencil(const DepthStencil& rhs) = delete;
     DepthStencil& operator=(const DepthStencil& rhs) = delete;
     ~DepthStencil();
 
-    bool Initialize(std::wstring name, UINT width, UINT height, DXGI_FORMAT format);
-    bool InitializeFromExistingResource(ID3D12Resource* existingResource, std::wstring name, DXGI_FORMAT format);
+    void Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format);
 
     [[nodiscard]] inline DescriptorHandle& GetDsvDescriptorHandle() noexcept { return mDsvDescriptorHandle; }
-    [[nodiscard]] bool IsInitialized() const noexcept { return mResource && !mDsvDescriptorHandle.IsNull(); }
+    [[nodiscard]] bool IsInitialized() const noexcept { return ResourceIsInitialized() && !mDsvDescriptorHandle.IsNull(); }
     void OnResize(UINT newWidth, UINT newHeight);
 
 private:
-    [[nodiscard]] bool BuildResource();
-    [[nodiscard]] bool BuildDescriptors();
+    void BuildResource();
+    void BuildDescriptors();
 
     void Destroy();
     void DestroyDescriptorHandles();

@@ -6,7 +6,6 @@ class CommandList;
 
 class GpuResource
 {
-protected:
     Microsoft::WRL::ComPtr<ID3D12Resource> mResource = nullptr;
     D3D12_RESOURCE_STATES mCurrentState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
     D3D12_GPU_VIRTUAL_ADDRESS mGpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
@@ -22,16 +21,24 @@ public:
     GpuResource& operator=(const GpuResource&& rhs) noexcept;
     virtual ~GpuResource();
 
+    void SetName(const std::wstring& name);
+
+    void CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState,
+        const D3D12_CLEAR_VALUE* pOptimizedClearValue);
+
     void DestroyResource();
-    [[nodiscard]] inline ID3D12Resource* GetResource()  { return mResource.Get(); }
+    [[nodiscard]] inline ID3D12Resource* GetResource() { return mResource.Get(); }
     [[nodiscard]] inline const ID3D12Resource* GetResource() const { return mResource.Get(); }
     [[nodiscard]] inline ID3D12Resource** GetAddressOf() { return mResource.GetAddressOf(); }
     [[nodiscard]] inline D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const noexcept { return mGpuVirtualAddress; }
     [[nodiscard]] inline uint32_t GetVersionID() const noexcept { return mVersionID; }
+    [[nodiscard]] inline bool ResourceIsInitialized() const noexcept { return mResource; }
     inline void IncrementVersion() { ++mVersionID; }
 
     [[nodiscard]] bool ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState);
     [[nodiscard]] inline D3D12_RESOURCE_STATES GetCurrentState() const noexcept { return mCurrentState; }
     Microsoft::WRL::ComPtr<ID3D12Resource>& GetComPtr() { return mResource; }
 
+protected:
+    void SetResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES newState);
 };
