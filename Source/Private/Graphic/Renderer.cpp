@@ -43,8 +43,7 @@ void Renderer::StartDrawFrame()
 
 void Renderer::InitDepthStencil()
 {
-    mDepthStencil = std::make_unique<DepthStencil>();
-    mDepthStencil->Initialize(L"Depth Stencil", Settings::mWidth, Settings::mHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
+    mDepthStencil = std::make_unique<DepthStencil>(L"Depth Stencil", Settings::mWidth, Settings::mHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
     if (!mDepthStencil->IsInitialized())
     {
         LOG_ERROR("Depth Stencil is not initialized");

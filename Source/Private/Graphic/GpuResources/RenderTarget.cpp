@@ -22,7 +22,7 @@ void RenderTarget::Initialize(const std::wstring& name, UINT width, UINT height,
     BuildDescriptors();
 }
 
-void RenderTarget::InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format)
+void RenderTarget::InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format, UINT width, UINT height)
 {
     assert(existingResource);
     if (!existingResource)
@@ -32,10 +32,10 @@ void RenderTarget::InitializeAsBackBuffer(const std::wstring& name, ID3D12Resour
     }
     SetResource(existingResource, D3D12_RESOURCE_STATE_PRESENT);
     SetName(name);
-    const D3D12_RESOURCE_DESC& desc = GetResource()->GetDesc();
-    mWidth = static_cast<UINT>(desc.Width);
-    mHeight = desc.Height;
+    mWidth = width;
+    mHeight = height;
     mFormat = format;
+    const D3D12_RESOURCE_DESC& desc = GetResource()->GetDesc();
     mResourceDimension = desc.Dimension;
     BuildDescriptors();
 }

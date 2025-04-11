@@ -22,7 +22,6 @@ public:
     virtual ~GpuResource();
 
     void SetName(const std::wstring& name);
-
     void CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState,
         const D3D12_CLEAR_VALUE* pOptimizedClearValue);
     void CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState);
@@ -36,7 +35,7 @@ public:
     [[nodiscard]] inline bool ResourceIsInitialized() const noexcept { return mResource; }
     inline void IncrementVersion() { ++mVersionID; }
 
-    [[nodiscard]] bool ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState);
+    void ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState);
     [[nodiscard]] inline D3D12_RESOURCE_STATES GetCurrentState() const noexcept { return mCurrentState; }
     Microsoft::WRL::ComPtr<ID3D12Resource>& GetComPtr() { return mResource; }
 

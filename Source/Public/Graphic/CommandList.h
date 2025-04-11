@@ -42,7 +42,6 @@ public:
     [[nodiscard]] inline bool IsInitialized() const noexcept { return mCommandAllocator && mCommandList; }
     UINT64 GetFenceValue() const noexcept;
 
-
     void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* barriers);
     void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* rects);
     void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation);
@@ -52,10 +51,11 @@ public:
     void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* views);
     void SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* renderTargetDescriptors, BOOL singleDescriptorHandle,
         const D3D12_CPU_DESCRIPTOR_HANDLE* depthStencilDescriptor);
-    void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView,  D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 stencil,  UINT numRects,
-         const D3D12_RECT* pRects);
+    void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView, D3D12_CLEAR_FLAGS clearFlags, FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects);
     void SetViewports(UINT NumViewports, const D3D12_VIEWPORT* pViewports);
-    void SetScissorRects( UINT NumRects, const D3D12_RECT* pRects);
+    void SetScissorRects(UINT NumRects, const D3D12_RECT* pRects);
+
+    [[nodiscard]] inline ID3D12GraphicsCommandList* GetCommandList() const noexcept { return mCommandList.Get(); }
 
 private:
     void Initialize(ID3D12Device* device, UINT id);
@@ -69,8 +69,6 @@ private:
     [[nodiscard]] bool IsValidStateForReset();
 
     [[nodiscard]] bool ResetCommandList(ID3D12CommandAllocator* allocator, ID3D12PipelineState* pipelineState);
-
-    [[nodiscard]] inline ID3D12GraphicsCommandList* GetCommandList() const noexcept { return mCommandList.Get(); }
 
     [[nodiscard]] bool ResetAllocatorAndCommandList(Pso* pso, UINT64 queueLastCompletedFenceValue);
 

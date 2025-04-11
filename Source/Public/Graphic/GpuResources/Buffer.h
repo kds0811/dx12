@@ -25,5 +25,5 @@ public:
     [[nodiscard]] inline UINT GetBufferSize() const noexcept { return mBufferSize; }
 
 private:
-    GpuResource CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer);
+    GpuResource CreateDefaultBuffer(const std::wstring& name, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer);
 };

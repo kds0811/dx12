@@ -1,5 +1,6 @@
 #include "Buffer.h"
 #include "GpuResource.h"
+#include "CommandList.h"
 
 using namespace Microsoft::WRL;
 
@@ -26,21 +27,17 @@ Buffer::Buffer(ID3D12Device* device, std::wstring name, UINT bufferSize, D3D12_H
     mResource->SetName(mName.c_str());
 }
 
-GpuResource Buffer::CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
+GpuResource Buffer::CreateDefaultBuffer(const std::wstring& name, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
 {
     GpuResource buffer;
+    buffer.SetName(name);
     const CD3DX12_RESOURCE_DESC ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
-
-    // Create the actual default buffer resource.
     const auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    buffer.CreateResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON);
 
-    device->CreateCommittedResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(buffer.GetAddressOf())) >> Kds::App::Check;
-
-    // In order to copy CPU memory data into our default buffer, we need to create
-    // an intermediate upload heap.
     const auto HeapPropUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    device->CreateCommittedResource(&HeapPropUpload, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(uploadBuffer.GetAddressOf())) >>
-        Check;
+    uploadBuffer->SetName(L"Upload Buffer");
+    uploadBuffer->CreateResource(&HeapPropUpload, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_GENERIC_READ);
 
     // Describe the data we want to copy into the default buffer.
     D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -48,13 +45,11 @@ GpuResource Buffer::CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdLi
     subResourceData.RowPitch = byteSize;
     subResourceData.SlicePitch = subResourceData.RowPitch;
 
-    const auto ResBarStateToCopy = CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+    buffer.ChangeState(cmdList, D3D12_RESOURCE_STATE_COPY_DEST);
 
-    cmdList->ResourceBarrier(1, &ResBarStateToCopy);
-    UpdateSubresources<1>(cmdList, defaultBuffer.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
+    UpdateSubresources<1>(cmdList->GetCommandList(), buffer.GetResource(), uploadBuffer->GetResource(), 0, 0, 1, &subResourceData);
 
-    const auto ResBarCopyToState = CD3DX12_RESOURCE_BARRIER::Transition(defaultBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
-    cmdList->ResourceBarrier(1, &ResBarCopyToState);
+    buffer.ChangeState(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 
     return buffer;
 }

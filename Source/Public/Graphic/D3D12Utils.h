@@ -1,6 +1,5 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
-
 #include <unordered_map>
 #include "MathHelper.h"
 #include "SceneComponent.h"

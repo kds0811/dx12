@@ -17,7 +17,7 @@ public:
     RenderTarget() = default;
     RenderTarget(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
     void Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
-    void InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format);
+    void InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format, UINT width, UINT height);
 
 
     RenderTarget(const RenderTarget& rhs) = delete;

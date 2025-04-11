@@ -77,17 +77,10 @@ void SwapChain::Initialize(HWND windowHandle)
     for (UINT i = 0; i < mSwapChainBufferCount; i++)
     {
         mSwapChainBuffer[i] = std::make_unique<RenderTarget>();
-
         std::wstring nameRes = L"SwapChain Buffer Resource N: " + std::to_wstring(i);
-
         Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
         mSwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)) >> Check;
-
-        if (!mSwapChainBuffer[i]->InitializeAsBackBuffer(backBuffer.Get(), nameRes, mBackBufferFormat))
-        {
-            LOG_ERROR("Failed to initialize RenderTarget for SwapChain buffer.");
-            assert(0);
-        }
+        mSwapChainBuffer[i]->InitializeAsBackBuffer(nameRes, backBuffer.Get(), mBackBufferFormat);
     }
 
     mCurrBackBuffer = mSwapChainBuffer[mCurrBackBufferIndex].get();
