@@ -50,6 +50,7 @@ UINT64 CommandQueue::ExecuteCommandList(CommandList* list)
 {
     if (!IsValidState()) return 0;
 
+    assert(list);
     if (!list)
     {
         LOG_ERROR("CommandQueue::ExecuteCommandList: list pointer is nullptr");

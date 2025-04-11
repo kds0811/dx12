@@ -1,16 +1,29 @@
 #pragma once
-#include "GpuResource.h"
+#include "GraphicCommonHeaders.h"
 
+class GpuResource;
+class CommandList;
 
-class Buffer : public GpuResource
+class Buffer
 {
-protected:
-    UINT mBufferSize = 0; 
+    std::unique_ptr<GpuResource> mVertexBufferResource = nullptr;
+    std::unique_ptr<GpuResource> mIndexBufferResource = nullptr;
+    std::unique_ptr<GpuResource> mVertexBufferUploader = nullptr;
+    std::unique_ptr<GpuResource> mIndexBufferUploader = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> mVertexBufferBlob = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> mIndexBufferBlob = nullptr;
+
+
+
+    UINT mBufferSize = 0;
 
 public:
-    Buffer() = default;
+    Buffer();
+    ~Buffer();
     Buffer(ID3D12Device* device, std::wstring name, UINT bufferSize, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState);
-    virtual ~Buffer() = default;
 
     [[nodiscard]] inline UINT GetBufferSize() const noexcept { return mBufferSize; }
+
+private:
+    Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12Device* device, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer);
 };

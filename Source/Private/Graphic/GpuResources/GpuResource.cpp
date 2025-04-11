@@ -1,5 +1,6 @@
 #include "GpuResource.h"
 #include "CommandList.h"
+#include <utility>
 
 GpuResource::GpuResource() = default;
 
@@ -11,6 +12,44 @@ GpuResource::GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES Curren
         LOG_ERROR("Invalid resource pointer passed to GpuResource constructor.");
     }
     mGpuVirtualAddress = pResource->GetGPUVirtualAddress();
+}
+
+GpuResource::GpuResource(const GpuResource& rhs)
+    :
+    mResource(rhs.mResource),
+    mCurrentState(rhs.mCurrentState),
+    mGpuVirtualAddress(rhs.mGpuVirtualAddress),
+    mVersionID(rhs.mVersionID),
+    mName(rhs.mName)
+{}
+
+GpuResource& GpuResource::operator=(const GpuResource& rhs)
+{
+    mResource = rhs.mResource;
+    mCurrentState = rhs.mCurrentState;
+    mGpuVirtualAddress = rhs.mGpuVirtualAddress;
+    mVersionID = rhs.mVersionID;
+    mName = rhs.mName;
+    return *this;
+}
+
+GpuResource::GpuResource(const GpuResource&& rhs) noexcept
+    :
+    mResource(std::exchange(rhs.mResource, nullptr)),
+    mCurrentState(std::exchange(rhs.mCurrentState, D3D12_RESOURCE_STATE_COMMON)),
+    mGpuVirtualAddress(std::exchange(rhs.mGpuVirtualAddress, D3D12_GPU_VIRTUAL_ADDRESS_NULL)),
+    mVersionID(std::exchange(rhs.mVersionID, 0)),
+    mName(std::exchange(rhs.mName, {}))
+{}
+
+GpuResource& GpuResource::operator=(const GpuResource&& rhs) noexcept
+{
+    mResource = std::exchange(rhs.mResource, nullptr);
+    mCurrentState = std::exchange(rhs.mCurrentState, D3D12_RESOURCE_STATE_COMMON);
+    mGpuVirtualAddress = std::exchange(rhs.mGpuVirtualAddress, D3D12_GPU_VIRTUAL_ADDRESS_NULL);
+    mVersionID = std::exchange(rhs.mVersionID, 0);
+    mName = std::exchange(rhs.mName, {});
+    return *this;
 }
 
 GpuResource::~GpuResource() = default;

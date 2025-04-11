@@ -5,6 +5,7 @@ class Pso;
 class CommandAllocator;
 class CommandManager;
 class ResourceManager;
+class CommandQueue;
 
 /// \brief Represents a Direct3D 12 command list and provides methods for recording and managing GPU commands.
 ///

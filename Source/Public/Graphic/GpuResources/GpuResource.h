@@ -16,6 +16,10 @@ protected:
 public:
     GpuResource();
     GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState);
+    GpuResource(const GpuResource& rhs);
+    GpuResource& operator=(const GpuResource& rhs);
+    GpuResource(const GpuResource&& rhs) noexcept;
+    GpuResource& operator=(const GpuResource&& rhs) noexcept;
     virtual ~GpuResource();
 
     void DestroyResource();
