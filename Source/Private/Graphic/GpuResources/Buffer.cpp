@@ -4,40 +4,17 @@
 
 using namespace Microsoft::WRL;
 
-Buffer::Buffer() 
-{
-    mVertexBufferResource = std::make_unique<GpuResource>();
-    mIndexBufferResource = std::make_unique<GpuResource>();
-    mVertexBufferUploader = std::make_unique<GpuResource>();
-    mIndexBufferUploader = std::make_unique<GpuResource>();
-}
-
 Buffer::~Buffer() = default;
 
-Buffer::Buffer(ID3D12Device* device, std::wstring name, UINT bufferSize, D3D12_HEAP_TYPE heapType, D3D12_RESOURCE_STATES initialState)
-{
-    auto HeapProperties = CD3DX12_HEAP_PROPERTIES(heapType);
-    auto BufferDesc = CD3DX12_RESOURCE_DESC::Buffer(mBufferSize);
-
-    device->CreateCommittedResource(&HeapProperties, D3D12_HEAP_FLAG_NONE, &BufferDesc, initialState, nullptr, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
-
-    mCurrentState = initialState;
-
-    mName = std::move(name);
-    mResource->SetName(mName.c_str());
-}
-
-GpuResource Buffer::CreateDefaultBuffer(const std::wstring& name, CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
+GpuResource Buffer::CreateDefaultBuffer( CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
 {
     GpuResource buffer;
-    buffer.SetName(name);
     const CD3DX12_RESOURCE_DESC ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
     const auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    buffer.CreateResource(&HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON);
+    buffer.CreateResource(mName, & HeapPropDefault, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_COMMON);
 
     const auto HeapPropUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    uploadBuffer->SetName(L"Upload Buffer");
-    uploadBuffer->CreateResource(&HeapPropUpload, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_GENERIC_READ);
+    uploadBuffer->CreateResource(L"Upload Buffer", &HeapPropUpload, D3D12_HEAP_FLAG_NONE, &ResDescBuf, D3D12_RESOURCE_STATE_GENERIC_READ);
 
     // Describe the data we want to copy into the default buffer.
     D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -52,4 +29,5 @@ GpuResource Buffer::CreateDefaultBuffer(const std::wstring& name, CommandList* c
     buffer.ChangeState(cmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 
     return buffer;
+
 }

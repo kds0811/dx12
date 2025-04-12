@@ -22,9 +22,10 @@ public:
     virtual ~GpuResource();
 
     void SetName(const std::wstring& name);
-    void CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState,
-        const D3D12_CLEAR_VALUE* pOptimizedClearValue);
-    void CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState);
+    void CreateResource(const std::wstring& name, const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
+        D3D12_RESOURCE_STATES InitialResourceState, const D3D12_CLEAR_VALUE* pOptimizedClearValue);
+    void CreateResource(const std::wstring& name, const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
+        D3D12_RESOURCE_STATES InitialResourceState);
 
     void DestroyResource();
     [[nodiscard]] inline ID3D12Resource* GetResource() { return mResource.Get(); }

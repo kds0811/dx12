@@ -16,13 +16,9 @@ GpuResource::GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES Curren
 }
 
 GpuResource::GpuResource(const GpuResource& rhs)
-    :
-    mResource(rhs.mResource),
-    mCurrentState(rhs.mCurrentState),
-    mGpuVirtualAddress(rhs.mGpuVirtualAddress),
-    mVersionID(rhs.mVersionID),
-    mName(rhs.mName)
-{}
+    : mResource(rhs.mResource), mCurrentState(rhs.mCurrentState), mGpuVirtualAddress(rhs.mGpuVirtualAddress), mVersionID(rhs.mVersionID), mName(rhs.mName)
+{
+}
 
 GpuResource& GpuResource::operator=(const GpuResource& rhs)
 {
@@ -38,13 +34,10 @@ GpuResource& GpuResource::operator=(const GpuResource& rhs)
 }
 
 GpuResource::GpuResource(const GpuResource&& rhs) noexcept
-    :
-    mResource(std::exchange(rhs.mResource, nullptr)),
-    mCurrentState(std::exchange(rhs.mCurrentState, D3D12_RESOURCE_STATE_COMMON)),
-    mGpuVirtualAddress(std::exchange(rhs.mGpuVirtualAddress, D3D12_GPU_VIRTUAL_ADDRESS_NULL)),
-    mVersionID(std::exchange(rhs.mVersionID, 0)),
-    mName(std::exchange(rhs.mName, {}))
-{}
+    : mResource(std::exchange(rhs.mResource, nullptr)), mCurrentState(std::exchange(rhs.mCurrentState, D3D12_RESOURCE_STATE_COMMON)),
+      mGpuVirtualAddress(std::exchange(rhs.mGpuVirtualAddress, D3D12_GPU_VIRTUAL_ADDRESS_NULL)), mVersionID(std::exchange(rhs.mVersionID, 0)), mName(std::exchange(rhs.mName, {}))
+{
+}
 
 GpuResource& GpuResource::operator=(const GpuResource&& rhs) noexcept
 {
@@ -66,18 +59,20 @@ void GpuResource::SetName(const std::wstring& name)
     mName = name;
 }
 
-void GpuResource::CreateResource(const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
+void GpuResource::CreateResource(const std::wstring& name, const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialResourceState, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
 {
+    SetName(name);
     Device::GetDevice()->CreateCommittedResource(pHeapProperties, HeapFlags, pDesc, InitialResourceState, pOptimizedClearValue, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
     mCurrentState = InitialResourceState;
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
     mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
 }
 
-void GpuResource::CreateResource(
-    const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc, D3D12_RESOURCE_STATES InitialResourceState)
+void GpuResource::CreateResource(const std::wstring& name, const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
+    D3D12_RESOURCE_STATES InitialResourceState)
 {
+    SetName(name);
     Device::GetDevice()->CreateCommittedResource(pHeapProperties, HeapFlags, pDesc, InitialResourceState, nullptr, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
     mCurrentState = InitialResourceState;
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
@@ -91,7 +86,6 @@ void GpuResource::DestroyResource()
     mCurrentState = D3D12_RESOURCE_STATE_COMMON;
     ++mVersionID;
 }
-
 
 void GpuResource::ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newState)
 {
@@ -113,4 +107,3 @@ void GpuResource::SetResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES ne
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
     mCurrentState = newState;
 }
-
