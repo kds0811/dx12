@@ -21,6 +21,7 @@ public:
     ~Buffer();
 
     [[nodiscard]] inline UINT GetBufferSize() const noexcept { return mBufferSize; }
+    [[nodiscard]] inline D3D12_GPU_VIRTUAL_ADDRESS GetResourceGpuVirtualAddress() const noexcept { return mBufferResource->GetGpuVirtualAddress(); }
 
 private:
     GpuResource CreateDefaultBuffer(CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer);

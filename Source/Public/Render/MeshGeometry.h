@@ -33,7 +33,6 @@ public:
     MeshGeometry(const std::wstring& name, CommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
     ~MeshGeometry();
 
-    D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
-    D3D12_INDEX_BUFFER_VIEW IndexBufferView() const;
-    void DisposeUploaders();
+    D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
+    D3D12_INDEX_BUFFER_VIEW GetIndexBufferView() const;
 };

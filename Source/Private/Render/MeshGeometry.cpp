@@ -6,35 +6,36 @@ MeshGeometry::MeshGeometry(const std::wstring& name, CommandList* cmdList, const
 {
     std::wstring vbName = L"VertexBuffer " + mName;
     mVertexBuffer = std::make_unique<Buffer<Vertex>>(vbName, cmdList, vertices);
+    mVertexByteStride = sizeof(Vertex);
 
     std::wstring ibName = L"IndexBuffer " + mName;
     mIndexBuffer = std::make_unique<Buffer<std::uint16_t>>(ibName, cmdList, indices);
+    mIndexFormat = DXGI_FORMAT_R16_UINT;
 }
 
 MeshGeometry::~MeshGeometry() = default;
 
-D3D12_VERTEX_BUFFER_VIEW MeshGeometry::VertexBufferView() const
+D3D12_VERTEX_BUFFER_VIEW MeshGeometry::GetVertexBufferView() const
 {
+    assert(mVertexBuffer);
+
     D3D12_VERTEX_BUFFER_VIEW vbv{};
-    vbv.BufferLocation = VertexBufferGPU->GetGPUVirtualAddress();
-    vbv.StrideInBytes = VertexByteStride;
-    vbv.SizeInBytes = VertexBufferByteSize;
+    vbv.BufferLocation = mVertexBuffer->GetResourceGpuVirtualAddress();
+    vbv.StrideInBytes = mVertexByteStride;
+    vbv.SizeInBytes = mVertexBuffer->GetBufferSize();
 
     return vbv;
 }
 
-D3D12_INDEX_BUFFER_VIEW MeshGeometry::IndexBufferView() const
+D3D12_INDEX_BUFFER_VIEW MeshGeometry::GetIndexBufferView() const
 {
+    assert(mIndexBuffer);
+
     D3D12_INDEX_BUFFER_VIEW ibv{};
-    ibv.BufferLocation = IndexBufferGPU->GetGPUVirtualAddress();
-    ibv.Format = IndexFormat;
-    ibv.SizeInBytes = IndexBufferByteSize;
+    ibv.BufferLocation = mIndexBuffer->GetResourceGpuVirtualAddress();
+    ibv.Format = mIndexFormat;
+    ibv.SizeInBytes = mIndexBuffer->GetBufferSize();
 
     return ibv;
 }
 
-void MeshGeometry::DisposeUploaders()
-{
-    VertexBufferUploader = nullptr;
-    IndexBufferUploader = nullptr;
-}
