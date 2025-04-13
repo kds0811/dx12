@@ -4,8 +4,13 @@
 #include "Transform.h"
 #include <random>
 #include "Vector.h"
+#include "MeshGeometry.h"
 
 using namespace DirectX;
+
+PrimitiveGeometryBuilder::PrimitiveGeometryBuilder() {}
+
+PrimitiveGeometryBuilder::~PrimitiveGeometryBuilder() = default;
 
 std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
 {
@@ -22,7 +27,7 @@ std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::BuildShapeGeometry(ID3D1
     auto vertices = CreateVertexBuffer();
     auto indices = CreateIndexBuffer();
 
-    auto result = CreateMeshGeometry(device, cmdList, vertices, indices, "primitiveShapeGeo");
+    auto result = CreateMeshGeometry(L"primitiveShapeGeo", cmdList, vertices, indices);
 
     // Clear geometries for next use
     mGeometries.clear();
@@ -106,31 +111,13 @@ std::vector<std::uint16_t> PrimitiveGeometryBuilder::CreateIndexBuffer()
 }
 
 std::unique_ptr<MeshGeometry> PrimitiveGeometryBuilder::CreateMeshGeometry(
-    ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices, std::string meshName)
+    std::wstring meshName, ID3D12GraphicsCommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices)
 {
-    const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-    const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-    auto geo = std::make_unique<MeshGeometry>();
-    geo->Name = meshName;
-
-    D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU) >> Kds::App::Check;
-    CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-    geo->VertexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-    D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU) >> Kds::App::Check;
-    CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-    geo->IndexBufferGPU = D3D12Utils::CreateDefaultBuffer(device, cmdList, indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-    geo->VertexByteStride = sizeof(Vertex);
-    geo->VertexBufferByteSize = vbByteSize;
-    geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-    geo->IndexBufferByteSize = ibByteSize;
-
-    // Add DrawArgs
+    auto geo = std::make_unique<MeshGeometry>(meshName, cmdList, vertices, indices);
+    
     for (const auto& geometry : mGeometries)
     {
-        mDrawArgs[geometry.name] = geometry.submesh;
+        geo->AddSubmeshDrawArgs(geometry.name, geometry.submesh);
     }
 
     return geo;

@@ -15,6 +15,16 @@ MeshGeometry::MeshGeometry(const std::wstring& name, CommandList* cmdList, const
 
 MeshGeometry::~MeshGeometry() = default;
 
+void MeshGeometry::AddSubmeshDrawArgs(const std::string& name, SubmeshGeometry drawArgs)
+{
+    if (mDrawArgs.contains(name))
+    {
+        LOG_ERROR("SubMeshGeometry ", name, " allredy on container");
+        return;
+    }
+    mDrawArgs[name] = drawArgs;
+}
+
 D3D12_VERTEX_BUFFER_VIEW MeshGeometry::GetVertexBufferView() const
 {
     assert(mVertexBuffer);

@@ -18,7 +18,7 @@ class Buffer
 public:
     Buffer(const std::wstring& name, CommandList* cmdList, const std::vector<T>& resource);
 
-    ~Buffer();
+    ~Buffer() = default;
 
     [[nodiscard]] inline UINT GetBufferSize() const noexcept { return mBufferSize; }
     [[nodiscard]] inline D3D12_GPU_VIRTUAL_ADDRESS GetResourceGpuVirtualAddress() const noexcept { return mBufferResource->GetGpuVirtualAddress(); }
@@ -40,9 +40,6 @@ inline Buffer<T>::Buffer(const std::wstring& name, CommandList* cmdList, const s
     mBufferResource = std::make_unique<GpuResource>(CreateDefaultBuffer(cmdList, resource.data(), mBufferSize, mBufferUploader));
 }
 
-template <typename T>
-inline Buffer<T>::~Buffer()
-{}
 
 template <typename T>
 inline GpuResource Buffer<T>::CreateDefaultBuffer(CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)

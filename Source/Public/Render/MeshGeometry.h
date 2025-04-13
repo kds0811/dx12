@@ -1,6 +1,7 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 #include "Vector.h"
+#include "unordered_map"
 
 struct SubmeshGeometry
 {
@@ -29,9 +30,13 @@ class MeshGeometry
     UINT mVertexByteStride = 0;
     DXGI_FORMAT mIndexFormat = DXGI_FORMAT_R16_UINT;
 
+    std::unordered_map<std::string, SubmeshGeometry> mDrawArgs;
+
 public:
     MeshGeometry(const std::wstring& name, CommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
     ~MeshGeometry();
+
+    void AddSubmeshDrawArgs(const std::string& name, SubmeshGeometry drawArgs);
 
     D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
     D3D12_INDEX_BUFFER_VIEW GetIndexBufferView() const;

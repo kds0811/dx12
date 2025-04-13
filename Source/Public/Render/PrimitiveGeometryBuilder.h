@@ -1,13 +1,8 @@
 #pragma once
+#include "GraphicCommonHeaders.h"
 #include "GeometryGenerator.h"
-#include "D3D12Utils.h"
-#include <memory>
-#include "DirectXMath.h"
-#include "DirectXColors.h"
-#include "GraphicError.h"
-#include <vector>
-#include "FrameResource.h"
-#include "GeometryCommon.h"
+
+class MeshGeometry;
 
 struct GeometryData
 {
@@ -22,15 +17,14 @@ class PrimitiveGeometryBuilder
 {
     std::vector<GeometryData> mGeometries;
     GeometryGenerator mGeometryGenerator;
-    std::unordered_map<std::string, SubmeshGeometry> mDrawArgs;
 
     UINT mVertexBufferSize = 0;
     UINT mIndexBufferSize = 0;
 
 public:
-    PrimitiveGeometryBuilder() = default;
+    PrimitiveGeometryBuilder();
+    ~PrimitiveGeometryBuilder();
     std::unique_ptr<MeshGeometry> BuildShapeGeometry(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList);
-    std::unordered_map<std::string, SubmeshGeometry> GetDrawArgs() { return mDrawArgs; }
 
 private:
     void AddGeometry(const GeometryGenerator::MeshData& mesh, std::string name);
@@ -40,8 +34,7 @@ private:
     std::vector<std::uint16_t> CreateIndexBuffer();
 
     std::unique_ptr<MeshGeometry> CreateMeshGeometry(
-        ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices, std::string meshName);
+        std::wstring meshName, ID3D12GraphicsCommandList* cmdList, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
 
     void CalculateMinMaxVertices(DirectX::XMFLOAT3& vertexMinOut, DirectX::XMFLOAT3& vertexMaxOut, const std::vector<Vertex>& vertices);
 };
-
