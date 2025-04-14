@@ -98,7 +98,9 @@ void GpuResource::ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newSta
 void GpuResource::SetResource(const std::wstring& name, ID3D12Resource* resource, D3D12_RESOURCE_STATES state)
 {
     assert(resource);
+
     if (!resource) return;
+
     mResource = resource;
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
     mCurrentState = state;

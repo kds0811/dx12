@@ -81,8 +81,7 @@ void SwapChain::Initialize(HWND windowHandle)
         mSwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)) >> Check;
 
         const D3D12_RESOURCE_DESC& desc = backBuffer->GetDesc();
-         desc.Dimension;
-        mSwapChainBuffer[i] = std::make_unique<RenderTarget>(nameRes, backBuffer.Get(), mBackBufferFormat);
+        mSwapChainBuffer[i] = std::make_unique<RenderTarget>(nameRes, desc.Width, desc.Height, desc.Format, desc.Dimension, backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT);
     }
 
     mCurrBackBuffer = mSwapChainBuffer[mCurrBackBufferIndex].get();

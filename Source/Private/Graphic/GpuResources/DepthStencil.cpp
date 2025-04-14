@@ -2,9 +2,9 @@
 #include "DescriptorHeapManager.h"
 #include "Device.h"
 
-DepthStencil::DepthStencil(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format)
+DepthStencil::DepthStencil(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_STATES state)
 {
-    Initialize(name, width, height, format);
+    Initialize(name, width, height, format, state);
 }
 
 DepthStencil::~DepthStencil()
@@ -12,15 +12,14 @@ DepthStencil::~DepthStencil()
     Destroy();
 }
 
-void DepthStencil::Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format)
+void DepthStencil::Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_STATES state)
 {
     if (IsInitialized()) return;
 
-    SetName(name);
     mWidth = width;
     mHeight = height;
     mFormat = format;
-    BuildResource();
+    BuildResource(name, state);
     BuildDescriptors();
 }
 
@@ -31,11 +30,11 @@ void DepthStencil::OnResize(UINT newWidth, UINT newHeight)
     mWidth = newWidth;
     mHeight = newHeight;
     Destroy();
-    BuildResource();
+    BuildResource(GetName(), GetCurrentState());
     BuildDescriptors();
 }
 
-void DepthStencil::BuildResource()
+void DepthStencil::BuildResource(const std::wstring& name, D3D12_RESOURCE_STATES state)
 {
     D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -58,7 +57,7 @@ void DepthStencil::BuildResource()
     D3D12_HEAP_PROPERTIES heapProps = {};
     heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 
-    CreateResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &optClear);
+    CreateResource(name, &heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, state, &optClear);
 }
 
 void DepthStencil::BuildDescriptors()

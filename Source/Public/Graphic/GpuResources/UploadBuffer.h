@@ -12,11 +12,10 @@ class UploadBuffer : public GpuResource
 public:
     UploadBuffer(const std::wstring& name, UINT elementCount, bool isConstantBuffer) : mIsConstantBuffer(isConstantBuffer)
     {
-        SetName(name);
         isConstantBuffer ? mElementByteSize = D3D12Utils::CalcConstantBufferByteSize(sizeof(T)) : mElementByteSize = sizeof(T);
         auto HeapUploadProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         auto BufferDesc = CD3DX12_RESOURCE_DESC::Buffer(mElementByteSize * elementCount);
-        CreateResource(&HeapUploadProp, D3D12_HEAP_FLAG_NONE, &BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
+        CreateResource(name , &HeapUploadProp, D3D12_HEAP_FLAG_NONE, &BufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
         GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mMappedData)) >> Kds::App::Check;
     }
 
