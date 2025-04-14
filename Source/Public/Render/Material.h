@@ -1,10 +1,10 @@
 #pragma once
 #include <cstdint>
 #include <string>
-#include "GraphicGlobals.h"
 #include <DirectXMath.h>
 #include "MathHelper.h"
 #include <memory>
+#include "Settings.h"
 
 class Texture;
 
@@ -31,7 +31,7 @@ class Material
     Texture* mMetallicMap = nullptr;
 
     int mMatCBIndex = -1;
-    int mNumFramesDirty = GG::gNumFrameResources;
+    int mNumFramesDirty = Settings::mNumFrameResources;
     DirectX::XMFLOAT4X4 mMatTransform = MathHelper::Identity4x4();
 
     DirectX::XMFLOAT4 mBaseColorFactor = {1.0f, 1.0f, 1.0f, 1.0f};

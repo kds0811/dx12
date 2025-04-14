@@ -45,7 +45,7 @@ StaticMesh* GeometryManager::GetStaticMesh(const std::string& name)
 
 void GeometryManager::CreateStaticMesh(const std::string& name)
 {
-    const auto& drawArgs = mPrimitiveGeometryBuilder.GetDrawArgs();
+    const auto& drawArgs = mPrimitiveGeometries->GetDrawArgs();
 
     if (!drawArgs.contains(name))
     {

@@ -1,8 +1,8 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 #include "GeometryGenerator.h"
+#include "MeshGeometry.h"
 
-class MeshGeometry;
 
 struct GeometryData
 {

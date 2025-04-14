@@ -4,7 +4,6 @@
 #include "Transform.h"
 #include <random>
 #include "Vector.h"
-#include "MeshGeometry.h"
 
 using namespace DirectX;
 

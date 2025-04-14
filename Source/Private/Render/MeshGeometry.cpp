@@ -28,6 +28,11 @@ void MeshGeometry::AddSubmeshDrawArgs(const std::string& name, SubmeshGeometry d
 D3D12_VERTEX_BUFFER_VIEW MeshGeometry::GetVertexBufferView() const
 {
     assert(mVertexBuffer);
+    if (!mVertexBuffer)
+    {
+        LOG_ERROR("mVertexBuffer is nullptr");
+        return D3D12_VERTEX_BUFFER_VIEW{};
+    }
 
     D3D12_VERTEX_BUFFER_VIEW vbv{};
     vbv.BufferLocation = mVertexBuffer->GetResourceGpuVirtualAddress();
@@ -40,6 +45,11 @@ D3D12_VERTEX_BUFFER_VIEW MeshGeometry::GetVertexBufferView() const
 D3D12_INDEX_BUFFER_VIEW MeshGeometry::GetIndexBufferView() const
 {
     assert(mIndexBuffer);
+    if (!mIndexBuffer)
+    {
+        LOG_ERROR("mIndexBuffer is nullptr");
+        return D3D12_INDEX_BUFFER_VIEW{};
+    }
 
     D3D12_INDEX_BUFFER_VIEW ibv{};
     ibv.BufferLocation = mIndexBuffer->GetResourceGpuVirtualAddress();

@@ -37,6 +37,7 @@ public:
     ~MeshGeometry();
 
     void AddSubmeshDrawArgs(const std::string& name, SubmeshGeometry drawArgs);
+    std::unordered_map<std::string, SubmeshGeometry>& GetDrawArgs() { return mDrawArgs; }
 
     D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const;
     D3D12_INDEX_BUFFER_VIEW GetIndexBufferView() const;

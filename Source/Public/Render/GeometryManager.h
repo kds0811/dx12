@@ -3,7 +3,6 @@
 #include "type_traits"
 #include "iterator"
 #include <unordered_map>
-#include "GeometryCommon.h"
 #include "RenderData.h"
 #include "StaticMesh.h"
 
