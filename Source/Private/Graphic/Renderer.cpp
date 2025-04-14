@@ -14,7 +14,7 @@ Renderer::Renderer(HWND windowHandle)
 {
     mFrameResourceManager = std::make_unique<FrameResourceManager>();
     mSwapChain = std::make_unique<SwapChain>(windowHandle);
-    InitDepthStencil();
+    mDepthStencil = std::make_unique<DepthStencil>(L"Depth Stencil", Settings::mWidth, Settings::mHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
     mViewport = std::make_unique<Viewport>(0.0f, 0.0f, static_cast<float>(Settings::mWidth), static_cast<float>(Settings::mHeight));
     mScissorRect = std::make_unique<ScissorRect>(0u, 0u, Settings::mWidth, Settings::mHeight);
 }
@@ -35,19 +35,6 @@ void Renderer::StartDrawFrame()
     
     mViewport->SetToPipeline(cmdList);
     mScissorRect->SetToPipeline(cmdList);
-
-
-
-
-}
-
-void Renderer::InitDepthStencil()
-{
-    mDepthStencil = std::make_unique<DepthStencil>(L"Depth Stencil", Settings::mWidth, Settings::mHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
-    if (!mDepthStencil->IsInitialized())
-    {
-        LOG_ERROR("Depth Stencil is not initialized");
-    }
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Renderer::GetDepthStencilView()

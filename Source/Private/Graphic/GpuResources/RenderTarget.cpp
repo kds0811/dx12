@@ -2,41 +2,52 @@
 #include "Device.h"
 #include "DescriptorHeapManager.h"
 
-RenderTarget::RenderTarget(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension)
+RenderTarget::RenderTarget(
+    const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension, D3D12_RESOURCE_STATES state)
 {
-    Initialize(name, width, height, format, clearValue, resourceDimension);
+    Initialize(name, width, height, format, clearValue, resourceDimension, state);
 }
 
-void RenderTarget::Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension)
+RenderTarget::RenderTarget(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION resourceDimension, ID3D12Resource* existingResource,
+    D3D12_RESOURCE_STATES state)
+{
+    InitializeAsBackBuffer(name, width, height, format, resourceDimension, existingResource, state);
+}
+
+void RenderTarget::Initialize(
+    const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension, D3D12_RESOURCE_STATES state)
 {
     if (IsInitialized()) return;
-    assert(mWidth > 0 && mWidth < 1000000 && mHeight > 0 && mHeight < 1000000);
 
-    SetName(name);
+    assert(mWidth < 1000000 && mHeight < 1000000);
+
     mWidth = width;
     mHeight = height;
     mFormat = format;
     mClearValue = clearValue;
     mResourceDimension = resourceDimension;
-    BuildResource();
+    BuildResource(name, state);
     BuildDescriptors();
 }
 
-void RenderTarget::InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format, UINT width, UINT height)
+void RenderTarget::InitializeAsBackBuffer(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION resourceDimension,
+    ID3D12Resource* existingResource, D3D12_RESOURCE_STATES state)
 {
+    if (IsInitialized()) return;
+
     assert(existingResource);
+    assert(mWidth < 1000000 && mHeight < 1000000);
+
     if (!existingResource)
     {
         LOG_ERROR("Existing resource is null.");
         return;
     }
-    SetResource(existingResource, D3D12_RESOURCE_STATE_PRESENT);
-    SetName(name);
+
+    SetResource(name, existingResource, state);
     mWidth = width;
     mHeight = height;
     mFormat = format;
-    const D3D12_RESOURCE_DESC& desc = GetResource()->GetDesc();
-    mResourceDimension = desc.Dimension;
     BuildDescriptors();
 }
 
@@ -52,12 +63,12 @@ void RenderTarget::OnResize(UINT newWidth, UINT newHeight)
         mWidth = newWidth;
         mHeight = newHeight;
         Destroy();
-        BuildResource();
+        BuildResource(GetName(), GetCurrentState());
         BuildDescriptors();
     }
 }
 
-void RenderTarget::BuildResource()
+void RenderTarget::BuildResource(const std::wstring& name, D3D12_RESOURCE_STATES state)
 {
     CD3DX12_HEAP_PROPERTIES HeapProps(D3D12_HEAP_TYPE_DEFAULT);
 
@@ -75,7 +86,7 @@ void RenderTarget::BuildResource()
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-    CreateResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_RENDER_TARGET, &mClearValue);
+    CreateResource(name, &HeapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, state, &mClearValue);
 }
 
 void RenderTarget::BuildDescriptors()
@@ -102,7 +113,6 @@ void RenderTarget::BuildDescriptors()
 
     Device::GetDevice()->CreateShaderResourceView(GetResource(), &srvDesc, mSrvDescriptorHandle.GetCpuHandle());
     Device::GetDevice()->CreateRenderTargetView(GetResource(), nullptr, mRtvDescriptorHandle.GetCpuHandle());
-
 }
 
 void RenderTarget::Destroy()

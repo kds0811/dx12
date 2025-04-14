@@ -30,6 +30,5 @@ public:
     void StartDrawFrame();
 
 private:
-    void InitDepthStencil();
     D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView();
 };

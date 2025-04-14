@@ -3,10 +3,9 @@
 #include "DDSTextureLoader.h"
 #include "Logger.h"
 
-Texture::Texture(ETextureType type, std::string name, std::wstring fileName, ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
+Texture::Texture(ETextureType type, std::wstring name, std::wstring fileName, ID3D12GraphicsCommandList* cmdList)
 	:
 	mType(type),
-	mName(std::move(name)),
 	mFilename(std::move(fileName))
 {
     LoadFromFile(device, cmdList);

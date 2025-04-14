@@ -3,8 +3,6 @@
 #include <utility>
 #include "Device.h"
 
-GpuResource::GpuResource() = default;
-
 GpuResource::GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES CurrentState) : mResource(pResource), mCurrentState(CurrentState)
 {
     assert(pResource);
@@ -52,31 +50,29 @@ GpuResource& GpuResource::operator=(const GpuResource&& rhs) noexcept
     return *this;
 }
 
-GpuResource::~GpuResource() = default;
 
 void GpuResource::SetName(const std::wstring& name)
 {
     mName = name;
+    mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
 }
 
 void GpuResource::CreateResource(const std::wstring& name, const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialResourceState, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
 {
-    SetName(name);
     Device::GetDevice()->CreateCommittedResource(pHeapProperties, HeapFlags, pDesc, InitialResourceState, pOptimizedClearValue, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
     mCurrentState = InitialResourceState;
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
-    mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
+    SetName(name);
 }
 
 void GpuResource::CreateResource(const std::wstring& name, const D3D12_HEAP_PROPERTIES* pHeapProperties, D3D12_HEAP_FLAGS HeapFlags, const D3D12_RESOURCE_DESC* pDesc,
     D3D12_RESOURCE_STATES InitialResourceState)
 {
-    SetName(name);
     Device::GetDevice()->CreateCommittedResource(pHeapProperties, HeapFlags, pDesc, InitialResourceState, nullptr, IID_PPV_ARGS(&mResource)) >> Kds::App::Check;
     mCurrentState = InitialResourceState;
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
-    mResource->SetName((mName + std::to_wstring(mVersionID)).c_str());
+    SetName(name);
 }
 
 void GpuResource::DestroyResource()
@@ -99,11 +95,12 @@ void GpuResource::ChangeState(CommandList* cmdList, D3D12_RESOURCE_STATES newSta
     mCurrentState = newState;
 }
 
-void GpuResource::SetResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES newState)
+void GpuResource::SetResource(const std::wstring& name, ID3D12Resource* resource, D3D12_RESOURCE_STATES state)
 {
     assert(resource);
     if (!resource) return;
     mResource = resource;
     mGpuVirtualAddress = mResource->GetGPUVirtualAddress();
-    mCurrentState = newState;
+    mCurrentState = state;
+    SetName(name);
 }

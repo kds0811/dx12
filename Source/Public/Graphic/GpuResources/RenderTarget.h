@@ -14,14 +14,15 @@ class RenderTarget : public GpuResource
 
 
 public:
-    RenderTarget() = default;
-    RenderTarget(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
-    void Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension);
-    void InitializeAsBackBuffer(const std::wstring& name, ID3D12Resource* existingResource, DXGI_FORMAT format, UINT width, UINT height);
-
+    RenderTarget(
+        const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension, D3D12_RESOURCE_STATES state);
+    RenderTarget(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION resourceDimension, ID3D12Resource* existingResource,
+        D3D12_RESOURCE_STATES state);
 
     RenderTarget(const RenderTarget& rhs) = delete;
     RenderTarget& operator=(const RenderTarget& rhs) = delete;
+    RenderTarget(const RenderTarget&& rhs) noexcept = delete;
+    RenderTarget& operator=(const RenderTarget&& rhs) noexcept = delete;
     ~RenderTarget();
 
     [[nodiscard]] inline DescriptorHandle& GetSrvDescriptorHandle() noexcept { return mSrvDescriptorHandle; }
@@ -30,10 +31,14 @@ public:
     void OnResize(UINT newWidth, UINT newHeight);
 
 private:
-    void BuildResource();
+    void BuildResource(const std::wstring& name, D3D12_RESOURCE_STATES state);
     void BuildDescriptors();
 
     void Destroy();
     void DestroyDescriptorHandles();
 
+    void Initialize(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_CLEAR_VALUE clearValue, D3D12_RESOURCE_DIMENSION resourceDimension,
+        D3D12_RESOURCE_STATES state);
+    void InitializeAsBackBuffer(const std::wstring& name, UINT width, UINT height, DXGI_FORMAT format, D3D12_RESOURCE_DIMENSION resourceDimension, ID3D12Resource* existingResource,
+        D3D12_RESOURCE_STATES state);
 };

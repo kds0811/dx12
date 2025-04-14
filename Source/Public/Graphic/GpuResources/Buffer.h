@@ -44,6 +44,8 @@ inline Buffer<T>::Buffer(const std::wstring& name, CommandList* cmdList, const s
 template <typename T>
 inline GpuResource Buffer<T>::CreateDefaultBuffer(CommandList* cmdList, const void* initData, UINT64 byteSize, GpuResource* uploadBuffer)
 {
+    assert(cmdList && uploadBuffer && initData);
+
     GpuResource buffer;
     const CD3DX12_RESOURCE_DESC ResDescBuf = CD3DX12_RESOURCE_DESC::Buffer(byteSize);
     const auto HeapPropDefault = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
