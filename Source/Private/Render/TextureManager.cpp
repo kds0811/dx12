@@ -2,59 +2,46 @@
 #include "GraphicError.h"
 #include "DDSTextureLoader.h"
 #include <filesystem>
+#include "Texture.h"
+#include "CommandList.h"
 
-TextureManager::TextureManager() 
+TextureManager::TextureManager()
 {
     mTextures.reserve(32);
 }
 
-void TextureManager::CreateBaseTextures(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList)
+TextureManager::~TextureManager() = default;
+
+void TextureManager::CreateBaseTextures(CommandList* cmdList)
 {
-    // Base color textures
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "wood_crate1", L"../Source/Textures/WoodCrate01.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "tile", L"../Source/Textures/tile.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "grass", L"../Source/Textures/grass.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "bricks", L"../Source/Textures/bricks.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "bricks2", L"../Source/Textures/bricks2.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "default", L"../Source/Textures/default.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "stone", L"../Source/Textures/stone.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "water", L"../Source/Textures/water.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "grassx", L"../Source/Textures/grassx.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "grassy", L"../Source/Textures/grassy.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "firebal", L"../Source/Textures/firebal.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "coldfire", L"../Source/Textures/coldfire.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "metall", L"../Source/Textures/metall.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "droneBaseColor", L"../Source/Textures/droneBaseColor.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "wireFence", L"../Source/Textures/WireFence.dds");
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "treeArray2", L"../Source/Textures/treeArray2.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"wood_crate1", L"../Source/Textures/WoodCrate01.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"tile", L"../Source/Textures/tile.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"grass", L"../Source/Textures/grass.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"bricks", L"../Source/Textures/bricks.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"bricks2", L"../Source/Textures/bricks2.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"default", L"../Source/Textures/default.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"stone", L"../Source/Textures/stone.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"water", L"../Source/Textures/water.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"grassx", L"../Source/Textures/grassx.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"grassy", L"../Source/Textures/grassy.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"firebal", L"../Source/Textures/firebal.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"coldfire", L"../Source/Textures/coldfire.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"metall", L"../Source/Textures/metall.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"droneBaseColor", L"../Source/Textures/droneBaseColor.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"wireFence", L"../Source/Textures/WireFence.dds");
+    CreateTexture(cmdList, ETextureType::BaseColor, L"treeArray2", L"../Source/Textures/treeArray2.dds");
 
-    // Normal maps
-    CreateTexture(device, cmdList, ETextureType::NormalMap, "default_nmap", L"../Source/Textures/default_nmap.dds");
-    CreateTexture(device, cmdList, ETextureType::NormalMap, "bricks_nmap", L"../Source/Textures/bricks_nmap.dds");
-    CreateTexture(device, cmdList, ETextureType::NormalMap, "bricks2_nmap", L"../Source/Textures/bricks2_nmap.dds");
-    CreateTexture(device, cmdList, ETextureType::NormalMap, "tile_nmap", L"../Source/Textures/tile_nmap.dds");
+    CreateTexture(cmdList, ETextureType::NormalMap, L"default_nmap", L"../Source/Textures/default_nmap.dds");
+    CreateTexture(cmdList, ETextureType::NormalMap, L"bricks_nmap", L"../Source/Textures/bricks_nmap.dds");
+    CreateTexture(cmdList, ETextureType::NormalMap, L"bricks2_nmap", L"../Source/Textures/bricks2_nmap.dds");
+    CreateTexture(cmdList, ETextureType::NormalMap, L"tile_nmap", L"../Source/Textures/tile_nmap.dds");
 
-    // Skybox
-    CreateTexture(device, cmdList, ETextureType::BaseColor, "grasscube1024", L"../Source/Textures/grasscube1024.dds");
-
-    LOG_MESSAGE("base textures have been created");
+    CreateTexture(cmdList, ETextureType::CubeMap, L"grasscube1024", L"../Source/Textures/grasscube1024.dds");
 }
 
-void TextureManager::CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList, ETextureType type, const std::string& name, const std::wstring& path)
+void TextureManager::CreateTexture(CommandList* cmdList, ETextureType type, const std::wstring& name, const std::wstring& path)
 {
-    if (!device)
-    {
-        LOG_WARNING("Invalid device pointer");
-        assert(0);
-        return;
-    }
-
-    if (!cmdList)
-    {
-        LOG_WARNING("Invalid  command list pointer");
-        assert(0);
-        return;
-    }
+    assert(cmdList);
 
     if (mTextures.contains(name))
     {
@@ -70,5 +57,16 @@ void TextureManager::CreateTexture(ID3D12Device* device, ID3D12GraphicsCommandLi
         return;
     }
 
-    mTextures[name] = std::make_unique<Texture>(type, name, path, device, cmdList);
+    mTextures[name] = std::make_unique<Texture>(type, name, path, cmdList);
+}
+
+Texture* TextureManager::GetTexture(const std::wstring& name)
+{
+    if (!mTextures.contains(name))
+    {
+        LOG_WARNING("texture ", name, " is not in the container");
+        assert(0);
+        return nullptr;
+    }
+    return mTextures.at(name).get();
 }

@@ -22,7 +22,6 @@ class Texture : public GpuResource
     Microsoft::WRL::ComPtr<ID3D12Resource> mUploadHeap = nullptr;
     ETextureType mType = ETextureType::Default;
     DescriptorHandle mSrvDescriptorHandle{};
-    D3D12_SRV_DIMENSION mSrvDimesion{};
 
 public:
     Texture(ETextureType type, const std::wstring& name, std::wstring fileName, CommandList* cmdList);

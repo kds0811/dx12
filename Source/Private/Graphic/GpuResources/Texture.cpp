@@ -24,7 +24,6 @@ void Texture::LoadFromFile(const std::wstring& name, CommandList* cmdList)
     mWidth = desc.Width;
     mHeight = desc.Height;
 
-    
     SetResource(name, tempRes.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     BuildDescriptors();
 }
@@ -45,6 +44,11 @@ void Texture::BuildDescriptors()
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip = 0;
     srvDesc.Texture2D.MipLevels = 1;
+
+    if (mType == ETextureType::CubeMap)
+    {
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+    }
 
     Device::GetDevice()->CreateShaderResourceView(GetResource(), &srvDesc, mSrvDescriptorHandle.GetCpuHandle());
 }
