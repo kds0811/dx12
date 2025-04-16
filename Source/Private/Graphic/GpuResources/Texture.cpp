@@ -11,8 +11,11 @@ Texture::Texture(ETextureType type, const std::wstring& name, std::wstring fileN
 	mType(type),
 	mFilename(std::move(fileName))
 {
+    assert(cmdList);
     LoadFromFile(name, cmdList);
 }
+
+Texture::~Texture() = default;
 
 void Texture::LoadFromFile(const std::wstring& name, CommandList* cmdList)
 {

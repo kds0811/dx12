@@ -3,6 +3,7 @@
 
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
 class DescriptorAllocator;
+
 class DescriptorHandle;
 
 class DescriptorHeapManager

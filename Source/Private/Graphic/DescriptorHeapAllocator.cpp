@@ -64,14 +64,7 @@ DescriptorAllocator<heapFlag>& DescriptorAllocator<heapFlag>::operator=(Descript
 template <D3D12_DESCRIPTOR_HEAP_FLAGS heapFlag>
 DescriptorHandle DescriptorAllocator<heapFlag>::Allocate(UINT32 count)
 {
-    assert(count > 0);
-    assert(mRemainingFreeHandles >= 0 && "Negative number of remaining free handles!");
-
-    if (count > mNumDescriptorsPerHeap)
-    {
-        LOG_ERROR("Requested number of descriptors exceeds the maximum per heap.");
-        return;
-    }
+    assert(count > 0 && count < mNumDescriptorsPerHeap);
 
     std::lock_guard<std::mutex> lockGuard(mAllocationMutex);
 
