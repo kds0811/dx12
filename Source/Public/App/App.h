@@ -5,7 +5,7 @@
 #include "Camera.h"
 #include "Scene.h"
 #include <memory>
-#include "ResourceManager.h"
+
 #include "MainController.h"
 
 
@@ -19,7 +19,7 @@ class App
     std::unique_ptr<Graphic> mGfx = nullptr;
     std::unique_ptr<Camera> mCamera = nullptr;
     std::unique_ptr<MainInputController> mMainInputController = nullptr;
-    std::unique_ptr<ResourceManager> mResourceManager = nullptr;
+
     std::unique_ptr<Scene> mScene = nullptr;
     bool bAppPaused = false;
     std::uint64_t mFrameCount = 0;

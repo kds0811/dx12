@@ -42,7 +42,6 @@ void MaterialManager::CreateMaterial(const std::string name, EMaterialType type,
     if (mMaterials.contains(name))
     {
         LOG_WARNING("the material named: ", name, " has already been created");
-        assert(0);
         return;
     }
 
@@ -52,17 +51,16 @@ void MaterialManager::CreateMaterial(const std::string name, EMaterialType type,
 
 void MaterialManager::SetMaterialBaseColor(const std::string& materialName, Texture* baseColor)
 {
+    assert(baseColor);
     if (!baseColor)
     {
         LOG_WARNING("baseColor Texture pointer is nullptr");
-        assert(0);
         return;
     }
 
     if (!mMaterials.contains(materialName))
     {
         LOG_WARNING("the material named: ", materialName, " name has not been created");
-        assert(0);
         return;
     }
 
@@ -72,17 +70,16 @@ void MaterialManager::SetMaterialBaseColor(const std::string& materialName, Text
 
 void MaterialManager::SetMaterialNormalMap(const std::string& materialName,  Texture* normalMap)
 {
+    assert(normalMap);
     if (!normalMap)
     {
         LOG_WARNING(" normalMap Texture pointer is nullptr");
-        assert(0);
         return;
     }
 
     if (!mMaterials.contains(materialName))
     {
         LOG_WARNING("the material named: ", materialName, "  has not been created");
-        assert(0);
         return;
     }
     
@@ -95,7 +92,6 @@ const Material* MaterialManager::GetMaterial(const std::string& materialName) co
     if (!mMaterials.contains(materialName))
     {
         LOG_WARNING("the material named: ", materialName, " has not been created");
-        assert(0);
         return nullptr;
     }
     

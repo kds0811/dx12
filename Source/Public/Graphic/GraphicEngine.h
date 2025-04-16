@@ -3,17 +3,15 @@
 
 class Device;
 class CommandManager;
-class DescriptorHeapManager;
+class ResourceManager;
 class Renderer;
-
-
 
 class GraphicEngine
 {
-    std::unique_ptr<Device> mDevice;
-    std::unique_ptr<CommandManager> mCommandManager;
-    std::unique_ptr<DescriptorHeapManager> mDescriptorHeapManager;
-    std::unique_ptr<Renderer> mRenderer;
+    std::unique_ptr<Device> mDevice = nullptr;
+    std::unique_ptr<CommandManager> mCommandManager = nullptr;
+    std::unique_ptr<ResourceManager> mResourceManager = nullptr;
+    std::unique_ptr<Renderer> mRenderer = nullptr;
 
 public:
     GraphicEngine(HWND windowHandle);
