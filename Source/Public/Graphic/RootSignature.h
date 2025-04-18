@@ -91,13 +91,22 @@ public:
 // Static samplers = 0 DWORDS (compiled into shader)
 class RootSignature
 {
+protected:
+    bool bFinalized;
+    UINT mNumParameters;
+    UINT mNumSamplers;
+    UINT mNumInitializedStaticSamplers;
+    uint32_t mDescriptorTableBitMap;    // One bit is set for root parameters that are non-sampler descriptor tables
+    uint32_t mSamplerTableBitMap;       // One bit is set for root parameters that are sampler descriptor tables
+    uint32_t mDescriptorTableSize[16];  // Non-sampler descriptor tables need to know their descriptor count
+    std::unique_ptr<RootParameter[]> mParamArray;
+    std::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> mSamplerArray;
+    ID3D12RootSignature* mSignature;
 
 public:
     RootSignature(UINT NumRootParams = 0, UINT NumStaticSamplers = 0) : bFinalized(false), mNumParameters(NumRootParams) { Reset(NumRootParams, NumStaticSamplers); }
 
     ~RootSignature() {}
-
-    static void DestroyAll(void);
 
     void Reset(UINT NumRootParams, UINT NumStaticSamplers = 0)
     {
@@ -133,15 +142,5 @@ public:
 
     ID3D12RootSignature* GetSignature() const { return mSignature; }
 
-protected:
-    bool bFinalized;
-    UINT mNumParameters;
-    UINT mNumSamplers;
-    UINT mNumInitializedStaticSamplers;
-    uint32_t mDescriptorTableBitMap;    // One bit is set for root parameters that are non-sampler descriptor tables
-    uint32_t mSamplerTableBitMap;       // One bit is set for root parameters that are sampler descriptor tables
-    uint32_t mDescriptorTableSize[16];  // Non-sampler descriptor tables need to know their descriptor count
-    std::unique_ptr<RootParameter[]> mParamArray;
-    std::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> mSamplerArray;
-    ID3D12RootSignature* mSignature;
+
 };
