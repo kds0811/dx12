@@ -163,7 +163,7 @@ template <typename... Types>
 static void LogMain(Types&&... args)
 {
     std::string message;
-    message.reserve(128);
+    message.reserve(256);
     message = Logs(std::forward<Types>(args)...) + "\n";
     ::OutputDebugString(message.c_str());
 }
