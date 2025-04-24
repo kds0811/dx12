@@ -84,24 +84,13 @@ public:
 
 };
 
-// Maximum 64 DWORDS divied up amongst all root parameters.
-// Root constants = 1 DWORD * NumConstants
-// Root descriptor (CBV, SRV, or UAV) = 2 DWORDs each
-// Descriptor table pointer = 1 DWORD
-// Static samplers = 0 DWORDS (compiled into shader)
 class RootSignature
 {
-protected:
     bool bFinalized;
     UINT mNumParameters;
-    UINT mNumSamplers;
-    UINT mNumInitializedStaticSamplers;
-    uint32_t mDescriptorTableBitMap;    // One bit is set for root parameters that are non-sampler descriptor tables
-    uint32_t mSamplerTableBitMap;       // One bit is set for root parameters that are sampler descriptor tables
-    uint32_t mDescriptorTableSize[16];  // Non-sampler descriptor tables need to know their descriptor count
     std::unique_ptr<RootParameter[]> mParamArray;
     std::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> mSamplerArray;
-    ID3D12RootSignature* mSignature;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature;
 
 public:
     RootSignature(UINT NumRootParams = 0, UINT NumStaticSamplers = 0) : bFinalized(false), mNumParameters(NumRootParams) { Reset(NumRootParams, NumStaticSamplers); }
@@ -120,8 +109,6 @@ public:
             mSamplerArray.reset(new D3D12_STATIC_SAMPLER_DESC[NumStaticSamplers]);
         else
             mSamplerArray = nullptr;
-        mNumSamplers = NumStaticSamplers;
-        mNumInitializedStaticSamplers = 0;
     }
 
     RootParameter& operator[](size_t EntryIndex)
@@ -136,11 +123,9 @@ public:
         return mParamArray.get()[EntryIndex];
     }
 
-    void InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& NonStaticSamplerDesc, D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL);
-
     void Finalize(const std::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
-    ID3D12RootSignature* GetSignature() const { return mSignature; }
+    ID3D12RootSignature* GetSignature() const { return mRootSignature.Get(); }
 
 
 };
