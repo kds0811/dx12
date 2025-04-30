@@ -74,23 +74,7 @@ public:
         bIsInitialize = true;
     }
 
-    inline void InitAsDescriptorTable(UINT RangeCount, D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL) noexcept
-    {
-        mRootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-        mRootParam.ShaderVisibility = Visibility;
-        mRootParam.DescriptorTable.NumDescriptorRanges = RangeCount;
-        mRootParam.DescriptorTable.pDescriptorRanges = new D3D12_DESCRIPTOR_RANGE[RangeCount];
-    }
-
-    inline void SetTableRange(UINT RangeIndex, D3D12_DESCRIPTOR_RANGE_TYPE Type, UINT Register, UINT Count, UINT Space = 0) noexcept
-    {
-        D3D12_DESCRIPTOR_RANGE* range = const_cast<D3D12_DESCRIPTOR_RANGE*>(mRootParam.DescriptorTable.pDescriptorRanges + RangeIndex);
-        range->RangeType = Type;
-        range->NumDescriptors = Count;
-        range->BaseShaderRegister = Register;
-        range->RegisterSpace = Space;
-        range->OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    }
+   
 
     [[nodiscard]] inline const D3D12_ROOT_PARAMETER& Get() const noexcept { return mRootParam; }
 
@@ -98,10 +82,29 @@ public:
     {
         if (bIsInitialize)
         {
-            LOG_WARNING("Root Param allready os initialized");
+            LOG_WARNING("Root Param allready is initialized");
             return true;
         }
         return false;
+    }
+
+private:
+    inline void InitAsDescriptorTable(UINT RangeCount, D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL)
+    {
+        mRootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        mRootParam.ShaderVisibility = Visibility;
+        mRootParam.DescriptorTable.NumDescriptorRanges = RangeCount;
+        mRootParam.DescriptorTable.pDescriptorRanges = new D3D12_DESCRIPTOR_RANGE[RangeCount];
+    }
+
+    inline void SetTableRange(UINT RangeIndex, D3D12_DESCRIPTOR_RANGE_TYPE Type, UINT Register, UINT Count, UINT Space = 0)
+    {
+        D3D12_DESCRIPTOR_RANGE* range = const_cast<D3D12_DESCRIPTOR_RANGE*>(mRootParam.DescriptorTable.pDescriptorRanges + RangeIndex);
+        range->RangeType = Type;
+        range->NumDescriptors = Count;
+        range->BaseShaderRegister = Register;
+        range->RegisterSpace = Space;
+        range->OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     }
 };
 
@@ -119,7 +122,7 @@ public:
 
     ~RootSignature() {}
 
-    inline RootParameter* operator[](size_t entryIndex)
+    inline RootParameter* GetParam(size_t entryIndex)
     {
         if (IsIndexValid(entryIndex))
         {
@@ -128,7 +131,7 @@ public:
         return nullptr;
     }
 
-    inline const RootParameter* operator[](size_t entryIndex) const
+    inline const RootParameter* GetParam(size_t entryIndex) const
     {
         if (IsIndexValid(entryIndex))
         {

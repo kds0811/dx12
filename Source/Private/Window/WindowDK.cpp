@@ -1,10 +1,7 @@
 #include "Window/WindowDK.h"
 #include "App/App.h"
 #include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx12.h"
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 const std::string Window::WindowClass::wndClassName = "HZ PROJECT";
 Window::WindowClass Window::WindowClass::wndClass;
@@ -128,8 +125,6 @@ LRESULT Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) return true;
-
     switch (msg)
     {
         case WM_CLOSE: PostQuitMessage(0); return 0;

@@ -54,5 +54,4 @@ private:
     HWND hWnd;
     App* pApp = nullptr;
     
-
 };

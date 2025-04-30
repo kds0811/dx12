@@ -44,9 +44,9 @@ private:
     // Frame Resources
 
 
-   Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature> mPostProcessRootSignature = nullptr;
-   Microsoft::WRL::ComPtr<ID3D12RootSignature> mPostBilateralRootSignature = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> mPostBilateralRootSignature = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvSrvUavDescriptorHeap = nullptr;
 
