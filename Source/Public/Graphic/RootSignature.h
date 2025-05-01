@@ -95,7 +95,13 @@ class RootSignature
     std::wstring mName{};
 
 public:
-    RootSignature(const std::wstring& name) : mName(name) {}
+    RootSignature(const std::wstring& name, UINT size) : mName(name)
+    {
+        for (size_t i = 0; i < size; i++)
+        {
+            mParams.emplace_back();
+        }
+    }
 
     ~RootSignature() {}
 
