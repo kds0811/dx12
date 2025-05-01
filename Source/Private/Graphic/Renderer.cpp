@@ -8,6 +8,7 @@
 #include "Pso.h"
 #include "Viewport.h"
 #include "ScissorRect.h"
+#include "RootSignatureManager.h"
 
 
 Renderer::Renderer(HWND windowHandle)
@@ -17,6 +18,7 @@ Renderer::Renderer(HWND windowHandle)
     mDepthStencil = std::make_unique<DepthStencil>(L"Depth Stencil", Settings::mWidth, Settings::mHeight, DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     mViewport = std::make_unique<Viewport>(0.0f, 0.0f, static_cast<float>(Settings::mWidth), static_cast<float>(Settings::mHeight));
     mScissorRect = std::make_unique<ScissorRect>(0u, 0u, Settings::mWidth, Settings::mHeight);
+
 }
 
 Renderer::~Renderer() {}
@@ -24,7 +26,7 @@ Renderer::~Renderer() {}
 void Renderer::StartDrawFrame() 
 {
     Pso dummyPso{}; // need implement getting actual pso
-    cmdList = CommandManager::GetFreeCommandListAndResetIt(&dummyPso);
+    auto cmdList = CommandManager::GetFreeCommandListAndResetIt(&dummyPso);
     assert(cmdList);
 
     if (!cmdList)

@@ -10,9 +10,9 @@ class RootSignatureManager
     static constexpr size_t mStandrartRootSigSize = 5;
     static constexpr size_t mPostProcRootSigSize = 3;
     static constexpr size_t mBilateralBlurRootSigSize = 3;
-    std::unique_ptr<RootSignature<mStandrartRootSigSize>> mStandartRootSignature;
-    std::unique_ptr<RootSignature<mPostProcRootSigSize>> mPostProcRootSignature;
-    std::unique_ptr<RootSignature<mBilateralBlurRootSigSize>> mBilateralBlurRootSignature;
+    std::unique_ptr<RootSignature<mStandrartRootSigSize>> mStandartRootSignature = nullptr;
+    std::unique_ptr<RootSignature<mPostProcRootSigSize>> mPostProcRootSignature = nullptr;
+    std::unique_ptr<RootSignature<mBilateralBlurRootSigSize>> mBilateralBlurRootSignature = nullptr;
 
 public:
     RootSignatureManager();

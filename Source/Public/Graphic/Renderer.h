@@ -10,14 +10,15 @@ class CommandList;
 class Viewport;
 class ScissorRect;
 
+
 class Renderer
 {
-    CommandList* cmdList = nullptr;
     std::unique_ptr<FrameResourceManager> mFrameResourceManager;
     std::unique_ptr<SwapChain> mSwapChain;
     std::unique_ptr<DepthStencil> mDepthStencil;
     std::unique_ptr<Viewport> mViewport;
     std::unique_ptr<ScissorRect> mScissorRect;
+
 
 public:
     Renderer(HWND windowHandle);
