@@ -1,108 +1,127 @@
 #include "Pso.h"
-
-Pso::Pso() {}
-
+#include "RootSignature.h"
 
 
-static map<size_t, ComPtr<ID3D12PipelineState>> s_GraphicsPSOHashMap;
-static map<size_t, ComPtr<ID3D12PipelineState>> s_ComputePSOHashMap;
+Pso::Pso(const std::wstring& name) : mName(name) {}
 
-void PSO::DestroyAll(void)
+void Pso::SetRootSignature(const RootSignature* pRootSig)
 {
-    s_GraphicsPSOHashMap.clear();
-    s_ComputePSOHashMap.clear();
+    assert(pRootSig);
+    if (!pRootSig) LOG_ERROR("root signature argument is nullptr!");
+    pRootSignature = pRootSig;
 }
 
-GraphicsPSO::GraphicsPSO(const wchar_t* Name) : PSO(Name)
+const RootSignature* Pso::GetRootSignature() const
 {
-    ZeroMemory(&m_PSODesc, sizeof(m_PSODesc));
-    m_PSODesc.NodeMask = 1;
-    m_PSODesc.SampleMask = 0xFFFFFFFFu;
-    m_PSODesc.SampleDesc.Count = 1;
-    m_PSODesc.InputLayout.NumElements = 0;
+    assert(pRootSignature);
+    if (!pRootSignature) LOG_ERROR("pRootSignature is nullptr");
+    return pRootSignature;
 }
 
-void GraphicsPSO::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
+ID3D12PipelineState* Pso::GetPso() noexcept
 {
-    m_PSODesc.BlendState = BlendDesc;
+    assert(mPso);
+    if (!mPso) LOG_ERROR("mPso is nullptr");
+    return mPso.Get();
 }
 
-void GraphicsPSO::SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc)
+const ID3D12PipelineState* Pso::GetPso() const noexcept
 {
-    m_PSODesc.RasterizerState = RasterizerDesc;
+    assert(mPso);
+    if (!mPso) LOG_ERROR("mPso is nullptr");
+    return mPso.Get();
 }
 
-void GraphicsPSO::SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& DepthStencilDesc)
+GraphicsPso::GraphicsPso(const wchar_t* Name) : Pso(Name)
 {
-    m_PSODesc.DepthStencilState = DepthStencilDesc;
+    ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
+    mPsoDesc.NodeMask = 1;
+    mPsoDesc.SampleMask = 0xFFFFFFFFu;
+    mPsoDesc.SampleDesc.Count = 1;
+    mPsoDesc.InputLayout.NumElements = 0;
 }
 
-void GraphicsPSO::SetSampleMask(UINT SampleMask)
+void GraphicsPso::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
 {
-    m_PSODesc.SampleMask = SampleMask;
+    mPsoDesc.BlendState = BlendDesc;
 }
 
-void GraphicsPSO::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE TopologyType)
+void GraphicsPso::SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc)
 {
-    ASSERT(TopologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, "Can't draw with undefined topology");
-    m_PSODesc.PrimitiveTopologyType = TopologyType;
+    mPsoDesc.RasterizerState = RasterizerDesc;
 }
 
-void GraphicsPSO::SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps)
+void GraphicsPso::SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& DepthStencilDesc)
 {
-    m_PSODesc.IBStripCutValue = IBProps;
+    mPsoDesc.DepthStencilState = DepthStencilDesc;
 }
 
-void GraphicsPSO::SetDepthTargetFormat(DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
+void GraphicsPso::SetSampleMask(UINT SampleMask)
+{
+    mPsoDesc.SampleMask = SampleMask;
+}
+
+void GraphicsPso::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE TopologyType)
+{
+    assert(TopologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, "Can't draw with undefined topology");
+    mPsoDesc.PrimitiveTopologyType = TopologyType;
+}
+
+void GraphicsPso::SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps)
+{
+    mPsoDesc.IBStripCutValue = IBProps;
+}
+
+void GraphicsPso::SetDepthTargetFormat(DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
     SetRenderTargetFormats(0, nullptr, DSVFormat, MsaaCount, MsaaQuality);
 }
 
-void GraphicsPSO::SetRenderTargetFormat(DXGI_FORMAT RTVFormat, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
+void GraphicsPso::SetRenderTargetFormat(DXGI_FORMAT RTVFormat, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
     SetRenderTargetFormats(1, &RTVFormat, DSVFormat, MsaaCount, MsaaQuality);
 }
 
-void GraphicsPSO::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFormats, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
+void GraphicsPso::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFormats, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
-    ASSERT(NumRTVs == 0 || RTVFormats != nullptr, "Null format array conflicts with non-zero length");
+    assert(NumRTVs == 0 || RTVFormats != nullptr, "Null format array conflicts with non-zero length");
     for (UINT i = 0; i < NumRTVs; ++i)
     {
-        ASSERT(RTVFormats[i] != DXGI_FORMAT_UNKNOWN);
-        m_PSODesc.RTVFormats[i] = RTVFormats[i];
+        assert(RTVFormats[i] != DXGI_FORMAT_UNKNOWN);
+        mPsoDesc.RTVFormats[i] = RTVFormats[i];
     }
-    for (UINT i = NumRTVs; i < m_PSODesc.NumRenderTargets; ++i)
-        m_PSODesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
-    m_PSODesc.NumRenderTargets = NumRTVs;
-    m_PSODesc.DSVFormat = DSVFormat;
-    m_PSODesc.SampleDesc.Count = MsaaCount;
-    m_PSODesc.SampleDesc.Quality = MsaaQuality;
+    for (UINT i = NumRTVs; i < mPsoDesc.NumRenderTargets; ++i)
+        mPsoDesc.RTVFormats[i] = DXGI_FORMAT_UNKNOWN;
+    mPsoDesc.NumRenderTargets = NumRTVs;
+    mPsoDesc.DSVFormat = DSVFormat;
+    mPsoDesc.SampleDesc.Count = MsaaCount;
+    mPsoDesc.SampleDesc.Quality = MsaaQuality;
 }
 
-void GraphicsPSO::SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs)
+void GraphicsPso::SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs)
 {
-    m_PSODesc.InputLayout.NumElements = NumElements;
+    mPsoDesc.InputLayout.NumElements = NumElements;
 
     if (NumElements > 0)
     {
         D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
         memcpy(NewElements, pInputElementDescs, NumElements * sizeof(D3D12_INPUT_ELEMENT_DESC));
-        m_InputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
+        mInputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
     }
     else
-        m_InputLayouts = nullptr;
+        mInputLayouts = nullptr;
 }
 
-void GraphicsPSO::Finalize()
+void GraphicsPso::Finalize()
 {
     // Make sure the root signature is finalized first
-    m_PSODesc.pRootSignature = m_RootSignature->GetSignature();
-    ASSERT(m_PSODesc.pRootSignature != nullptr);
+    mPsoDesc.pRootSignature = pRootSignature->GetSignature();
+    assert(mPsoDesc.pRootSignature != nullptr);
 
-    m_PSODesc.InputLayout.pInputElementDescs = nullptr;
-    size_t HashCode = Utility::HashState(&m_PSODesc);
-    HashCode = Utility::HashState(m_InputLayouts.get(), m_PSODesc.InputLayout.NumElements, HashCode);
-    m_PSODesc.InputLayout.pInputElementDescs = m_InputLayouts.get();
+    mPsoDesc.InputLayout.pInputElementDescs = nullptr;
+    size_t HashCode = Utility::HashState(&mPsoDesc);
+    HashCode = Utility::HashState(m_InputLayouts.get(), mPsoDesc.InputLayout.NumElements, HashCode);
+    mPsoDesc.InputLayout.pInputElementDescs = m_InputLayouts.get();
 
     ID3D12PipelineState** PSORef = nullptr;
     bool firstCompile = false;
@@ -123,8 +142,8 @@ void GraphicsPSO::Finalize()
 
     if (firstCompile)
     {
-        ASSERT(m_PSODesc.DepthStencilState.DepthEnable != (m_PSODesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
-        ASSERT_SUCCEEDED(g_Device->CreateGraphicsPipelineState(&m_PSODesc, MY_IID_PPV_ARGS(&m_PSO)));
+        assert(mPsoDesc.DepthStencilState.DepthEnable != (mPsoDesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
+        ASSERT_SUCCEEDED(g_Device->CreateGraphicsPipelineState(&mPsoDesc, MY_IID_PPV_ARGS(&m_PSO)));
         s_GraphicsPSOHashMap[HashCode].Attach(m_PSO);
         m_PSO->SetName(m_Name);
     }
@@ -139,10 +158,10 @@ void GraphicsPSO::Finalize()
 void ComputePSO::Finalize()
 {
     // Make sure the root signature is finalized first
-    m_PSODesc.pRootSignature = m_RootSignature->GetSignature();
-    ASSERT(m_PSODesc.pRootSignature != nullptr);
+    mPsoDesc.pRootSignature = mRootSignature->GetSignature();
+    assert(mPsoDesc.pRootSignature != nullptr);
 
-    size_t HashCode = Utility::HashState(&m_PSODesc);
+    size_t HashCode = Utility::HashState(&mPsoDesc);
 
     ID3D12PipelineState** PSORef = nullptr;
     bool firstCompile = false;
@@ -163,7 +182,7 @@ void ComputePSO::Finalize()
 
     if (firstCompile)
     {
-        ASSERT_SUCCEEDED(g_Device->CreateComputePipelineState(&m_PSODesc, MY_IID_PPV_ARGS(&m_PSO)));
+        ASSERT_SUCCEEDED(g_Device->CreateComputePipelineState(&mPsoDesc, MY_IID_PPV_ARGS(&m_PSO)));
         s_ComputePSOHashMap[HashCode].Attach(m_PSO);
         m_PSO->SetName(m_Name);
     }
@@ -175,8 +194,11 @@ void ComputePSO::Finalize()
     }
 }
 
-ComputePSO::ComputePSO(const wchar_t* Name) : PSO(Name)
+ComputePso::ComputePso(const wchar_t* Name) : Pso(Name)
 {
-    ZeroMemory(&m_PSODesc, sizeof(m_PSODesc));
-    m_PSODesc.NodeMask = 1;
+    ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
+    mPsoDesc.NodeMask = 1;
 }
+
+
+
