@@ -16,9 +16,14 @@ public:
     RootSignatureManager();
     ~RootSignatureManager();
 
+    RootSignature* GetRootSignature(const std::wstring& name);
+    const RootSignature* GetRootSignature(const std::wstring& name) const;
+
 private:
     void BuildRootSignatures();
     void BuildBaseRootSignature();
     void BuildPostProcessRootSignature();
     void BuildBilateralBlurRootSignature();
+
+    bool CheckContains(const std::wstring& name) const;
 };

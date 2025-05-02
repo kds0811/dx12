@@ -1,12 +1,31 @@
 #include "RootSignatureManager.h"
 #include "RootSignature.h"
 
+
 RootSignatureManager::RootSignatureManager()
 {
     BuildRootSignatures();
 }
 
 RootSignatureManager::~RootSignatureManager() = default;
+
+RootSignature* RootSignatureManager::GetRootSignature(const std::wstring& name)
+{
+    if (CheckContains(name))
+    {
+        return mRootSignatures.at(name).get();
+    }
+    return nullptr;
+}
+
+const RootSignature* RootSignatureManager::GetRootSignature(const std::wstring& name) const
+{
+    if (CheckContains(name))
+    {
+        return mRootSignatures.at(name).get();
+    }
+    return nullptr;
+}
 
 void RootSignatureManager::BuildRootSignatures()
 {
@@ -48,4 +67,14 @@ void RootSignatureManager::BuildBilateralBlurRootSignature()
     bilateralRootSig->GetParam(2)->InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1);
     bilateralRootSig->Finalize();
     mRootSignatures[name] = std::move(bilateralRootSig);
+}
+
+bool RootSignatureManager::CheckContains(const std::wstring& name) const
+{
+    if (mRootSignatures.contains(name))
+    {
+        return true;
+    }
+    LOG_ERROR("The root signature ",  name, " is not in the container");
+    return false;
 }
