@@ -7,7 +7,7 @@ class InputLayout;
 
 class InputLayoutManager
 {
-    std::unordered_map<std::wstring, std::unique_ptr<InputLayout>> mInputLayouts;
+    std::unordered_map<std::string, std::unique_ptr<InputLayout>> mInputLayouts;
 
 public:
     InputLayoutManager();
@@ -15,4 +15,6 @@ public:
 
 private:
     void BuildInputLayouts();
+    void BuildStandartInputLayout();
+    void BuildTreeSpriteInputLayout();
 };
