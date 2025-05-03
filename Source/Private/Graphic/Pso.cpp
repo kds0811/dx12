@@ -132,7 +132,7 @@ void ComputePso::Finalize()
     mPsoDesc.pRootSignature = pRootSignature->GetSignature();
     assert(mPsoDesc.pRootSignature);
 
-    Device::GetDevice()->CreateComputePipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso));
+    Device::GetDevice()->CreateComputePipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso)) >> Kds::App::Check;
     mPso->SetName(mName.c_str());
 }
 
