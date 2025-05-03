@@ -13,7 +13,12 @@ void InputLayout::AddInputElementDesc(D3D12_INPUT_ELEMENT_DESC layout)
     mInputLayout.push_back(layout);
 }
 
-D3D12_INPUT_LAYOUT_DESC InputLayout::GetInputLayoutDescriptor() const
+void InputLayout::Finalize()
 {
-    return D3D12_INPUT_LAYOUT_DESC{mInputLayout.data(), static_cast<UINT>(mInputLayout.size())};
+    mInputLayoutDesc = D3D12_INPUT_LAYOUT_DESC{mInputLayout.data(), static_cast<UINT>(mInputLayout.size())};
+}
+
+const D3D12_INPUT_LAYOUT_DESC& InputLayout::GetInputLayoutDescriptor() const
+{
+    return mInputLayoutDesc;
 }

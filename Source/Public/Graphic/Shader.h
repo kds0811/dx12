@@ -23,6 +23,6 @@ class Shader
     RootSignature* pUsableRootSignature = nullptr;
 
 public:
-    Shader(std::wstring )
+    Shader(std::wstring);
 
 };
