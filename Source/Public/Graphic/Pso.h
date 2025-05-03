@@ -2,6 +2,8 @@
 #include "GraphicCommonHeaders.h"
 #include <string>
 
+class RootSignature;
+
 class Pso
 {
 protected:
@@ -25,7 +27,7 @@ class GraphicsPso : public Pso
     std::unique_ptr<const D3D12_INPUT_ELEMENT_DESC> mInputLayouts;
 
 public:
-    GraphicsPso(const wchar_t* Name = L"Unnamed Graphics PSO");
+    GraphicsPso(const std::wstring& Name = L"Unnamed Graphics PSO");
 
     void SetBlendState(const D3D12_BLEND_DESC& BlendDesc);
     void SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc);
@@ -38,36 +40,27 @@ public:
     void SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs);
     void SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps);
 
-    void SetVertexShader(const void* Binary, size_t Size) { m_PSODesc.VS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetPixelShader(const void* Binary, size_t Size) { m_PSODesc.PS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetGeometryShader(const void* Binary, size_t Size) { m_PSODesc.GS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetHullShader(const void* Binary, size_t Size) { m_PSODesc.HS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetDomainShader(const void* Binary, size_t Size) { m_PSODesc.DS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetVertexShader(const void* Binary, size_t Size) { mPsoDesc.VS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetPixelShader(const void* Binary, size_t Size) { mPsoDesc.PS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetGeometryShader(const void* Binary, size_t Size) { mPsoDesc.GS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetHullShader(const void* Binary, size_t Size) { mPsoDesc.HS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetDomainShader(const void* Binary, size_t Size) { mPsoDesc.DS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
 
-    void SetVertexShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.VS = Binary; }
-    void SetPixelShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.PS = Binary; }
-    void SetGeometryShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.GS = Binary; }
-    void SetHullShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.HS = Binary; }
-    void SetDomainShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.DS = Binary; }
-
+    void SetVertexShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.VS = Binary; }
+    void SetPixelShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.PS = Binary; }
+    void SetGeometryShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.GS = Binary; }
+    void SetHullShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.HS = Binary; }
+    void SetDomainShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.DS = Binary; }
     void Finalize();
-
-private:
-
 };
 
 class ComputePso : public Pso
 {
-    friend class CommandContext;
+    D3D12_COMPUTE_PIPELINE_STATE_DESC mPsoDesc;
 
 public:
-    ComputePso(const wchar_t* Name = L"Unnamed Compute PSO");
-
-    void SetComputeShader(const void* Binary, size_t Size) { m_PSODesc.CS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetComputeShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.CS = Binary; }
-
+    ComputePso(const std::wstring& Name = L"Unnamed Compute PSO");
+    void SetComputeShader(const void* Binary, size_t Size) { mPsoDesc.CS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetComputeShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.CS = Binary; }
     void Finalize();
-
-private:
-    D3D12_COMPUTE_PIPELINE_STATE_DESC m_PSODesc;
 };

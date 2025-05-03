@@ -1,6 +1,6 @@
 #include "Pso.h"
 #include "RootSignature.h"
-
+#include "Device.h"
 
 Pso::Pso(const std::wstring& name) : mName(name) {}
 
@@ -32,7 +32,7 @@ const ID3D12PipelineState* Pso::GetPso() const noexcept
     return mPso.Get();
 }
 
-GraphicsPso::GraphicsPso(const wchar_t* Name) : Pso(Name)
+GraphicsPso::GraphicsPso(const std::wstring& Name) : Pso(Name)
 {
     ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
     mPsoDesc.NodeMask = 1;
@@ -116,89 +116,28 @@ void GraphicsPso::Finalize()
 {
     // Make sure the root signature is finalized first
     mPsoDesc.pRootSignature = pRootSignature->GetSignature();
-    assert(mPsoDesc.pRootSignature != nullptr);
+    assert(mPsoDesc.pRootSignature);
 
     mPsoDesc.InputLayout.pInputElementDescs = nullptr;
-    size_t HashCode = Utility::HashState(&mPsoDesc);
-    HashCode = Utility::HashState(m_InputLayouts.get(), mPsoDesc.InputLayout.NumElements, HashCode);
-    mPsoDesc.InputLayout.pInputElementDescs = m_InputLayouts.get();
+    mPsoDesc.InputLayout.pInputElementDescs = mInputLayouts.get();
 
-    ID3D12PipelineState** PSORef = nullptr;
-    bool firstCompile = false;
-    {
-        static mutex s_HashMapMutex;
-        lock_guard<mutex> CS(s_HashMapMutex);
-        auto iter = s_GraphicsPSOHashMap.find(HashCode);
-
-        // Reserve space so the next inquiry will find that someone got here first.
-        if (iter == s_GraphicsPSOHashMap.end())
-        {
-            firstCompile = true;
-            PSORef = s_GraphicsPSOHashMap[HashCode].GetAddressOf();
-        }
-        else
-            PSORef = iter->second.GetAddressOf();
-    }
-
-    if (firstCompile)
-    {
-        assert(mPsoDesc.DepthStencilState.DepthEnable != (mPsoDesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
-        ASSERT_SUCCEEDED(g_Device->CreateGraphicsPipelineState(&mPsoDesc, MY_IID_PPV_ARGS(&m_PSO)));
-        s_GraphicsPSOHashMap[HashCode].Attach(m_PSO);
-        m_PSO->SetName(m_Name);
-    }
-    else
-    {
-        while (*PSORef == nullptr)
-            this_thread::yield();
-        m_PSO = *PSORef;
-    }
+    assert(mPsoDesc.DepthStencilState.DepthEnable != (mPsoDesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
+    Device::GetDevice()->CreateGraphicsPipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso)) >> Kds::App::Check;
+    mPso->SetName(mName.c_str());
 }
 
-void ComputePSO::Finalize()
+void ComputePso::Finalize()
 {
     // Make sure the root signature is finalized first
-    mPsoDesc.pRootSignature = mRootSignature->GetSignature();
-    assert(mPsoDesc.pRootSignature != nullptr);
+    mPsoDesc.pRootSignature = pRootSignature->GetSignature();
+    assert(mPsoDesc.pRootSignature);
 
-    size_t HashCode = Utility::HashState(&mPsoDesc);
-
-    ID3D12PipelineState** PSORef = nullptr;
-    bool firstCompile = false;
-    {
-        static mutex s_HashMapMutex;
-        lock_guard<mutex> CS(s_HashMapMutex);
-        auto iter = s_ComputePSOHashMap.find(HashCode);
-
-        // Reserve space so the next inquiry will find that someone got here first.
-        if (iter == s_ComputePSOHashMap.end())
-        {
-            firstCompile = true;
-            PSORef = s_ComputePSOHashMap[HashCode].GetAddressOf();
-        }
-        else
-            PSORef = iter->second.GetAddressOf();
-    }
-
-    if (firstCompile)
-    {
-        ASSERT_SUCCEEDED(g_Device->CreateComputePipelineState(&mPsoDesc, MY_IID_PPV_ARGS(&m_PSO)));
-        s_ComputePSOHashMap[HashCode].Attach(m_PSO);
-        m_PSO->SetName(m_Name);
-    }
-    else
-    {
-        while (*PSORef == nullptr)
-            this_thread::yield();
-        m_PSO = *PSORef;
-    }
+    Device::GetDevice()->CreateComputePipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso));
+    mPso->SetName(mName.c_str());
 }
 
-ComputePso::ComputePso(const wchar_t* Name) : Pso(Name)
+ComputePso::ComputePso(const std::wstring& Name) : Pso(Name)
 {
     ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
     mPsoDesc.NodeMask = 1;
 }
-
-
-
