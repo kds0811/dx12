@@ -41,5 +41,3 @@ void InputLayoutManager::BuildTreeSpriteInputLayout()
     treeSpritetLayout->Finalize();
     mInputLayouts["treeSpriteInputLayout"] = std::move(treeSpritetLayout);
 }
-
-

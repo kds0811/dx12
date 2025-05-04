@@ -1,28 +1,13 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
-
-class RootSignature;
-
-enum class EShaderType
-{
-    Vertex,
-    Pixel,
-    Geometry,
-    Hull,
-    Domain,
-    Uninitialized
-};
-
+#include <string>
 
 class Shader
 {
-	Microsoft::WRL::ComPtr<ID3DBlob> mBlob = nullptr;
-    std::wstring mName{};
-    std::wstring mPath{};
-    EShaderType mType = EShaderType::Uninitialized;
-    RootSignature* pUsableRootSignature = nullptr;
-
+    Microsoft::WRL::ComPtr<ID3DBlob> mBlob = nullptr;
 public:
-    Shader(std::wstring);
+    Shader(const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target);
 
+private:
+    void CompileShader(const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target);
 };
