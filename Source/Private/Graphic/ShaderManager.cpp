@@ -1,9 +1,9 @@
 #include "ShaderManager.h"
 #include "Shader.h"
 
-static constexpr D3D_SHADER_MACRO defines[] = {"FOG", "1", NULL, NULL};
-static constexpr D3D_SHADER_MACRO alphaTestDefines[] = {"FOG", "1", "ALPHA_TEST", "1", NULL, NULL};
-static constexpr D3D_SHADER_MACRO waveDefines[] = {"DISPLACEMENT_MAP", "1", NULL, NULL};
+static constexpr D3D_SHADER_MACRO FogDefines[] = {"FOG", "1", NULL, NULL};
+static constexpr D3D_SHADER_MACRO AlphaTestDefines[] = {"FOG", "1", "ALPHA_TEST", "1", NULL, NULL};
+static constexpr D3D_SHADER_MACRO WaveDefines[] = {"DISPLACEMENT_MAP", "1", NULL, NULL};
 
 ShaderManager::ShaderManager()
 {
@@ -24,65 +24,61 @@ void ShaderManager::BuildShaders()
 
 void ShaderManager::BuildVertexShaders()
 {
-    mVertexShaders["standardVS"] = std::make_unique<Shader>(L"..\\Source\\Shaders\\Default.hlsl", nullptr, mVertexEntryPoint, mVertexTarget);
-    mVertexShaders["treeSpriteVS"] = std::make_unique<Shader>(L"..\\Source\\Shaders\\ThreeSprite.hlsl", nullptr, mVertexEntryPoint, mVertexTarget);
-    mVertexShaders["geometrySubdivideVS"] = std::make_unique<Shader>(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", nullptr, mVertexEntryPoint, mVertexTarget);
-
-    mShaders["wavesVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", waveDefines, "VS", "vs_5_1");
-    mShaders["compositeVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Composite.hlsl", nullptr, "VS", "vs_5_1");
-    mShaders["tessVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "VS", "vs_5_1");
-    mShaders["tessFracOddVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "VS", "vs_5_1");
-    mShaders["tessFracEvenVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "VS", "vs_5_1");
-    mShaders["tessPowVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "VS", "vs_5_1");
-    mShaders["skyVS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_5_1");
+    mVertexShaders["standard"] = std::make_unique<Shader>(mShadersFolderPath + L"Default.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["treeSprite"] = std::make_unique<Shader>(mShadersFolderPath + L"ThreeSprite.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["geometrySubdivide"] = std::make_unique<Shader>(mShadersFolderPath + L"GeometrySubdivide.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["waves"] = std::make_unique<Shader>(mShadersFolderPath + L"Default.hlsl", WaveDefines, mVSEntryPoint, mVSTarget);
+    mVertexShaders["composite"] = std::make_unique<Shader>(mShadersFolderPath + L"Composite.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["tess"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTri.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hls", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["sky"] = std::make_unique<Shader>(mShadersFolderPath + L"Sky.hlsl", nullptr, mVSEntryPoint, mVSTarget);
 }
 
 void ShaderManager::BuildPixelShaders()
 {
-
-    mShaders["opaquePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
-    mShaders["alphaTestedPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
-    mShaders["treeSpritePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", alphaTestDefines, "PS", "ps_5_1");
-    mShaders["geometrySubdividePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", defines, "PS", "ps_5_1");
-    mShaders["compositePS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Composite.hlsl", nullptr, "PS", "ps_5_1");
-    mShaders["tessPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "PS", "ps_5_1");
-    mShaders["tessFracOddPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "PS", "ps_5_1");
-    mShaders["tessFracEvenPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "PS", "ps_5_1");
-    mShaders["tessPowPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "PS", "ps_5_1");
-    mShaders["skyPS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_5_1");
+    mPixelShaders["opaque"] = std::make_unique<Shader>(mShadersFolderPath + L"Default.hlsl", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["alphaTested"] = std::make_unique<Shader>(mShadersFolderPath + L"Default.hlsl", AlphaTestDefines, mPSEntryPoint, mPSTarget);
+    mPixelShaders["treeSprite"] = std::make_unique<Shader>(mShadersFolderPath + L"ThreeSprite.hlsl", AlphaTestDefines, mPSEntryPoint, mPSTarget);
+    mPixelShaders["geometrySubdivide"] = std::make_unique<Shader>(mShadersFolderPath + L"GeometrySubdivide.hlsl", FogDefines, mPSEntryPoint, mPSTarget);
+    mPixelShaders["composite"] = std::make_unique<Shader>(mShadersFolderPath + L"Composite.hlsl", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["tess"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTri.hlsl", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hlsl", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["sky"] = std::make_unique<Shader>(mShadersFolderPath + L"Sky.hls", nullptr, mPSEntryPoint, mPSTarget);
 }
 
 void ShaderManager::BuildComputeShaders()
 {
-    mShaders["horzBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "HorzBlurCS", "cs_5_1");
-    mShaders["vertBlurCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Blur.hlsl", nullptr, "VertBlurCS", "cs_5_1");
-
-    mShaders["horzBilateralCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\BilateralFilter.hlsl", nullptr, "HorzBilateralCS", "cs_5_1");
-    mShaders["vertBilateralCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\BilateralFilter.hlsl", nullptr, "VertBilateralCS", "cs_5_1");
-
-    mShaders["wavesUpdateCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\WaveSim.hlsl", nullptr, "UpdateWavesCS", "cs_5_1");
-    mShaders["wavesDisturbCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\WaveSim.hlsl", nullptr, "DisturbWavesCS", "cs_5_1");
-    mShaders["sobelCS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\Sobel.hlsl", nullptr, "SobelCS", "cs_5_1");
+    mComputeShaders["horzBlur"] = std::make_unique<Shader>(mShadersFolderPath + L"Blur.hlsl", nullptr, "HorzBlurCS", mCSTarget);
+    mComputeShaders["vertBlur"] = std::make_unique<Shader>(mShadersFolderPath + L"Blur.hlsl", nullptr, "VertBlurCS", mCSTarget);
+    mComputeShaders["horzBilateral"] = std::make_unique<Shader>(mShadersFolderPath + L"BilateralFilter.hlsl", nullptr, "HorzBilateralCS", mCSTarget);
+    mComputeShaders["vertBilateral"] = std::make_unique<Shader>(mShadersFolderPath + L"BilateralFilter.hlsl", nullptr, "VertBilateralCS", mCSTarget);
+    mComputeShaders["wavesUpdate"] = std::make_unique<Shader>(mShadersFolderPath + L"WaveSim.hlsl", nullptr, "UpdateWavesCS", mCSTarget);
+    mComputeShaders["wavesDisturb"] = std::make_unique<Shader>(mShadersFolderPath + L"WaveSim.hlsl", nullptr, "DisturbWavesCS", mCSTarget);
+    mComputeShaders["sobel"] = std::make_unique<Shader>(mShadersFolderPath + L"Sobel.hlsl", nullptr, "SobelCS", mCSTarget);
 }
 
 void ShaderManager::BuildGeometryShaders()
 {
-    mShaders["treeSpriteGS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\ThreeSprite.hlsl", nullptr, "GS", "gs_5_1");
-    mShaders["geometrySubdivideGS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\GeometrySubdivide.hlsl", nullptr, "GS", "gs_5_1");
+    mGeometryShaders["treeSprite"] = std::make_unique<Shader>(mShadersFolderPath + L"ThreeSprite.hlsl", nullptr, mGSEntryPoint, mGSTarget);
+    mGeometryShaders["geometrySubdivide"] = std::make_unique<Shader>(mShadersFolderPath + L"GeometrySubdivide.hlsl", nullptr, mGSEntryPoint, mGSTarget);
 }
 
 void ShaderManager::BuildHullShaders()
 {
-    mShaders["tessHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "HS", "hs_5_1");
-    mShaders["tessFracOddHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "HS", "hs_5_1");
-    mShaders["tessFracEvenHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "HS", "hs_5_1");
-    mShaders["tessPowHS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "HS", "hs_5_1");
+    mHullShaders["tess"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTri.hlsl", nullptr, mHSEntryPoint, mHSTarget);
+    mHullShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mHSEntryPoint, mHSTarget);
+    mHullShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mHSEntryPoint, mHSTarget);
+    mHullShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hlsl", nullptr, mHSEntryPoint, mHSTarget);
 }
 
 void ShaderManager::BuildDomainShaders()
 {
-    mShaders["tessDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTri.hlsl", nullptr, "DS", "ds_5_1");
-    mShaders["tessFracOddDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracOdd.hlsl", nullptr, "DS", "ds_5_1");
-    mShaders["tessFracEvenDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriFracEven.hlsl", nullptr, "DS", "ds_5_1");
-    mShaders["tessPowDS"] = D3D12Utils::CompileShader(L"..\\Source\\Shaders\\TessellationTriPow.hlsl", nullptr, "DS", "ds_5_1");
+    mDomainShaders["tess"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTri.hlsl", nullptr, mDSEntryPoint, mDSTarget);
+    mDomainShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mDSEntryPoint, mDSTarget);
+    mDomainShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mDSEntryPoint, mDSTarget);
+    mDomainShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hlsl", nullptr, mDSEntryPoint, mDSTarget);
 }
