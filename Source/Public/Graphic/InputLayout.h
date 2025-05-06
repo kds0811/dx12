@@ -11,5 +11,6 @@ public:
     InputLayout(int size);
     void AddInputElementDesc(D3D12_INPUT_ELEMENT_DESC layout);
     void Finalize();
+
     const D3D12_INPUT_LAYOUT_DESC& GetInputLayoutDescriptor() const;
 };

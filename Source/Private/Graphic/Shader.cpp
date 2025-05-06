@@ -10,6 +10,11 @@ Shader::Shader(const std::wstring& filename, const D3D_SHADER_MACRO* defines, co
     CompileShader(filename, defines, entrypoint, target);
 }
 
+D3D12_SHADER_BYTECODE Shader::GetByteCode() const
+{
+    return D3D12_SHADER_BYTECODE{reinterpret_cast<BYTE*>(mBlob->GetBufferPointer()), mBlob->GetBufferSize()};
+}
+
 
 void Shader::CompileShader(const std::wstring& filename, const D3D_SHADER_MACRO* defines, const std::string& entrypoint, const std::string& target) 
 {
