@@ -12,6 +12,51 @@ ShaderManager::ShaderManager()
 
 ShaderManager::~ShaderManager() = default;
 
+const Shader* ShaderManager::GetVertexShader(const std::string& name) const
+{
+    if (CheckContains(mVertexShaders, name))
+    {
+        return mVertexShaders.at(name).get();
+    }
+    return nullptr;
+}
+
+const Shader* ShaderManager::GetPixelShader(const std::string& name) const
+{
+    if (CheckContains(mPixelShaders, name))
+    {
+        return mPixelShaders.at(name).get();
+    }
+    return nullptr;
+}
+
+const Shader* ShaderManager::GetComputeShader(const std::string& name) const
+{
+    if (CheckContains(mComputeShaders, name))
+    {
+        return mComputeShaders.at(name).get();
+    }
+    return nullptr;
+}
+
+const Shader* ShaderManager::GetHullShader(const std::string& name) const
+{
+    if (CheckContains(mHullShaders, name))
+    {
+        return mHullShaders.at(name).get();
+    }
+    return nullptr;
+}
+
+const Shader* ShaderManager::GetDomainShader(const std::string& name) const
+{
+    if (CheckContains(mDomainShaders, name))
+    {
+        return mDomainShaders.at(name).get();
+    }
+    return nullptr;
+}
+
 void ShaderManager::BuildShaders()
 {
     BuildVertexShaders();
@@ -32,7 +77,7 @@ void ShaderManager::BuildVertexShaders()
     mVertexShaders["tess"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTri.hlsl", nullptr, mVSEntryPoint, mVSTarget);
     mVertexShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mVSEntryPoint, mVSTarget);
     mVertexShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mVSEntryPoint, mVSTarget);
-    mVertexShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hls", nullptr, mVSEntryPoint, mVSTarget);
+    mVertexShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hlsl", nullptr, mVSEntryPoint, mVSTarget);
     mVertexShaders["sky"] = std::make_unique<Shader>(mShadersFolderPath + L"Sky.hlsl", nullptr, mVSEntryPoint, mVSTarget);
 }
 
@@ -47,7 +92,7 @@ void ShaderManager::BuildPixelShaders()
     mPixelShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mPSEntryPoint, mPSTarget);
     mPixelShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mPSEntryPoint, mPSTarget);
     mPixelShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hlsl", nullptr, mPSEntryPoint, mPSTarget);
-    mPixelShaders["sky"] = std::make_unique<Shader>(mShadersFolderPath + L"Sky.hls", nullptr, mPSEntryPoint, mPSTarget);
+    mPixelShaders["sky"] = std::make_unique<Shader>(mShadersFolderPath + L"Sky.hlsl", nullptr, mPSEntryPoint, mPSTarget);
 }
 
 void ShaderManager::BuildComputeShaders()
@@ -81,4 +126,14 @@ void ShaderManager::BuildDomainShaders()
     mDomainShaders["tessFracOdd"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracOdd.hlsl", nullptr, mDSEntryPoint, mDSTarget);
     mDomainShaders["tessFracEven"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriFracEven.hlsl", nullptr, mDSEntryPoint, mDSTarget);
     mDomainShaders["tessPow"] = std::make_unique<Shader>(mShadersFolderPath + L"TessellationTriPow.hlsl", nullptr, mDSEntryPoint, mDSTarget);
+}
+
+bool ShaderManager::CheckContains(const UnMapStringUP& map, const std::string& name) const
+{
+    if (map.contains(name))
+    {
+        return true;
+    }
+    LOG_ERROR("Shader ", name, " Is not in container");
+    return false;
 }
