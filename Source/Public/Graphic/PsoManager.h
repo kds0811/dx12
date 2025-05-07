@@ -1,21 +1,25 @@
 #pragma once
 #include "GraphicCommonHeaders.h"
 #include <memory>
+#include <unordered_map>
 
 class Pso;
 class RootSignatureManager;
+class ShaderManager;
 
 class PsoManager
 {
-    static inline std::unique_ptr<Pso> mStandartPso = nullptr;
+    using PsoMap = std::unordered_map<std::string, std::unique_ptr<Pso>>;
+
     std::unique_ptr<RootSignatureManager> mRootSignatureManager = nullptr;
+    std::unique_ptr<ShaderManager> mShaderManager = nullptr;
+    PsoMap mPsos{};
 
 public:
     PsoManager();
     ~PsoManager();
 
-    static inline Pso* GetStandartPso() noexcept { return mStandartPso.get(); }
 
 private:
-    void Initialize();
+    void BuildPso();
 };

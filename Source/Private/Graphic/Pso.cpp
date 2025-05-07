@@ -41,6 +41,26 @@ GraphicsPso::GraphicsPso(const std::wstring& Name) : Pso(Name)
     mPsoDesc.InputLayout.NumElements = 0;
 }
 
+GraphicsPso::GraphicsPso(const GraphicsPso& rhs) : Pso(rhs.mName) 
+{
+    mPso = rhs.mPso;
+    pRootSignature = rhs.pRootSignature;
+    mPsoDesc = rhs.mPsoDesc;
+    mInputLayouts = rhs.mInputLayouts;
+}
+
+GraphicsPso::GraphicsPso(const GraphicsPso&& rhs) {}
+
+GraphicsPso& GraphicsPso::operator=(const GraphicsPso& rhs)
+{
+    // TODO: insert return statement here
+}
+
+GraphicsPso& GraphicsPso::operator=(const GraphicsPso&& rhs)
+{
+    // TODO: insert return statement here
+}
+
 void GraphicsPso::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
 {
     mPsoDesc.BlendState = BlendDesc;

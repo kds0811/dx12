@@ -24,10 +24,15 @@ public:
 class GraphicsPso : public Pso
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC mPsoDesc;
-    std::unique_ptr<const D3D12_INPUT_ELEMENT_DESC> mInputLayouts;
+    const D3D12_INPUT_ELEMENT_DESC* mInputLayouts = nullptr;
 
 public:
     GraphicsPso(const std::wstring& Name = L"Unnamed Graphics PSO");
+    GraphicsPso(const GraphicsPso& rhs);
+    GraphicsPso(const GraphicsPso&& rhs);
+    GraphicsPso& operator=(const GraphicsPso& rhs);
+    GraphicsPso& operator=(const GraphicsPso&& rhs);
+
 
     void SetBlendState(const D3D12_BLEND_DESC& BlendDesc);
     void SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc);
