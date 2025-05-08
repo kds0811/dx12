@@ -1,8 +1,11 @@
 #include "Pso.h"
 #include "RootSignature.h"
 #include "Device.h"
+#include "InputLayout.h"
 
-Pso::Pso(const std::wstring& name) : mName(name) {}
+Pso::Pso() = default;
+
+Pso::Pso(ID3D12PipelineState* pso, const RootSignature* const rootSignature) : mPso(pso), pRootSignature(rootSignature) {}
 
 void Pso::SetRootSignature(const RootSignature* pRootSig)
 {
@@ -32,8 +35,9 @@ const ID3D12PipelineState* Pso::GetPso() const noexcept
     return mPso.Get();
 }
 
-GraphicsPso::GraphicsPso(const std::wstring& Name) : Pso(Name)
+GraphicsPso::GraphicsPso(const RootSignature* rootSignature, const InputLayout* inputLayouts) : pInputLayouts(inputLayouts)
 {
+    SetRootSignature(rootSignature);
     ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
     mPsoDesc.NodeMask = 1;
     mPsoDesc.SampleMask = 0xFFFFFFFFu;
@@ -41,24 +45,36 @@ GraphicsPso::GraphicsPso(const std::wstring& Name) : Pso(Name)
     mPsoDesc.InputLayout.NumElements = 0;
 }
 
-GraphicsPso::GraphicsPso(const GraphicsPso& rhs) : Pso(rhs.mName) 
+GraphicsPso::GraphicsPso(const GraphicsPso& rhs)
+    :
+    Pso(rhs.mPso.Get(), rhs.pRootSignature),
+    mPsoDesc(rhs.mPsoDesc),
+    pInputLayouts(rhs.pInputLayouts)
+{}
+
+GraphicsPso::GraphicsPso(const GraphicsPso&& rhs) 
+    :
+    Pso(std::move(rhs.mPso.Get()), std::move(rhs.pRootSignature)),
+    mPsoDesc(std::move(rhs.mPsoDesc)),
+    pInputLayouts(std::move(rhs.pInputLayouts))
+{}
+
+GraphicsPso& GraphicsPso::operator=(const GraphicsPso& rhs)
 {
     mPso = rhs.mPso;
     pRootSignature = rhs.pRootSignature;
     mPsoDesc = rhs.mPsoDesc;
-    mInputLayouts = rhs.mInputLayouts;
-}
-
-GraphicsPso::GraphicsPso(const GraphicsPso&& rhs) {}
-
-GraphicsPso& GraphicsPso::operator=(const GraphicsPso& rhs)
-{
-    // TODO: insert return statement here
+    pInputLayouts = rhs.pInputLayouts;
+    return *this;
 }
 
 GraphicsPso& GraphicsPso::operator=(const GraphicsPso&& rhs)
 {
-    // TODO: insert return statement here
+    mPso = std::move(rhs.mPso);
+    pRootSignature = std::move(rhs.pRootSignature);
+    mPsoDesc = std::move(rhs.mPsoDesc);
+    pInputLayouts = std::move(rhs.pInputLayouts);
+    return *this;
 }
 
 void GraphicsPso::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
@@ -118,45 +134,35 @@ void GraphicsPso::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFor
     mPsoDesc.SampleDesc.Quality = MsaaQuality;
 }
 
-void GraphicsPso::SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs)
-{
-    mPsoDesc.InputLayout.NumElements = NumElements;
 
-    if (NumElements > 0)
-    {
-        D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
-        memcpy(NewElements, pInputElementDescs, NumElements * sizeof(D3D12_INPUT_ELEMENT_DESC));
-        mInputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
-    }
-    else
-        mInputLayouts = nullptr;
-}
 
-void GraphicsPso::Finalize()
+void GraphicsPso::Finalize(std::wstring name)
 {
-    // Make sure the root signature is finalized first
     mPsoDesc.pRootSignature = pRootSignature->GetSignature();
     assert(mPsoDesc.pRootSignature);
 
-    mPsoDesc.InputLayout.pInputElementDescs = nullptr;
-    mPsoDesc.InputLayout.pInputElementDescs = mInputLayouts.get();
+    mPsoDesc.InputLayout =  mInputLayouts->GetInputLayoutDescriptor();
 
     assert(mPsoDesc.DepthStencilState.DepthEnable != (mPsoDesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
+
     Device::GetDevice()->CreateGraphicsPipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso)) >> Kds::App::Check;
-    mPso->SetName(mName.c_str());
+    mPso->SetName(name.c_str());
 }
 
-void ComputePso::Finalize()
+
+
+
+void ComputePso::Finalize(std::wstring name)
 {
     // Make sure the root signature is finalized first
     mPsoDesc.pRootSignature = pRootSignature->GetSignature();
     assert(mPsoDesc.pRootSignature);
 
     Device::GetDevice()->CreateComputePipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso)) >> Kds::App::Check;
-    mPso->SetName(mName.c_str());
+    mPso->SetName(name.c_str());
 }
 
-ComputePso::ComputePso(const std::wstring& Name) : Pso(Name)
+ComputePso::ComputePso()
 {
     ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
     mPsoDesc.NodeMask = 1;
