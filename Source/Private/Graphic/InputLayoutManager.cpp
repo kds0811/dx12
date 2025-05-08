@@ -8,14 +8,14 @@ InputLayoutManager::InputLayoutManager()
 
 InputLayoutManager::~InputLayoutManager() {}
 
-const D3D12_INPUT_LAYOUT_DESC& InputLayoutManager::GetInputLayoutDescriptor(const std::string& name) const
+ const InputLayout* InputLayoutManager::GetInputLayout(const std::wstring& name) const
 {
     if (mInputLayouts.contains(name))
     {
-        return mInputLayouts.at(name)->GetInputLayoutDescriptor();
+        return mInputLayouts.at(name).get();
     }
-    LOG_ERROR("Input Layout ", name, "is not created");
-    return D3D12_INPUT_LAYOUT_DESC();
+    LOG_ERROR("Input Layout ", name, " is not created");
+    return nullptr;
 }
 
 void InputLayoutManager::BuildInputLayouts()
@@ -30,7 +30,7 @@ void InputLayoutManager::BuildStandartInputLayout()
     standartLayout->AddInputElementDesc({"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
     standartLayout->AddInputElementDesc({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
     standartLayout->Finalize();
-    mInputLayouts["standartInputLayout"] = std::move(standartLayout);
+    mInputLayouts[L"base"] = std::move(standartLayout);
 }
 
 void InputLayoutManager::BuildTreeSpriteInputLayout()
@@ -39,5 +39,5 @@ void InputLayoutManager::BuildTreeSpriteInputLayout()
     treeSpritetLayout->AddInputElementDesc({"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
     treeSpritetLayout->AddInputElementDesc({"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
     treeSpritetLayout->Finalize();
-    mInputLayouts["treeSpriteInputLayout"] = std::move(treeSpritetLayout);
+    mInputLayouts[L"treeSprite"] = std::move(treeSpritetLayout);
 }

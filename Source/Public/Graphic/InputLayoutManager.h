@@ -8,7 +8,7 @@ class InputLayout;
 
 class InputLayoutManager
 {
-    std::unordered_map<std::string, std::unique_ptr<InputLayout>> mInputLayouts;
+    std::unordered_map<std::wstring, std::unique_ptr<InputLayout>> mInputLayouts;
 
 public:
     InputLayoutManager();
@@ -18,7 +18,7 @@ public:
     InputLayoutManager(const InputLayoutManager&&) noexcept = delete;
     InputLayoutManager& operator=(const InputLayoutManager&&) noexcept = delete;
 
-    const D3D12_INPUT_LAYOUT_DESC& GetInputLayoutDescriptor(const std::string& name) const;
+    const InputLayout* GetInputLayout(const std::wstring& name) const;
 
 private:
     void BuildInputLayouts();

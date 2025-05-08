@@ -20,42 +20,36 @@ public:
     [[nodiscard]] const ID3D12PipelineState* GetPso() const noexcept;
 };
 
-
-
-class GraphicsPso : public Pso
+class GraphicPso : public Pso
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC mPsoDesc;
-    const InputLayout* pInputLayouts = nullptr;
 
 public:
-    GraphicsPso(const RootSignature* rootSignature, const InputLayout* inputLayouts);
-    GraphicsPso(const GraphicsPso& rhs);
-    GraphicsPso(const GraphicsPso&& rhs);
-    GraphicsPso& operator=(const GraphicsPso& rhs);
-    GraphicsPso& operator=(const GraphicsPso&& rhs);
+    GraphicPso(const RootSignature* rootSignature);
 
-    void SetBlendState(const D3D12_BLEND_DESC& BlendDesc);
-    void SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc);
-    void SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& DepthStencilDesc);
-    void SetSampleMask(UINT SampleMask);
-    void SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE TopologyType);
-    void SetDepthTargetFormat(DXGI_FORMAT DSVFormat, UINT MsaaCount = 1, UINT MsaaQuality = 0);
-    void SetRenderTargetFormat(DXGI_FORMAT RTVFormat, DXGI_FORMAT DSVFormat, UINT MsaaCount = 1, UINT MsaaQuality = 0);
-    void SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFormats, DXGI_FORMAT DSVFormat, UINT MsaaCount = 1, UINT MsaaQuality = 0);
-    void SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps);
+    GraphicPso(const GraphicPso& rhs);
+    GraphicPso(const GraphicPso&& rhs);
+    GraphicPso& operator=(const GraphicPso& rhs);
+    GraphicPso& operator=(const GraphicPso&& rhs);
 
-    void SetVertexShader(const void* Binary, size_t Size) { mPsoDesc.VS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetPixelShader(const void* Binary, size_t Size) { mPsoDesc.PS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetGeometryShader(const void* Binary, size_t Size) { mPsoDesc.GS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetHullShader(const void* Binary, size_t Size) { mPsoDesc.HS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
-    void SetDomainShader(const void* Binary, size_t Size) { mPsoDesc.DS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    void SetBlendState(const D3D12_BLEND_DESC& blendDesc);
+    void SetRasterizerState(const D3D12_RASTERIZER_DESC& rasterizerDesc);
+    void SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& depthStencilDesc);
+    void SetSampleMask(UINT sampleMask);
+    void SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType);
+    void SetDepthTargetFormat(DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
+    void SetRenderTargetFormat(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
+    void SetRenderTargetFormats(UINT numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
+    void SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE ibProps);
+    void SetFillMode(D3D12_FILL_MODE fillMode);
+    void SetNumberRenderTargets(UINT num);
 
-    void SetVertexShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.VS = Binary; }
-    void SetPixelShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.PS = Binary; }
-    void SetGeometryShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.GS = Binary; }
-    void SetHullShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.HS = Binary; }
-    void SetDomainShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.DS = Binary; }
-    void Finalize(std::wstring name);
+    inline void SetVertexShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.VS = binary; }
+    inline void SetPixelShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.PS = binary; }
+    inline void SetGeometryShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.GS = binary; }
+    inline void SetHullShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.HS = binary; }
+    inline void SetDomainShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.DS = binary; }
+    void Finalize(std::wstring name, const InputLayout* inputLayouts);
 };
 
 class ComputePso : public Pso

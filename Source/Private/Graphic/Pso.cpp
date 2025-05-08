@@ -35,7 +35,7 @@ const ID3D12PipelineState* Pso::GetPso() const noexcept
     return mPso.Get();
 }
 
-GraphicsPso::GraphicsPso(const RootSignature* rootSignature, const InputLayout* inputLayouts) : pInputLayouts(inputLayouts)
+GraphicPso::GraphicPso(const RootSignature* rootSignature)
 {
     SetRootSignature(rootSignature);
     ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
@@ -45,80 +45,86 @@ GraphicsPso::GraphicsPso(const RootSignature* rootSignature, const InputLayout* 
     mPsoDesc.InputLayout.NumElements = 0;
 }
 
-GraphicsPso::GraphicsPso(const GraphicsPso& rhs)
+GraphicPso::GraphicPso(const GraphicPso& rhs)
     :
     Pso(rhs.mPso.Get(), rhs.pRootSignature),
-    mPsoDesc(rhs.mPsoDesc),
-    pInputLayouts(rhs.pInputLayouts)
+    mPsoDesc(rhs.mPsoDesc)
 {}
 
-GraphicsPso::GraphicsPso(const GraphicsPso&& rhs) 
+GraphicPso::GraphicPso(const GraphicPso&& rhs) 
     :
     Pso(std::move(rhs.mPso.Get()), std::move(rhs.pRootSignature)),
-    mPsoDesc(std::move(rhs.mPsoDesc)),
-    pInputLayouts(std::move(rhs.pInputLayouts))
+    mPsoDesc(std::move(rhs.mPsoDesc))
 {}
 
-GraphicsPso& GraphicsPso::operator=(const GraphicsPso& rhs)
+GraphicPso& GraphicPso::operator=(const GraphicPso& rhs)
 {
     mPso = rhs.mPso;
     pRootSignature = rhs.pRootSignature;
     mPsoDesc = rhs.mPsoDesc;
-    pInputLayouts = rhs.pInputLayouts;
     return *this;
 }
 
-GraphicsPso& GraphicsPso::operator=(const GraphicsPso&& rhs)
+GraphicPso& GraphicPso::operator=(const GraphicPso&& rhs)
 {
     mPso = std::move(rhs.mPso);
     pRootSignature = std::move(rhs.pRootSignature);
     mPsoDesc = std::move(rhs.mPsoDesc);
-    pInputLayouts = std::move(rhs.pInputLayouts);
     return *this;
 }
 
-void GraphicsPso::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
+void GraphicPso::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
 {
     mPsoDesc.BlendState = BlendDesc;
 }
 
-void GraphicsPso::SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc)
+void GraphicPso::SetRasterizerState(const D3D12_RASTERIZER_DESC& RasterizerDesc)
 {
     mPsoDesc.RasterizerState = RasterizerDesc;
 }
 
-void GraphicsPso::SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& DepthStencilDesc)
+void GraphicPso::SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& DepthStencilDesc)
 {
     mPsoDesc.DepthStencilState = DepthStencilDesc;
 }
 
-void GraphicsPso::SetSampleMask(UINT SampleMask)
+void GraphicPso::SetSampleMask(UINT SampleMask)
 {
     mPsoDesc.SampleMask = SampleMask;
 }
 
-void GraphicsPso::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE TopologyType)
+void GraphicPso::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE TopologyType)
 {
     assert(TopologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, "Can't draw with undefined topology");
     mPsoDesc.PrimitiveTopologyType = TopologyType;
 }
 
-void GraphicsPso::SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps)
+void GraphicPso::SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps)
 {
     mPsoDesc.IBStripCutValue = IBProps;
 }
 
-void GraphicsPso::SetDepthTargetFormat(DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
+void GraphicPso::SetFillMode(D3D12_FILL_MODE fillMode) 
+{
+    mPsoDesc.RasterizerState.FillMode = fillMode;
+}
+
+void GraphicPso::SetNumberRenderTargets(UINT num)
+{
+    mPsoDesc.NumRenderTargets = num;
+}
+
+void GraphicPso::SetDepthTargetFormat(DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
     SetRenderTargetFormats(0, nullptr, DSVFormat, MsaaCount, MsaaQuality);
 }
 
-void GraphicsPso::SetRenderTargetFormat(DXGI_FORMAT RTVFormat, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
+void GraphicPso::SetRenderTargetFormat(DXGI_FORMAT RTVFormat, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
     SetRenderTargetFormats(1, &RTVFormat, DSVFormat, MsaaCount, MsaaQuality);
 }
 
-void GraphicsPso::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFormats, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
+void GraphicPso::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFormats, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
     assert(NumRTVs == 0 || RTVFormats != nullptr, "Null format array conflicts with non-zero length");
     for (UINT i = 0; i < NumRTVs; ++i)
@@ -134,23 +140,15 @@ void GraphicsPso::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFor
     mPsoDesc.SampleDesc.Quality = MsaaQuality;
 }
 
-
-
-void GraphicsPso::Finalize(std::wstring name)
+void GraphicPso::Finalize(std::wstring name, const InputLayout* inputLayouts)
 {
     mPsoDesc.pRootSignature = pRootSignature->GetSignature();
     assert(mPsoDesc.pRootSignature);
-
-    mPsoDesc.InputLayout =  mInputLayouts->GetInputLayoutDescriptor();
-
+    mPsoDesc.InputLayout = inputLayouts->GetInputLayoutDescriptor();
     assert(mPsoDesc.DepthStencilState.DepthEnable != (mPsoDesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
-
     Device::GetDevice()->CreateGraphicsPipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso)) >> Kds::App::Check;
     mPso->SetName(name.c_str());
 }
-
-
-
 
 void ComputePso::Finalize(std::wstring name)
 {
