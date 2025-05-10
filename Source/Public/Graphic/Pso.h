@@ -26,11 +26,13 @@ class GraphicPso : public Pso
 public:
     GraphicPso(const RootSignature* rootSignature);
 
+
     GraphicPso(const GraphicPso& rhs);
     GraphicPso(const GraphicPso&& rhs);
     GraphicPso& operator=(const GraphicPso& rhs);
     GraphicPso& operator=(const GraphicPso&& rhs);
 
+    void SetRenderTargetBlendDesc(D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBD, UINT slot = 0);
     void SetBlendState(const D3D12_BLEND_DESC& blendDesc);
     void SetRasterizerState(const D3D12_RASTERIZER_DESC& rasterizerDesc);
     void SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& depthStencilDesc);
@@ -41,7 +43,12 @@ public:
     void SetRenderTargetFormats(UINT numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
     void SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE ibProps);
     void SetFillMode(D3D12_FILL_MODE fillMode);
+    void SetCullMode(D3D12_CULL_MODE mode);
     void SetNumberRenderTargets(UINT num);
+    void SetFrontCounterClockwise(bool state);
+    void SetDepthFunc(D3D12_COMPARISON_FUNC func);
+    void SetDepthEnable(bool state);
+    void SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK mask);
 
     inline void SetVertexShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.VS = binary; }
     inline void SetPixelShader(const D3D12_SHADER_BYTECODE& binary) { mPsoDesc.PS = binary; }

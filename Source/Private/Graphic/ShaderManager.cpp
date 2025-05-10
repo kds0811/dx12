@@ -39,6 +39,15 @@ const Shader* ShaderManager::GetComputeShader(const std::string& name) const
     return nullptr;
 }
 
+const Shader* ShaderManager::GetGeometryShader(const std::string& name) const
+{
+    if (CheckContains(mGeometryShaders, name))
+    {
+        return mGeometryShaders.at(name).get();
+    }
+    return nullptr;
+}
+
 const Shader* ShaderManager::GetHullShader(const std::string& name) const
 {
     if (CheckContains(mHullShaders, name))

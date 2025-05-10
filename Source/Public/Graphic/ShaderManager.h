@@ -39,6 +39,7 @@ public:
     [[nodiscard]] const Shader* GetVertexShader(const std::string& name) const;
     [[nodiscard]] const Shader* GetPixelShader(const std::string& name) const;
     [[nodiscard]] const Shader* GetComputeShader(const std::string& name) const;
+    [[nodiscard]] const Shader* GetGeometryShader(const std::string& name) const;
     [[nodiscard]] const Shader* GetHullShader(const std::string& name) const;
     [[nodiscard]] const Shader* GetDomainShader(const std::string& name) const;
 

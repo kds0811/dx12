@@ -67,6 +67,11 @@ GraphicPso& GraphicPso::operator=(const GraphicPso&& rhs)
     return *this;
 }
 
+void GraphicPso::SetRenderTargetBlendDesc(D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBD, UINT slot) 
+{
+    mPsoDesc.BlendState.RenderTarget[slot] = renderTargetBD;
+}
+
 void GraphicPso::SetBlendState(const D3D12_BLEND_DESC& BlendDesc)
 {
     mPsoDesc.BlendState = BlendDesc;
@@ -103,9 +108,34 @@ void GraphicPso::SetFillMode(D3D12_FILL_MODE fillMode)
     mPsoDesc.RasterizerState.FillMode = fillMode;
 }
 
+void GraphicPso::SetCullMode(D3D12_CULL_MODE mode) 
+{
+    mPsoDesc.RasterizerState.CullMode = mode;
+}
+
 void GraphicPso::SetNumberRenderTargets(UINT num)
 {
     mPsoDesc.NumRenderTargets = num;
+}
+
+void GraphicPso::SetFrontCounterClockwise(bool state) 
+{
+    mPsoDesc.RasterizerState.FrontCounterClockwise = state;
+}
+
+void GraphicPso::SetDepthFunc(D3D12_COMPARISON_FUNC func) 
+{
+    mPsoDesc.DepthStencilState.DepthFunc = func;
+}
+
+void GraphicPso::SetDepthEnable(bool state)
+{
+    mPsoDesc.DepthStencilState.DepthEnable = state;
+}
+
+void GraphicPso::SetDepthWriteMask(D3D12_DEPTH_WRITE_MASK mask)
+{
+    mPsoDesc.DepthStencilState.DepthWriteMask = mask;
 }
 
 void GraphicPso::SetDepthTargetFormat(DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
@@ -138,7 +168,7 @@ void GraphicPso::Finalize(std::wstring name, const InputLayout* inputLayouts)
 {
     mPsoDesc.pRootSignature = pRootSignature->GetSignature();
     assert(mPsoDesc.pRootSignature);
-    mPsoDesc.InputLayout = inputLayouts->GetInputLayoutDescriptor();
+    mPsoDesc.InputLayout = inputLayouts ? inputLayouts->GetInputLayoutDescriptor() : D3D12_INPUT_LAYOUT_DESC{nullptr, 0};
     assert(mPsoDesc.DepthStencilState.DepthEnable != (mPsoDesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
     Device::GetDevice()->CreateGraphicsPipelineState(&mPsoDesc, IID_PPV_ARGS(&mPso)) >> Kds::App::Check;
     mPso->SetName(name.c_str());
