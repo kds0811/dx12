@@ -226,9 +226,122 @@ void PsoManager::BuildGraphicPsos()
     compositePso->SetPixelShader(mShaderManager->GetPixelShader("composite")->GetByteCode());
     compositePso->Finalize(nameCompositePso, nullptr);  // No input layout for post-process.
     mGraphicPsos[nameCompositePso] = std::move(compositePso);
+
+    //
+    // TESSELLATION PSO
+    //
+    std::wstring nameTessellationPso = L"tessellation";
+    std::unique_ptr<GraphicPso> tessellationPso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameOpaquePso));
+    tessellationPso->SetVertexShader(mShaderManager->GetVertexShader("tess")->GetByteCode());
+    tessellationPso->SetHullShader(mShaderManager->GetHullShader("tess")->GetByteCode());
+    tessellationPso->SetDomainShader(mShaderManager->GetDomainShader("tess")->GetByteCode());
+    tessellationPso->SetPixelShader(mShaderManager->GetPixelShader("tess")->GetByteCode());
+    tessellationPso->SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH);
+    tessellationPso->Finalize(nameTessellationPso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationPso] = std::move(tessellationPso);
+
+    //
+    // TESSELLATION WIREFRAME PSO
+    //
+    std::wstring nameTessellationWireframePso = L"tessellationWireframe";
+    std::unique_ptr<GraphicPso> tessellationWireframePso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationPso));
+    tessellationWireframePso->SetFillMode(D3D12_FILL_MODE_WIREFRAME);
+    tessellationWireframePso->Finalize(nameTessellationWireframePso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationWireframePso] = std::move(tessellationWireframePso);
+
+    //
+    // TESSELLATION FRACTIONAL ODD PSO
+    //
+    std::wstring nameTessellationFracOddPso = L"tessellationFracOdd";
+    std::unique_ptr<GraphicPso> tessellationFracOddPso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationPso));
+    tessellationFracOddPso->SetVertexShader(mShaderManager->GetVertexShader("tessFracOdd")->GetByteCode());
+    tessellationFracOddPso->SetHullShader(mShaderManager->GetHullShader("tessFracOdd")->GetByteCode());
+    tessellationFracOddPso->SetDomainShader(mShaderManager->GetDomainShader("tessFracOdd")->GetByteCode());
+    tessellationFracOddPso->SetPixelShader(mShaderManager->GetPixelShader("tessFracOdd")->GetByteCode());
+    tessellationFracOddPso->Finalize(nameTessellationFracOddPso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationFracOddPso] = std::move(tessellationFracOddPso);
+
+    //
+    // TESSELLATION FRACTIONAL ODD WIREFRAME PSO
+    //
+    std::wstring nameTessellationFracOddWireframePso = L"tessellationFracOddWireframe";
+    std::unique_ptr<GraphicPso> tessellationFracOddWireframePso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationFracOddPso));
+    tessellationFracOddWireframePso->SetFillMode(D3D12_FILL_MODE_WIREFRAME);
+    tessellationFracOddWireframePso->Finalize(nameTessellationFracOddWireframePso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationFracOddWireframePso] = std::move(tessellationFracOddWireframePso);
+
+    //
+    // TESSELLATION FRACTIONAL EVEN PSO
+    //
+    std::wstring nameTessellationFracEvenPso = L"tessellationFracEven";
+    std::unique_ptr<GraphicPso> tessellationFracEvenPso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationPso));
+    tessellationFracEvenPso->SetVertexShader(mShaderManager->GetVertexShader("tessFracEven")->GetByteCode());
+    tessellationFracEvenPso->SetHullShader(mShaderManager->GetHullShader("tessFracEven")->GetByteCode());
+    tessellationFracEvenPso->SetDomainShader(mShaderManager->GetDomainShader("tessFracEven")->GetByteCode());
+    tessellationFracEvenPso->SetPixelShader(mShaderManager->GetPixelShader("tessFracEven")->GetByteCode());
+    tessellationFracEvenPso->Finalize(nameTessellationFracEvenPso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationFracEvenPso] = std::move(tessellationFracEvenPso);
+
+    //
+    // TESSELLATION FRACTIONAL EVEN WIREFRAME PSO
+    //
+    std::wstring nameTessellationFracEvenWireframePso = L"tessellationFracEvenWireframe";
+    std::unique_ptr<GraphicPso> tessellationFracEvenWireframePso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationFracEvenPso));
+    tessellationFracEvenWireframePso->SetFillMode(D3D12_FILL_MODE_WIREFRAME);
+    tessellationFracEvenWireframePso->Finalize(nameTessellationFracEvenWireframePso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationFracEvenWireframePso] = std::move(tessellationFracEvenWireframePso);
+
+    //
+    // TESSELLATION POW2 PSO
+    //
+    std::wstring nameTessellationPowPso = L"tessellationPow";
+    std::unique_ptr<GraphicPso> tessellationPowPso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationPso));
+    tessellationPowPso->SetVertexShader(mShaderManager->GetVertexShader("tessPow")->GetByteCode());
+    tessellationPowPso->SetHullShader(mShaderManager->GetHullShader("tessPow")->GetByteCode());
+    tessellationPowPso->SetDomainShader(mShaderManager->GetDomainShader("tessPow")->GetByteCode());
+    tessellationPowPso->SetPixelShader(mShaderManager->GetPixelShader("tessPow")->GetByteCode());
+    tessellationPowPso->Finalize(nameTessellationPowPso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationPowPso] = std::move(tessellationPowPso);
+
+    //
+    // TESSELLATION POW2 WIREFRAME PSO
+    //
+    std::wstring nameTessellationPowWireframePso = L"tessellationPowWireframe";
+    std::unique_ptr<GraphicPso> tessellationPowWireframePso = std::make_unique<GraphicPso>(*mGraphicPsos.at(nameTessellationPowPso));
+    tessellationPowWireframePso->SetFillMode(D3D12_FILL_MODE_WIREFRAME);
+    tessellationPowWireframePso->Finalize(nameTessellationPowWireframePso, mInputLauoutManager->GetInputLayout(L"base"));
+    mGraphicPsos[nameTessellationPowWireframePso] = std::move(tessellationPowWireframePso);
 }
 
 void PsoManager::BuildComputePsos() 
 {
 
+
+    
+    //
+    // PSO for horizontal blur
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
+    horzBlurPSO.pRootSignature = mPostBilateralRootSignature.Get();
+    horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBilateralCS"]->GetBufferPointer()), mShaders["horzBilateralCS"]->GetBufferSize()};
+    horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBilateral"])) >> Check;
+
+    //
+    // PSO for vertical blur
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
+    vertBlurPSO.pRootSignature = mPostBilateralRootSignature.Get();
+    vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBilateralCS"]->GetBufferPointer()), mShaders["vertBilateralCS"]->GetBufferSize()};
+    vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBilateral"])) >> Check;
+
+    //
+    // PSO for sobel
+    //
+    D3D12_COMPUTE_PIPELINE_STATE_DESC sobelPSO = {};
+    sobelPSO.pRootSignature = mPostProcessRootSignature.Get();
+    sobelPSO.CS = {reinterpret_cast<BYTE*>(mShaders["sobelCS"]->GetBufferPointer()), mShaders["sobelCS"]->GetBufferSize()};
+    sobelPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    mDevice->CreateComputePipelineState(&sobelPSO, IID_PPV_ARGS(&mPSOs["sobel"])) >> Check;
 }
