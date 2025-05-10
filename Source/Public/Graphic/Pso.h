@@ -13,7 +13,6 @@ protected:
 
 public:
     Pso();
-    Pso(ID3D12PipelineState* pso, const RootSignature* const rootSignature);
     void SetRootSignature(const RootSignature* pRootSig);
     const RootSignature* GetRootSignature() const;
     [[nodiscard]] ID3D12PipelineState* GetPso() noexcept;

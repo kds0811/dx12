@@ -5,8 +5,6 @@
 
 Pso::Pso() = default;
 
-Pso::Pso(ID3D12PipelineState* pso, const RootSignature* const rootSignature) : mPso(pso), pRootSignature(rootSignature) {}
-
 void Pso::SetRootSignature(const RootSignature* pRootSig)
 {
     assert(pRootSig);
@@ -45,21 +43,18 @@ GraphicPso::GraphicPso(const RootSignature* rootSignature)
     mPsoDesc.InputLayout.NumElements = 0;
 }
 
-GraphicPso::GraphicPso(const GraphicPso& rhs)
-    :
-    Pso(rhs.mPso.Get(), rhs.pRootSignature),
-    mPsoDesc(rhs.mPsoDesc)
-{}
+GraphicPso::GraphicPso(const GraphicPso& rhs) : mPsoDesc(rhs.mPsoDesc)
+{
+    pRootSignature = rhs.pRootSignature;
+}
 
-GraphicPso::GraphicPso(const GraphicPso&& rhs) 
-    :
-    Pso(std::move(rhs.mPso.Get()), std::move(rhs.pRootSignature)),
-    mPsoDesc(std::move(rhs.mPsoDesc))
-{}
+GraphicPso::GraphicPso(const GraphicPso&& rhs) :  mPsoDesc(std::move(rhs.mPsoDesc))
+{
+    pRootSignature = rhs.pRootSignature;
+}
 
 GraphicPso& GraphicPso::operator=(const GraphicPso& rhs)
 {
-    mPso = rhs.mPso;
     pRootSignature = rhs.pRootSignature;
     mPsoDesc = rhs.mPsoDesc;
     return *this;
@@ -67,7 +62,6 @@ GraphicPso& GraphicPso::operator=(const GraphicPso& rhs)
 
 GraphicPso& GraphicPso::operator=(const GraphicPso&& rhs)
 {
-    mPso = std::move(rhs.mPso);
     pRootSignature = std::move(rhs.pRootSignature);
     mPsoDesc = std::move(rhs.mPsoDesc);
     return *this;
@@ -104,7 +98,7 @@ void GraphicPso::SetPrimitiveRestart(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBProps)
     mPsoDesc.IBStripCutValue = IBProps;
 }
 
-void GraphicPso::SetFillMode(D3D12_FILL_MODE fillMode) 
+void GraphicPso::SetFillMode(D3D12_FILL_MODE fillMode)
 {
     mPsoDesc.RasterizerState.FillMode = fillMode;
 }
