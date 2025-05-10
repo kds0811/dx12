@@ -315,33 +315,33 @@ void PsoManager::BuildGraphicPsos()
 
 void PsoManager::BuildComputePsos() 
 {
-
-
-    
     //
     // PSO for horizontal blur
     //
-    D3D12_COMPUTE_PIPELINE_STATE_DESC horzBlurPSO = {};
-    horzBlurPSO.pRootSignature = mPostBilateralRootSignature.Get();
-    horzBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["horzBilateralCS"]->GetBufferPointer()), mShaders["horzBilateralCS"]->GetBufferSize()};
-    horzBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    mDevice->CreateComputePipelineState(&horzBlurPSO, IID_PPV_ARGS(&mPSOs["horzBilateral"])) >> Check;
+    std::wstring nameHorzBilateralPso = L"horzBilateral";
+    std::unique_ptr<ComputePso> horzBilateralPso = std::make_unique<ComputePso>(mRootSignatureManager->GetRootSignature(L"bilateral"));
+    horzBilateralPso->SetComputeShader(mShaderManager->GetComputeShader("horzBilateral")->GetByteCode());
+    horzBilateralPso->SetPipelineStateFlags(D3D12_PIPELINE_STATE_FLAG_NONE);
+    horzBilateralPso->Finalize(nameHorzBilateralPso);
+    mComputePsos[nameHorzBilateralPso] = std::move(horzBilateralPso);
 
-    //
+//
     // PSO for vertical blur
     //
-    D3D12_COMPUTE_PIPELINE_STATE_DESC vertBlurPSO = {};
-    vertBlurPSO.pRootSignature = mPostBilateralRootSignature.Get();
-    vertBlurPSO.CS = {reinterpret_cast<BYTE*>(mShaders["vertBilateralCS"]->GetBufferPointer()), mShaders["vertBilateralCS"]->GetBufferSize()};
-    vertBlurPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    mDevice->CreateComputePipelineState(&vertBlurPSO, IID_PPV_ARGS(&mPSOs["vertBilateral"])) >> Check;
+    std::wstring nameVertBilateralPso = L"vertBilateral";
+    std::unique_ptr<ComputePso> vertBilateralPso = std::make_unique<ComputePso>(mRootSignatureManager->GetRootSignature(L"bilateral"));
+    vertBilateralPso->SetComputeShader(mShaderManager->GetComputeShader("vertBilateral")->GetByteCode());
+    vertBilateralPso->SetPipelineStateFlags(D3D12_PIPELINE_STATE_FLAG_NONE);
+    vertBilateralPso->Finalize(nameVertBilateralPso);
+    mComputePsos[nameVertBilateralPso] = std::move(vertBilateralPso);
 
     //
     // PSO for sobel
     //
-    D3D12_COMPUTE_PIPELINE_STATE_DESC sobelPSO = {};
-    sobelPSO.pRootSignature = mPostProcessRootSignature.Get();
-    sobelPSO.CS = {reinterpret_cast<BYTE*>(mShaders["sobelCS"]->GetBufferPointer()), mShaders["sobelCS"]->GetBufferSize()};
-    sobelPSO.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    mDevice->CreateComputePipelineState(&sobelPSO, IID_PPV_ARGS(&mPSOs["sobel"])) >> Check;
+    std::wstring nameSobelPso = L"sobel";
+    std::unique_ptr<ComputePso> sobelPso = std::make_unique<ComputePso>(mRootSignatureManager->GetRootSignature(L"postProcess"));
+    sobelPso->SetComputeShader(mShaderManager->GetComputeShader("sobel")->GetByteCode());
+    sobelPso->SetPipelineStateFlags(D3D12_PIPELINE_STATE_FLAG_NONE);
+    sobelPso->Finalize(nameSobelPso);
+    mComputePsos[nameSobelPso] = std::move(sobelPso);
 }

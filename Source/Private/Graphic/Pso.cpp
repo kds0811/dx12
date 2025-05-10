@@ -48,7 +48,7 @@ GraphicPso::GraphicPso(const GraphicPso& rhs) : mPsoDesc(rhs.mPsoDesc)
     pRootSignature = rhs.pRootSignature;
 }
 
-GraphicPso::GraphicPso(const GraphicPso&& rhs) :  mPsoDesc(std::move(rhs.mPsoDesc))
+GraphicPso::GraphicPso(GraphicPso&& rhs) noexcept : mPsoDesc(std::move(rhs.mPsoDesc))
 {
     pRootSignature = rhs.pRootSignature;
 }
@@ -60,10 +60,13 @@ GraphicPso& GraphicPso::operator=(const GraphicPso& rhs)
     return *this;
 }
 
-GraphicPso& GraphicPso::operator=(const GraphicPso&& rhs)
+GraphicPso& GraphicPso::operator=(GraphicPso&& rhs) noexcept
 {
-    pRootSignature = std::move(rhs.pRootSignature);
-    mPsoDesc = std::move(rhs.mPsoDesc);
+    if (this != &rhs)
+    {
+        pRootSignature = std::move(rhs.pRootSignature);
+        mPsoDesc = std::move(rhs.mPsoDesc);
+    }
     return *this;
 }
 
@@ -174,6 +177,11 @@ void GraphicPso::Finalize(std::wstring name, const InputLayout* inputLayouts)
     mPso->SetName(name.c_str());
 }
 
+void ComputePso::SetPipelineStateFlags(D3D12_PIPELINE_STATE_FLAGS flags) 
+{
+    mPsoDesc.Flags = flags;
+}
+
 void ComputePso::Finalize(std::wstring name)
 {
     // Make sure the root signature is finalized first
@@ -184,8 +192,9 @@ void ComputePso::Finalize(std::wstring name)
     mPso->SetName(name.c_str());
 }
 
-ComputePso::ComputePso()
+ComputePso::ComputePso(const RootSignature* rootSignature)
 {
+    SetRootSignature(rootSignature);
     ZeroMemory(&mPsoDesc, sizeof(mPsoDesc));
     mPsoDesc.NodeMask = 1;
 }

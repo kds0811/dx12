@@ -28,9 +28,9 @@ public:
 
 
     GraphicPso(const GraphicPso& rhs);
-    GraphicPso(const GraphicPso&& rhs);
+    GraphicPso(GraphicPso&& rhs) noexcept;
     GraphicPso& operator=(const GraphicPso& rhs);
-    GraphicPso& operator=(const GraphicPso&& rhs);
+    GraphicPso& operator=(GraphicPso&& rhs) noexcept;
 
     void SetRenderTargetBlendDesc(D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBD, UINT slot = 0);
     void SetBlendState(const D3D12_BLEND_DESC& blendDesc);
@@ -63,8 +63,8 @@ class ComputePso : public Pso
     D3D12_COMPUTE_PIPELINE_STATE_DESC mPsoDesc;
 
 public:
-    ComputePso();
-    void SetComputeShader(const void* Binary, size_t Size) { mPsoDesc.CS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
+    ComputePso(const RootSignature* rootSignature);
     void SetComputeShader(const D3D12_SHADER_BYTECODE& Binary) { mPsoDesc.CS = Binary; }
+    void SetPipelineStateFlags(D3D12_PIPELINE_STATE_FLAGS flags);
     void Finalize(std::wstring name);
 };
