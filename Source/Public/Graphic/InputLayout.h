@@ -5,7 +5,7 @@
 class InputLayout
 {
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout{};
-    D3D12_INPUT_LAYOUT_DESC mInputLayoutDesc;
+    D3D12_INPUT_LAYOUT_DESC mInputLayoutDesc{};
 
 public:
     InputLayout(int size);

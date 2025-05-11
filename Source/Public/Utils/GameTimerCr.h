@@ -33,7 +33,7 @@ private:
     } ColdData;
 
     static constexpr double MaxDeltaTime = 0.25;
-    static constexpr double MultInSecond = 1 / 1000000;
+    static constexpr double MultInSecond = 1.0 / 1000000.0;
 
     [[nodiscard]] inline constexpr void UpdateCache() noexcept { HotData.CachedDeltaTime = static_cast<float>(HotData.DeltaTime); }
 };

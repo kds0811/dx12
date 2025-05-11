@@ -5,7 +5,7 @@ class SceneComponent;
 
 class MovementComponent
 {
-    SceneComponent* pOwnerSceneComp;
+    SceneComponent* pOwnerSceneComp = nullptr;
     float mSpeedMoving = 20.0f;
     float mSpeedRotating = 20.0f;
 

@@ -38,6 +38,7 @@ void ResourceManager::BuildResources()
     if (!commandList || !device)
     {
         LOG_ERROR("command list or device pointers is nullptr");
+        return;
     }
 
     mTextureManager->CreateBaseTextures(commandList);

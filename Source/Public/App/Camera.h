@@ -71,10 +71,10 @@ public:
     }
 
     // Get near and far plane dimensions in view space coordinates.
-    [[nodiscard]] inline float GetNearWindowWidth() const noexcept { mAspect* mNearWindowHeight; }
-    [[nodiscard]] inline float GetNearWindowHeight() const noexcept { mNearWindowHeight; }
-    [[nodiscard]] inline float GetFarWindowWidth() const noexcept { mAspect* mFarWindowHeight; }
-    [[nodiscard]] inline float GetFarWindowHeight() const noexcept { mFarWindowHeight; }
+    [[nodiscard]] inline float GetNearWindowWidth() const noexcept { return mAspect* mNearWindowHeight; }
+    [[nodiscard]] inline float GetNearWindowHeight() const noexcept { return mNearWindowHeight; }
+    [[nodiscard]] inline float GetFarWindowWidth() const noexcept { return mAspect * mFarWindowHeight; }
+    [[nodiscard]] inline float GetFarWindowHeight() const noexcept { return mFarWindowHeight; }
 
     // Set frustum.
     void SetLens(float fovY, float aspect, float zn, float zf);

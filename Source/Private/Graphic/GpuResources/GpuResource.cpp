@@ -9,6 +9,7 @@ GpuResource::GpuResource(ID3D12Resource* pResource, D3D12_RESOURCE_STATES Curren
     if (!pResource)
     {
         LOG_ERROR("Invalid resource pointer passed to GpuResource constructor.");
+        return;
     }
     mGpuVirtualAddress = pResource->GetGPUVirtualAddress();
 }

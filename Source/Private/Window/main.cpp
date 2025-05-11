@@ -17,7 +17,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
             return *ecode;
         }
     }
-    catch (std::exception e)
+    catch (std::exception& e)
     {
         MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR | MB_SETFOREGROUND);
     }
