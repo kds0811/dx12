@@ -1,68 +1,70 @@
-#include <assert.h>
+#pragma once
 #include <functional>
+#include <unordered_map>
 
-template <typename T>
-class Delegate {};
-
-
-template <typename R, typename... Args>
-class Delegate<R(Args...)>
+class IDelegate
 {
-	typedef R(*ProxyFunction)(void*, Args...);
+public:
+	IDelegate() = default;
+	virtual ~IDelegate() = default;
+};
 
-	template <R(*Function)(Args...)>
-	static inline R FunctionProxy(void*, Args... args)
-	{
-		return Function(std::forward<Args>(args)...);
-	}
+template <typename ... CallBackArgs>
+class Delegate : public IDelegate
+{
+public:
+	using CallBackFunction = std::function<void(CallBackArgs ...)>;
+	using CallBackMap = std::unordered_map<size_t, CallBackFunction>;
 
-	template <class C, R(C::* Function)(Args...)>
-	static inline R MethodProxy(void* instance, Args... args)
-	{
-		return (static_cast<C*>(instance)->*Function)(std::forward<Args>(args)...);
-	}
-
-	template <class C, R(C::* Function)(Args...) const>
-	static inline R ConstMethodProxy(void* instance, Args... args)
-	{
-		return (static_cast<const C*>(instance)->*Function)(std::forward<Args>(args)...);
-	}
+private:
+	CallBackMap mCallBackMap{};
+	size_t mID = 0;
 
 public:
-	Delegate()
-		: m_instance(nullptr)
-		, m_proxy(nullptr)
+	Delegate() = default;
+
+	size_t Attach(const CallBackFunction& func)
 	{
+		auto id = GetID();
+		mCallBackMap.emplace(id, func);
+		return id;
 	}
 
-	template <R(*Function)(Args...)>
-	void Bind(void)
+	template <typename T>
+	size_t Attach(T* obj, void (T::* method)(CallBackArgs...))
 	{
-		m_instance = nullptr;
-		m_proxy = &FunctionProxy<Function>;
+		auto id = GetID();
+		auto closure = [obj, method](CallBackArgs... args) { (obj->*method)(std::forward<CallBackArgs>(args) ...); };
+		mCallBackMap.emplace(id, closure);
+		return id;
 	}
 
-	template <class C, R(C::* Function)(Args...)>
-	void Bind(C* instance)
+	void Detach(size_t id)
 	{
-		m_instance = instance;
-		m_proxy = &MethodProxy<C, Function>;
+		mCallBackMap.erase(id);
 	}
 
-	template <class C, R(C::* Function)(Args...) const>
-	void Bind(const C* instance)
+	void InvokeAll(CallBackArgs&& ... args)
 	{
-		m_instance = const_cast<C*>(instance);
-		m_proxy = &ConstMethodProxy<C, Function>;
+		for (const auto& [id, func] : mCallBackMap)
+		{
+			std::invoke(func, std::forward<CallBackArgs>(args)...);
+		}
 	}
 
-	R Invoke(Args... args) const
+	void Clear()
 	{
-		assert((m_proxy != nullptr) && "Cannot invoke unbound Delegate. Call Bind() first.");
-		return m_proxy(m_instance, std::forward<Args>(args)...);
+		mCallBackMap.clear();
+	}
+
+	bool IsEmpty()
+	{
+		return mCallBackMap.empty();
 	}
 
 private:
-	void* m_instance;
-	ProxyFunction m_proxy;
+	size_t GetID()
+	{
+		return mID++;
+	}
 };
