@@ -8,10 +8,10 @@ class ScopedEventHandler
 	std::string mEventName{};
 public:
 	template<typename ... CallbackArgs>
-	explicit ScopedEventHandler(const std::string& eventName, void(*func)(CallbackArgs ...));
+	explicit inline ScopedEventHandler(const std::string& eventName, void(*func)(CallbackArgs ...));
 
 	template <typename T, typename... CallbackArgs>
-	explicit ScopedEventHandler(const std::string& eventName, T* obj, void (T::* method)(CallbackArgs...));
+    explicit inline ScopedEventHandler(const std::string& eventName, T* obj, void (T::*method)(CallbackArgs...));
 
 	inline void Detach();
 

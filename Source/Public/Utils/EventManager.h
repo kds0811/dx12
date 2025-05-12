@@ -4,6 +4,7 @@
 #include "Delegate.h"
 #include <memory>
 #include <optional>
+#include "Logger.h"
 
 class ScopedEventHandler;
 
@@ -66,7 +67,7 @@ inline void EventManager::CreateEvent(const std::string& eventName)
 	}
 	else
 	{
-		// LOG_ERROR("Event with ", nameEvent, " allready is created");
+		LOG_ERROR("Event with ", nameEvent, " allready is created");
 	}
 }
 
@@ -147,7 +148,7 @@ inline bool EventManager::HasEvent(const std::string& nameEvent)
 {
 	if (!mEventMap.contains(nameEvent))
 	{
-		// LOG_ERROR("An event named  ", nameEvent, "  doesn't exist");
+		LOG_ERROR("An event named  ", nameEvent, "  doesn't exist");
 		return false;
 	}
 	return true;

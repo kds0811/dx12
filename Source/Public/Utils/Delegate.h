@@ -23,7 +23,7 @@ private:
 public:
 	Delegate() = default;
 
-	size_t Attach(const CallBackFunction& func)
+	[[nodiscard]] inline size_t Attach(const CallBackFunction& func)
 	{
 		auto id = GetID();
 		mCallBackMap.emplace(id, func);
@@ -31,7 +31,7 @@ public:
 	}
 
 	template <typename T>
-	size_t Attach(T* obj, void (T::* method)(CallBackArgs...))
+    [[nodiscard]] size_t Attach(T* obj, void (T::*method)(CallBackArgs...))
 	{
 		auto id = GetID();
 		auto closure = [obj, method](CallBackArgs... args) { (obj->*method)(std::forward<CallBackArgs>(args) ...); };
@@ -57,13 +57,13 @@ public:
 		mCallBackMap.clear();
 	}
 
-	bool IsEmpty()
+	[[nodiscard]] bool IsEmpty() const
 	{
 		return mCallBackMap.empty();
 	}
 
 private:
-	size_t GetID()
+    [[nodiscard]] inline size_t GetID() noexcept
 	{
 		return mID++;
 	}
