@@ -11,14 +11,72 @@ PsoManager::PsoManager()
     mRootSignatureManager = std::make_unique<RootSignatureManager>();
     mShaderManager = std::make_unique<ShaderManager>();
     mInputLauoutManager = std::make_unique<InputLayoutManager>();
+
     BuildPso();
 }
 
 PsoManager::~PsoManager() = default;
 
-void PsoManager::BuildPso() 
+GraphicPso* PsoManager::GetGraphicPso(const std::wstring& name)
+{
+    if (HasGraphicPso(name))
+    {
+        return mGraphicPsos.at(name).get();
+    }
+    return nullptr;
+}
+
+ComputePso* PsoManager::GetComputePso(const std::wstring& name)
+{
+    if (HasComputePso(name))
+    {
+        return mComputePsos.at(name).get();
+    }
+    return nullptr;
+}
+
+const GraphicPso* PsoManager::GetGraphicPso(const std::wstring& name) const
+{
+    if (HasGraphicPso(name))
+    {
+        return mGraphicPsos.at(name).get();
+    }
+    return nullptr;
+}
+
+const ComputePso* PsoManager::GetComputePso(const std::wstring& name) const
+{
+    if (HasComputePso(name))
+    {
+        return mComputePsos.at(name).get();
+    }
+    return nullptr;
+}
+
+bool PsoManager::HasGraphicPso(const std::wstring& name) const
+{
+    if (mGraphicPsos.contains(name))
+    {
+        return true;
+    }
+    LOG_ERROR("Graphic Pso with name ", name, " is not created");
+    return false;
+}
+
+bool PsoManager::HasComputePso(const std::wstring& name) const
+{
+    if (mComputePsos.contains(name))
+    {
+        return true;
+    }
+    LOG_ERROR("Compute Pso with name ", name, " is not created");
+    return false;
+}
+
+void PsoManager::BuildPso()
 {
     BuildGraphicPsos();
+    BuildComputePsos();
 }
 
 void PsoManager::BuildGraphicPsos() 

@@ -24,7 +24,14 @@ public:
     PsoManager();
     ~PsoManager();
 
+    GraphicPso* GetGraphicPso(const std::wstring& name);
+    ComputePso* GetComputePso(const std::wstring& name);
+    const GraphicPso* GetGraphicPso(const std::wstring& name) const;
+    const ComputePso* GetComputePso(const std::wstring& name) const;
+
 private:
+    bool HasGraphicPso(const std::wstring& name) const;
+    bool HasComputePso(const std::wstring& name) const;
     void BuildPso();
     void BuildGraphicPsos();
     void BuildComputePsos();

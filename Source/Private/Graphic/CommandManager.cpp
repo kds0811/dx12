@@ -15,6 +15,7 @@ CommandManager::~CommandManager() = default;
 
 CommandList* CommandManager::GetFreeCommandListAndResetIt(Pso* pso)
 {
+    assert(pso);
     std::lock_guard<std::mutex> lockGuard(mCommandListMutex);
 
     if (!mPoolFreeCommandListPtr.empty())

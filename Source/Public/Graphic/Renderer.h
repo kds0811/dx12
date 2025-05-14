@@ -9,6 +9,7 @@ class DepthStencil;
 class CommandList;
 class Viewport;
 class ScissorRect;
+class PsoManager;
 
 
 class Renderer
@@ -18,7 +19,7 @@ class Renderer
     std::unique_ptr<DepthStencil> mDepthStencil;
     std::unique_ptr<Viewport> mViewport;
     std::unique_ptr<ScissorRect> mScissorRect;
-
+    std::unique_ptr<PsoManager> mPsoManager;
 
 public:
     Renderer(HWND windowHandle);

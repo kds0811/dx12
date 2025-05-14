@@ -9,6 +9,7 @@
 #include "Viewport.h"
 #include "ScissorRect.h"
 #include "RootSignatureManager.h"
+#include "PsoManager.h"
 
 
 Renderer::Renderer(HWND windowHandle)
@@ -18,22 +19,16 @@ Renderer::Renderer(HWND windowHandle)
     mDepthStencil = std::make_unique<DepthStencil>(L"Depth Stencil", Settings::mWidth, Settings::mHeight, DXGI_FORMAT_D24_UNORM_S8_UINT, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     mViewport = std::make_unique<Viewport>(0.0f, 0.0f, static_cast<float>(Settings::mWidth), static_cast<float>(Settings::mHeight));
     mScissorRect = std::make_unique<ScissorRect>(0u, 0u, Settings::mWidth, Settings::mHeight);
-
+    mPsoManager = std::make_unique<PsoManager>();
 }
 
 Renderer::~Renderer() {}
 
 void Renderer::StartDrawFrame() 
 {
-    Pso dummyPso{}; // need implement getting actual pso
-    auto cmdList = CommandManager::GetFreeCommandListAndResetIt(&dummyPso);
+    auto cmdList = CommandManager::GetFreeCommandListAndResetIt(mPsoManager->GetGraphicPso(L"opaque"));
     assert(cmdList);
 
-    if (!cmdList)
-    {
-        LOG_ERROR("StartDrawFrame: Received CommandList is nullptr");
-        return;
-    }
     
     mViewport->SetToPipeline(cmdList);
     mScissorRect->SetToPipeline(cmdList);

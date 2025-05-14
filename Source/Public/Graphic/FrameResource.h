@@ -1,7 +1,9 @@
 #pragma once
 #include "D3D12Utils.h"
-#include "UploadBuffer.h"
 #include "GraphicCommonStructs.h"
+
+template <typename T>
+class UploadBuffer;
 
 // Stores the resources needed for the CPU to build the command lists
 // for a frame.
