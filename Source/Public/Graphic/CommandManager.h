@@ -11,7 +11,7 @@ class CommandAllocator;
 class SwapChain;
 
 // Comparator for priority queue of CommandLists. Compares FenceValues.
-auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() > l2->GetFenceValue(); };
+auto CommandListComparator = [](CommandList* l1, CommandList* l2) { return l1->GetFenceValue() < l2->GetFenceValue(); };
 
 /// \brief Manages a pool of CommandLists and provides an interface to retrieve, reset, and execute them.
 ///
