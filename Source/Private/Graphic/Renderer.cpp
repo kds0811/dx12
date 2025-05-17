@@ -29,9 +29,10 @@ void Renderer::StartDrawFrame()
     auto cmdList = CommandManager::GetFreeCommandListAndResetIt(mPsoManager->GetGraphicPso(L"opaque"));
     assert(cmdList);
 
-    
     mViewport->SetToPipeline(cmdList);
     mScissorRect->SetToPipeline(cmdList);
+
+
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Renderer::GetDepthStencilView()
